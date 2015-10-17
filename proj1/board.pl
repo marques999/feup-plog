@@ -124,15 +124,11 @@ checkPathDisc(_, Length, _, _, Length).
 checkPathDisc(0, _, _, _, _).
 checkPathDisc(_, 0, _, _, _).
 
-checkPathDisc(X, Y, _, _, _):-
-	X =< 0, Y =< 0, !.
-
 checkPathDisc(X, Y, Board, _, Color, _):-
 	matrix_at(X, Y, Board, Symbol),
 	\+isDisc(Symbol, Color), !.
 
 checkPathDisc(X, Y, Board, Color, Length):-
-	X > 0, Y > 0,
 	XP1 is X + 1,
 	XM1 is X - 1,
 	YP1 is Y + 1,
@@ -150,9 +146,6 @@ checkPathRing(Length, _, _, _, Length).
 checkPathRing(_, Length, _, _, Length).
 checkPathRing(0, _, _, _, _).
 checkPathRing(_, 0, _, _, _).
-
-checkPathRing(X, Y, _, _, _):-
-	X =< 0, Y =< 0, !.
 
 checkPathRing(X, Y, Board, _, Color, _):-
 	matrix_at(X, Y, Board, Symbol),
