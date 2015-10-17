@@ -1,5 +1,3 @@
-
-
 generateMatrix(0, [[]]).
 generateMatrix(Size, Matrix):- 
 	generateMatrix(Size, Size, Matrix).
