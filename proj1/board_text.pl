@@ -6,21 +6,23 @@
 % #factos 		%
 %		------- %
 
-firstLine(8, '---').
-firstLine(9, '---').
-firstLine(10, '---').
-firstLine(4, 'xxx').
-firstLine(5, 'xxx').
-firstLine(6, 'xxx').
-firstLine(_, '   ').
+firstLine(8, ' --- ').
+firstLine(9, ' --- ').
+firstLine(10, ' --- ').
+firstLine(4, ' xxx ').
+firstLine(5, ' xxx ').
+firstLine(6, ' xxx ').
+firstLine(_, '     ').
 
-secondLine(1, ' B ').
-secondLine(2, ' W ').
-secondLine(5, ' B ').
-secondLine(6, ' W ').
-secondLine(9, ' B ').
-secondLine(10, ' W ').
-secondLine(_, '   ').
+secondLine(1, '  B  ').
+secondLine(2, '  W  ').
+secondLine(4, 'x   x').
+secondLine(5, 'x B x').
+secondLine(6, 'x W x').
+secondLine(8, '|   |').
+secondLine(9, '| B |').
+secondLine(10, '| W |').
+secondLine(_, '     ').
 
 %		------- %
 % #predicados 	%
@@ -46,17 +48,17 @@ printBoard(Board, Length):-
 
 printRows([], _).
 printRows([H|T], Length):-
-	printRow(H, Length), nl,
+	printRow(H, Length),
 	printRows(T, Length).
 
 printFirstRow(Length):-
 	write('    +'),
-	createSeparator(Length, '-----+'), nl.
+	createSeparator(Length, '-------+'), nl.
 
 printRow(Items, Length):- 
 	printRowItems(Items), nl,
 	write('    '), write('|'),
-	createSeparator(Length, '_____|'), nl.
+	createSeparator(Length, '-------|'), nl.
 
 printRowItems(Items):- 
 	write('    | '),

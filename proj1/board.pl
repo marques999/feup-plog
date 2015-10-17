@@ -10,10 +10,10 @@ testMatrix([
 	[0, 1, 2, 1, 0, 0, 0],
 	[0, 1, 2, 8, 9, 0, 5],
 	[0, 1, 2, 4, 2, 5, 0],
-	[6, 4, 0, 1, 2, 0, 0],
-	[0, 1, 2, 0, 10, 0, 6],
-	[0, 1, 2, 10, 2, 0, 0],
-	[5, 1, 9, 1, 2, 0, 6]
+	[6, 4, 1, 1, 2, 0, 0],
+	[0, 2, 2, 1, 10, 0, 6],
+	[0, 1, 2, 10, 5, 0, 0],
+	[5, 1, 9, 1, 2, 5, 6]
 ]).
 
 createSinglePiece(disc, black, 1).
@@ -103,3 +103,71 @@ placeDisc(X, Y, Color, Board, NewBoard):-
 	Destination is 0,
 	createSinglePiece(disc, Color, Symbol),
 	matrix_set(X, Y, Symbol, Board, NewBoard).
+
+isTopWall(X, _) :- X is 0.
+isBottomWall(X, _, Length) :- X is Length.
+isLeftWall(_, Y) :- Y is 0.
+isRightWall(_, Y, Length) :- Y is Length.
+
+checkPath(X, Y, Board, Length):-
+	matrix_at(X, Y, Board, Symbol),
+	isRing(Symbol, Color),
+	checkPathRing(X, Y, Board, Color, Length).
+
+checkPath(X, Y, Board, Length):-
+	matrix_at(X, Y, Board, Symbol),
+	isDisc(Symbol, Color),
+	checkPathDisc(X, Y, Board, Color, Length).
+
+checkPathDisc(Length, _, _, _, Length).
+checkPathDisc(_, Length, _, _, Length).
+checkPathDisc(0, _, _, _, _).
+checkPathDisc(_, 0, _, _, _).
+
+checkPathDisc(X, Y, _, _, _):-
+	X =< 0, Y =< 0, !.
+
+checkPathDisc(X, Y, Board, _, Color, _):-
+	matrix_at(X, Y, Board, Symbol),
+	\+isDisc(Symbol, Color), !.
+
+checkPathDisc(X, Y, Board, Color, Length):-
+	X > 0, Y > 0,
+	XP1 is X + 1,
+	XM1 is X - 1,
+	YP1 is Y + 1,
+	YM1 is Y - 1,
+	checkPathDisc(XP1, YP1, Board, Color, Length),
+	checkPathDisc(XM1, YP1, Board, Color, Length),
+	checkPathDisc(XP1, YM1, Board, Color, Length),
+	checkPathDisc(XM1, YM1, Board, Color, Length),
+	checkPathDisc(XP1, Y, Board, Color, Length),
+	checkPathDisc(XM1, Y, Board, Color, Length),
+	checkPathDisc(X, YP1, Board, Color, Length),
+	checkPathDisc(X, YM1, Board, Color, Length).
+
+checkPathRing(Length, _, _, _, Length).
+checkPathRing(_, Length, _, _, Length).
+checkPathRing(0, _, _, _, _).
+checkPathRing(_, 0, _, _, _).
+
+checkPathRing(X, Y, _, _, _):-
+	X =< 0, Y =< 0, !.
+
+checkPathRing(X, Y, Board, _, Color, _):-
+	matrix_at(X, Y, Board, Symbol),
+	\+isRing(Symbol, Color), !.
+	
+checkPathRing(X, Y, Board, Color, Length):-
+	XP1 is X + 1,
+	XM1 is X - 1,
+	YP1 is Y + 1,
+	YM1 is Y - 1,
+	checkPathRing(XP1, YP1, Board, Color, Length),
+	checkPathRing(XM1, YP1, Board, Color, Length),
+	checkPathRing(XP1, YM1, Board, Color, Length),
+	checkPathRing(XM1, YM1, Board, Color, Length),
+	checkPathRing(XP1, Y, Board, Color, Length),
+	checkPathRing(XM1, Y, Board, Color, Length),
+	checkPathRing(X, YP1, Board, Color, Length),
+	checkPathRing(X, YM1, Board, Color, Length).

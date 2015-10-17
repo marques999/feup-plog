@@ -9,6 +9,9 @@
 player(whitePlayer).
 player(blackPlayer).
 
+playerColor(whitePlayer, white).
+playerColor(blackPlayer, black).
+
 playerName(whitePlayer, 'White').
 playerName(blackPlayer, 'Black').
 
@@ -19,8 +22,8 @@ resetPlayer(playerState(Name, _, _), playerState(Name, 24, 24)).
 % #predicados 	%
 %		------- %
 
-removeDisc(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NewDiscs, NumberRings)):-
+decrementDiscs(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NewDiscs, NumberRings)):-
 	NewDiscs is NumberDiscs - 1.
 
-removeRing(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NumberDiscs, NewRings)):-
+decrementRings(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NumberDiscs, NewRings)):-
 	NewRings is NumberRings - 1.
