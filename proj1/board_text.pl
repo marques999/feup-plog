@@ -34,37 +34,52 @@ createSeparator(N, SS):-
 	write(SS), 
 	createSeparator(N1, SS).
 
-print_char(_, 0).
-print_char(X, Y):- 
+printTab(0).
+printTab(Y):- 
 	Y > 0, 
-	write(X), 
+	write('    '), 
 	Y1 is Y - 1, 
-	print_char(X, Y1).
+	print_char(Y1).
 
 printBoard(Board, Length):-
 	printFirstRow(Length),
-	printRows(Board, Length),
-	printFirstRow(Length).
+	printRows(Board, Length).
 
-printRows([], _).
-printRows([H|T], Length):-
-	printRow(H, Length),
-	printRows(T, Length).
+printRows(Board, Length) :-
+	printRows(Board, Length, 0).
+
+printRows([], Length, Length).
+printRows([H|T], Length, Current):-
+	printRow(H, Length, Current),
+	Next is Current + 1,
+	printRows(T, Length, Next).
 
 printFirstRow(Length):-
 	write('    +'),
 	createSeparator(Length, '-------+'), nl.
 
-printRow(Items, Length):- 
-	printRowItems(Items), nl,
-	write('    '), write('|'),
-	createSeparator(Length, '-------|'), nl.
+printRow(Items, Length, Current):-
+	Current is Length - 1,
+	printRowItems(Items, Current), nl,
+	printTab(Current), 
+	write('    +'),
+	createSeparator(Length, '-------+').
 
-printRowItems(Items):- 
+printRow(Items, Length, Current):-
+	printRowItems(Items, Current), nl,
+	printTab(Current), 
+	write('    +'),
+	createSeparator(Length, '-------+'), 
+	write('---+'), nl.
+
+printRowItems(Items, Current):-
+	printTab(Current), 
 	write('    | '),
 	printFirstLine(Items), nl,
+	printTab(Current), 
 	write('    | '),
 	printSecondLine(Items), nl,
+	printTab(Current), 
 	write('    | '),
 	printFirstLine(Items).
 
