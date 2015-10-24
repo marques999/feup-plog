@@ -29,16 +29,16 @@ secondLine(_, '     ').
 %		------- %
 
 createSeparator(0, _).
-createSeparator(N, SS):- 
-	N1 is N-1, 
-	write(SS), 
+createSeparator(N, SS):-
+	N1 is N-1,
+	write(SS),
 	createSeparator(N1, SS).
 
 printTab(0).
-printTab(Y):- 
-	Y > 0, 
-	write('    '), 
-	Y1 is Y - 1, 
+printTab(Y):-
+	Y > 0,
+	write('    '),
+	Y1 is Y - 1,
 	print_char(Y1).
 
 printBoard(Board, Length):-
@@ -61,25 +61,25 @@ printFirstRow(Length):-
 printRow(Items, Length, Current):-
 	Current is Length - 1,
 	printRowItems(Items, Current), nl,
-	printTab(Current), 
+	printTab(Current),
 	write('    +'),
 	createSeparator(Length, '-------+').
 
 printRow(Items, Length, Current):-
 	printRowItems(Items, Current), nl,
-	printTab(Current), 
+	printTab(Current),
 	write('    +'),
-	createSeparator(Length, '-------+'), 
+	createSeparator(Length, '-------+'),
 	write('---+'), nl.
 
 printRowItems(Items, Current):-
-	printTab(Current), 
+	printTab(Current),
 	write('    | '),
 	printFirstLine(Items), nl,
-	printTab(Current), 
+	printTab(Current),
 	write('    | '),
 	printSecondLine(Items), nl,
-	printTab(Current), 
+	printTab(Current),
 	write('    | '),
 	printFirstLine(Items).
 

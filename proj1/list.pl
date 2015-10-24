@@ -1,16 +1,16 @@
 generateMatrix(0, [[]]).
-generateMatrix(Size, Matrix):- 
+generateMatrix(Size, Matrix):-
 	generateMatrix(Size, Size, Matrix).
 
 generateMatrix(_, 0, []).
-generateMatrix(Size, Rows, [Row | Tail]):- 
-	generateList(Size, Row), 
-	NextRow is Rows - 1, 
+generateMatrix(Size, Rows, [Row | Tail]):-
+	generateList(Size, Row),
+	NextRow is Rows - 1,
 	generateMatrix(Size, NextRow, Tail).
 
 generateList(0, []).
-generateList(Size, [0 | Result]):- 
-	NextIndex is Size - 1, 
+generateList(Size, [0 | Result]):-
+	NextIndex is Size - 1,
 	generateList(NextIndex, Result).
 
 %===============================%
@@ -33,7 +33,7 @@ matrix_move(FromX, FromY, ToX, ToY, Symbol, Matrix, NewMatrix):-
 	matrix_set(FromX, FromY, 0, TempMatrix, NewMatrix).
 
 matrix_at(X, Y, List, Symbol):-
-	X > 0, 
+	X > 0,
 	list_at(X, List, Row),
 	list_at(Y, Row, Symbol).
 
@@ -47,12 +47,12 @@ matrix_replace(A, B, [Line|RL], [ResLine|ResRL]):-
 %===============================%
 
 list_push([], Symbol, [Symbol]).
-list_push([H|T], Symbol, [H|NT]):- 
+list_push([H|T], Symbol, [H|NT]):-
 	list_push(T, Symbol, NT).
 
 list_size([], 0).
-list_size([_|T], Size):- 
-	list_size(T, TailSize), 
+list_size([_|T], Size):-
+	list_size(T, TailSize),
 	Size is TailSize + 1.
 
 list_set(1, Symbol, [_|L], [Symbol|L]).

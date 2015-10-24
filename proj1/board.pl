@@ -25,17 +25,17 @@ createSinglePiece(ring, white, 8).
 % #predicados 	%
 %		------- %
 
-isDisc(Symbol, black):- 
+isDisc(Symbol, black):-
 	Symbol < 16, 1 is Symbol /\ 3.
-isDisc(Symbol, white):- 
+isDisc(Symbol, white):-
 	Symbol < 16, 2 is Symbol /\ 3.
 
-isRing(Symbol, black):- 
+isRing(Symbol, black):-
 	Symbol < 16, 4 is Symbol /\ 12.
-isRing(Symbol, white):- 
+isRing(Symbol, white):-
 	Symbol < 16, 8 is Symbol /\ 12.
 
-isTwopiece(Symbol):- 
+isTwopiece(Symbol):-
 	isRing(Symbol, _), isDisc(Symbol, _).
 
 isNeighbour(FromX, FromY, ToX, ToY):-
@@ -48,7 +48,7 @@ isNeighbour(FromX, FromY, ToX, ToY):-
 	abs(FromX - ToX) =< 1,
 	abs(FromY - ToY) =< 1.
 
-removeDisc(Symbol, Color, NewSymbol):-  
+removeDisc(Symbol, Color, NewSymbol):-
 	isDisc(Symbol, Color),
 	createSinglePiece(disc, Color, Toggle),
 	NewSymbol is Symbol /\ \(Toggle).
@@ -150,7 +150,7 @@ checkPathRing(_, 0, _, _, _).
 checkPathRing(X, Y, Board, _, Color, _):-
 	matrix_at(X, Y, Board, Symbol),
 	\+isRing(Symbol, Color), !.
-	
+
 checkPathRing(X, Y, Board, Color, Length):-
 	XP1 is X + 1,
 	XM1 is X - 1,

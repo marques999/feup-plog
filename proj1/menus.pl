@@ -46,14 +46,14 @@ printMainMenu:- nl,
 
 mainMenu:-
 	printMainMenu,
-	getChar(Input), 
+	getChar(Input),
 	mainMenuAction(Input).
 
 mainMenuAction('1'):- gameMenu, mainMenu.
 mainMenuAction('2'):- helpMenu, mainMenu.
 mainMenuAction('3'):- aboutMenu, mainMenu.
 mainMenuAction('4').
-mainMenuAction(_):-	
+mainMenuAction(_):-
 	write('ERROR: you have entered an invalid value...'), nl,
 	pressEnterToContinue, nl,
 	mainMenu.
@@ -81,7 +81,7 @@ gameMenuAction('1'):- startPvPGame, mainMenu.
 gameMenuAction('2'):- startPvBGame, mainMenu.
 gameMenuAction('3'):- startBvBGame, mainMenu.
 gameMenuAction('4').
-gameMenuAction(_):-	
+gameMenuAction(_):-
 	write('ERROR: you have entered an invalid value...'), nl,
 	pressEnterToContinue, nl,
 	gameMenu.
@@ -109,7 +109,7 @@ boardMenuAction('1'):- startPvPGame, mainMenu.
 boardMenuAction('2'):- startPvBGame, mainMenu.
 boardMenuAction('3'):- startBvBGame, mainMenu.
 boardMenuAction('4').
-boardMenuAction(_):-	
+boardMenuAction(_):-
 	write('ERROR: you have entered an invalid value...'), nl,
 	pressEnterToContinue, nl,
 	boardMenu.
