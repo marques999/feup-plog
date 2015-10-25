@@ -3,18 +3,16 @@
 %===========================%
 
 %		------- %
-% #factos 		%
+% #includes		%
 %		------- %
 
-testMatrix([
-	[0, 1, 2, 1, 0, 0, 0],
-	[0, 1, 2, 8, 9, 0, 5],
-	[0, 1, 2, 4, 2, 5, 0],
-	[6, 4, 1, 1, 2, 0, 0],
-	[0, 2, 2, 1, 10, 0, 6],
-	[0, 1, 2, 10, 5, 0, 0],
-	[5, 1, 9, 1, 2, 5, 6]
-]).
+:- include('list.pl').
+:- include('disc.pl').
+:- include('ring.pl').
+
+%		------- %
+% #factos 		%
+%		------- %
 
 createSinglePiece(disc, black, 1).
 createSinglePiece(disc, white, 2).
@@ -25,84 +23,60 @@ createSinglePiece(ring, white, 8).
 % #predicados 	%
 %		------- %
 
-isDisc(Symbol, black):-
-	Symbol < 16, 1 is Symbol /\ 3.
-isDisc(Symbol, white):-
-	Symbol < 16, 2 is Symbol /\ 3.
-
-isRing(Symbol, black):-
-	Symbol < 16, 4 is Symbol /\ 12.
-isRing(Symbol, white):-
-	Symbol < 16, 8 is Symbol /\ 12.
+sameRow(From, To):- To is From - 1.
+sameRow(From, To):- To is From + 1.
 
 isTwopiece(Symbol):-
 	isRing(Symbol, _), isDisc(Symbol, _).
 
-isNeighbour(FromX, FromY, ToX, ToY):-
-	FromX \= ToX,
-	abs(FromX - ToX) =< 1,
-	abs(FromY - ToY) =< 1.
+isEmpty(Symbol):-
+	Symbol is 0.
+
+isNeighbour(FromX, FromY, FromX, ToY):-
+	sameRow(FromY, ToY),
+	ToY > 0, ToY < 8.
+
+isNeighbour(FromX, FromY, ToX, FromY):-
+	sameRow(FromX, ToX),
+	ToX > 0, ToX < 8.
 
 isNeighbour(FromX, FromY, ToX, ToY):-
-	FromY \= ToY,
-	abs(FromX - ToX) =< 1,
-	abs(FromY - ToY) =< 1.
+	ToX is FromX - 1,
+	ToX > 0, ToX < 8, 
+	ToY is FromY + 1,
+	ToY > 0, ToY < 8.
 
-removeDisc(Symbol, Color, NewSymbol):-
-	isDisc(Symbol, Color),
-	createSinglePiece(disc, Color, Toggle),
-	NewSymbol is Symbol /\ \(Toggle).
+isNeighbour(FromX, FromY, ToX, ToY):-
+	ToX is FromX + 1,
+	ToX > 0, ToX < 8, 
+	ToY is FromY - 1,
+	ToY > 0, ToY < 8.
 
-removeRing(Symbol, Color, NewSymbol):-
+playerOwnsBoth(X, Y, Board, Player):-
+	getSymbol(X, Y, Board, Symbol),
+	getPlayerColor(Player, Color),
 	isRing(Symbol, Color),
-	createSinglePiece(ring, Color, Toggle),
-	NewSymbol is Symbol /\ \(Toggle).
+	isDisc(Symbol, Color).
 
-insertRing(Destination, Source, NewSymbol) :-
-	isRing(Source, _),
-	\+isTwopiece(Destination),
-	isDisc(Destination, _),
-	NewSymbol is Destination \/ Source.
+playerOwnsDisc(X, Y, Board, Player):-
+	getSymbol(X, Y, Board, Symbol),
+	getPlayerColor(Player, Color),
+	isDisc(Symbol, Color).
 
-insertDisc(Destination, Source, NewSymbol) :-
-	isDisc(Source, _),
-	\+isTwopiece(Destination),
-	isRing(Destination, _),
-	NewSymbol is Destination \/ Source.
+playerOwnsRing(X, Y, Board, Player):-
+	getSymbol(X, Y, Board, Symbol),
+	getPlayerColor(Player, Color),
+	isRing(Symbol, Color).
 
-moveRing(FromX, FromY, ToX, ToY, Board, NewBoard):-
-	isNeighbour(FromX, FromY, ToX, ToY),
-	matrix_at(ToX, ToY, Board, Destination),
-	matrix_at(FromX, FromY, Board, Source),
-	insertRing(Destination, Source, NewDestination),
-	matrix_move(FromX, FromY, ToX, ToY, NewDestination, Board, NewBoard).
+getPieceColor(X, Y, Player, Board, Symbol):-
+	getSymbol(FromX, FromY, Board, Symbol),
+	getPlayerColor(Player, Color),
+	isDisc(Symbol, Color).
 
-moveDisc(fromX, fromY, toX, toY, Board, NewBoard):-
-	isNeighbour(FromX, FromY, ToX, ToY),
-	matrix_at(ToX, ToY, Board, Destination),
-	matrix_at(FromX, FromY, Board, Source),
-	insertDisc(Destination, Source, NewDestination),
-	matrix_move(FromX, FromY, ToX, ToY, NewDestination, Board, NewBoard).
-
-canPlaceRing(playerStatus(Name, NumberDiscs, NumberRings)):-
-	playerStatus(Name, NumberDiscs, NumberRings),
-	NumberRings > 0.
-
-canPlaceDisc(playerStatus(Name, NumberDiscs, NumberRings)):-
-	playerStatus(Name, NumberDiscs, NumberRings),
-	NumberDiscs > 0.
-
-placeRing(X, Y, Color, Board, NewBoard):-
-	matrix_at(X, Y, Board, Destination),
-	Destination is 0,
-	createSinglePiece(ring, Color, Symbol),
-	matrix_set(X, Y, Symbol, Board, NewBoard).
-
-placeDisc(X, Y, Color, Board, NewBoard):-
-	matrix_at(X, Y, Board, Destination),
-	Destination is 0,
-	createSinglePiece(disc, Color, Symbol),
-	matrix_set(X, Y, Symbol, Board, NewBoard).
+getPieceColor(X, Y, Player, Board, Symbol):-
+	getSymbol(FromX, FromY, Board, Symbol),
+	getPlayerColor(Player, Color),
+	isRing(Symbol, Color).
 
 isTopWall(X, _) :- X is 0.
 isBottomWall(X, _, Length) :- X is Length.
@@ -164,3 +138,7 @@ checkPathRing(X, Y, Board, Color, Length):-
 	checkPathRing(XM1, Y, Board, Color, Length),
 	checkPathRing(X, YP1, Board, Color, Length),
 	checkPathRing(X, YM1, Board, Color, Length).
+
+validMoves(Board, Player, X, Y, List):-
+	matrix_at(X, Y, Board, Symbol),
+	\+isTwopiece(Symbol).

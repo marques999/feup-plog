@@ -9,21 +9,36 @@
 player(whitePlayer).
 player(blackPlayer).
 
-playerColor(whitePlayer, white).
-playerColor(blackPlayer, black).
+getPlayerColor(whitePlayer, white).
+getPlayerColor(blackPlayer, black).
 
-playerName(whitePlayer, 'White').
-playerName(blackPlayer, 'Black').
-
-initializePlayer(Name, playerState(Name, 24, 24)).
-resetPlayer(playerState(Name, _, _), playerState(Name, 24, 24)).
+getPlayerName(whitePlayer, 'WHITE PLAYER').
+getPlayerName(blackPlayer, 'BLACK PLAYER').
 
 %		------- %
 % #predicados 	%
 %		------- %
 
-decrementDiscs(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NewDiscs, NumberRings)):-
+initializePlayer(Name, NewState):-
+	player(Name),
+	NewState = playerState(Name, 24, 24).
+
+resetPlayer(playerState(Name, _, _), NewState):-
+	player(Name),
+	NewState = playerState(Name, 24, 24).
+
+hasRings(playerStatus(Name, _, NumberRings)):-
+	player(Name),
+	NumberRings > 0.
+
+hasDiscs(playerStatus(Name, NumberDiscs, _)):-
+	player(Name),
+	NumberDiscs > 0.
+
+decrementDiscs(playerState(Name, NumberDiscs, _), playerState(Name, NewDiscs, _)):-
+	player(Name),
 	NewDiscs is NumberDiscs - 1.
 
-decrementRings(playerState(Name, NumberDiscs, NumberRings), playerState(Name, NumberDiscs, NewRings)):-
+decrementRings(playerState(Name, _, NumberRings), playerState(Name, _, NewRings)):-
+	player(Name),
 	NewRings is NumberRings - 1.

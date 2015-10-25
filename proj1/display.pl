@@ -39,7 +39,7 @@ printTab(Y):-
 	Y > 0,
 	write('    '),
 	Y1 is Y - 1,
-	print_char(Y1).
+	printTab(Y1).
 
 printBoard(Board, Length):-
 	printFirstRow(Length),
@@ -96,3 +96,9 @@ printSecondLine([H|T]):-
 	write(Char),
 	write(' | '),
 	printSecondLine(T).
+
+printTurn(Player):-
+	getPlayerName(Player, PlayerName),
+	write('> IT\'S '), 
+	write(PlayerName), 
+	write('\'S TURN...'), nl.

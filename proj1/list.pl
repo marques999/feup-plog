@@ -17,22 +17,22 @@ generateList(Size, [0 | Result]):-
 %		MATRIX OPERATIONS		%
 %===============================%
 
-matrix_clear(X, Y, Board, NewBoard) :-
-	matrix_set(X, Y, 0, Board, NewBoard).
+clearSymbol(X, Y, Board, NewBoard) :-
+	setSymbol(X, Y, 0, Board, NewBoard).
 
-matrix_set(1, Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
+setSymbol(1, Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
 	list_set(Y, NewElem, OldRow, NewRow).
 
-matrix_set(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
+setSymbol(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
 	X > 1,
 	X1 is X-1,
-	matrix_set(X1, Y, NewElem, Tail, NewTail).
+	setSymbol(X1, Y, NewElem, Tail, NewTail).
 
-matrix_move(FromX, FromY, ToX, ToY, Symbol, Matrix, NewMatrix):-
-	matrix_set(ToX, ToY, Symbol, Matrix, TempMatrix),
-	matrix_set(FromX, FromY, 0, TempMatrix, NewMatrix).
+moveSymbol(FromX, FromY, ToX, ToY, Symbol, Matrix, NewMatrix):-
+	setSymbol(ToX, ToY, Symbol, Matrix, TempMatrix),
+	setSymbol(FromX, FromY, 0, TempMatrix, NewMatrix).
 
-matrix_at(X, Y, List, Symbol):-
+getSymbol(X, Y, List, Symbol):-
 	X > 0,
 	list_at(X, List, Row),
 	list_at(Y, Row, Symbol).
