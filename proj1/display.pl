@@ -43,7 +43,7 @@ printTab(Y):-
 
 printBoard(Board):-
 	nl,	printFirstRow(7),
-	printRows(Board, 7), nl.
+	printRows(Board, 7), nl, nl.
 
 printColumnIdentifiers(Length):-
 	printColumnIdentifiers(Length, 0).

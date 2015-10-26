@@ -293,9 +293,11 @@ askMoves(Game, NewGame):-
 	printTurn(Player),
 	askFirstMove(Board, Player, NewBoard, NewPlayer), !,
 	setGameBoard(Game, NewBoard, TempGame),
-	setCurrentPlayer(TempGame, NewPlayer, NewGame).
+	setCurrentPlayer(TempGame, NewPlayer, NewGame),
+	printBoard(NewBoard).
 
 askFirstMove(Board, Player, NewBoard, NewPlayer):-
+	printBoard(Board),
 	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
 	write('\t\t\t2. Place Ring'), nl,
 	write('\t\t\t3. Move Disc'), nl,
@@ -304,12 +306,14 @@ askFirstMove(Board, Player, NewBoard, NewPlayer):-
 	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
+	printBoard(Board),
 	write('> SELECT SECOND MOVE:\t1. Place Disc'), nl,
 	write('\t\t\t2. Move Disc'), nl,
 	getInt(Choice),
 	askDiscAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
+	printBoard(Board),
 	write('> SELECT SECOND MOVE:\t1. Place Ring'), nl,
 	write('\t\t\t2. Move Ring'), nl,
 	getInt(Choice),
