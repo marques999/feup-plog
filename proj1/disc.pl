@@ -11,7 +11,7 @@ isDisc(Symbol, black):-
 isDisc(Symbol, white):-
 	Symbol < 16, 2 is Symbol /\ 3.
 
-insertDisc(Destination, Source, NewSymbol) :-
+insertDisc(Destination, Source, NewSymbol):-
 	\+isTwopiece(Destination),
 	NewSymbol is Destination \/ Source.
 

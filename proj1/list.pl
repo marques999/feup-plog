@@ -3,10 +3,10 @@ generateMatrix(Size, Matrix):-
 	generateMatrix(Size, Size, Matrix).
 
 generateMatrix(_, 0, []).
-generateMatrix(Size, Rows, [Row | Tail]):-
+generateMatrix(Size, Current, [Row | Tail]):-
 	generateList(Size, Row),
-	NextRow is Rows - 1,
-	generateMatrix(Size, NextRow, Tail).
+	Next is Current - 1,
+	generateMatrix(Size, Next, Tail).
 
 generateList(0, []).
 generateList(Size, [0 | Result]):-
@@ -17,9 +17,6 @@ generateList(Size, [0 | Result]):-
 %		MATRIX OPERATIONS		%
 %===============================%
 
-clearSymbol(X, Y, Board, NewBoard) :-
-	setSymbol(X, Y, 0, Board, NewBoard).
-
 setSymbol(1, Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
 	list_set(Y, NewElem, OldRow, NewRow).
 
@@ -28,27 +25,18 @@ setSymbol(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
 	X1 is X-1,
 	setSymbol(X1, Y, NewElem, Tail, NewTail).
 
-moveSymbol(FromX, FromY, ToX, ToY, Symbol, Matrix, NewMatrix):-
-	setSymbol(ToX, ToY, Symbol, Matrix, TempMatrix),
-	setSymbol(FromX, FromY, 0, TempMatrix, NewMatrix).
+moveSymbol(FromX, FromY, ToX, ToY, Symbol, Board, NewBoard):-
+	setSymbol(ToX, ToY, Symbol, Board, TempBoard),
+	setSymbol(FromX, FromY, 0, TempBoard, NewBoard).
 
 getSymbol(X, Y, List, Symbol):-
 	X > 0,
 	list_at(X, List, Row),
 	list_at(Y, Row, Symbol).
 
-matrix_replace(_, _, [], []).
-matrix_replace(A, B, [Line|RL], [ResLine|ResRL]):-
-	list_replace(A, B, Line, ResLine),
-	matrix_replace(A, B, RL, ResRL).
-
 %===============================%
 %		LIST OPERATIONS			%
 %===============================%
-
-list_push([], Symbol, [Symbol]).
-list_push([H|T], Symbol, [H|NT]):-
-	list_push(T, Symbol, NT).
 
 list_size([], 0).
 list_size([_|T], Size):-
@@ -66,9 +54,3 @@ list_at(X, [_|T], Symbol):-
 	X > 1,
 	X1 is X - 1,
 	list_at(X1, T, Symbol).
-
-list_replace(_, _, [], []).
-list_replace(A, B, [A|L1], [B|L2]):- list_replace(A, B, L1, L2).
-list_replace(A, B, [C|L1], [C|L2]):-
-	C \= A,
-	list_replace(A, B, L1, L2).

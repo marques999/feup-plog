@@ -8,8 +8,8 @@
 
 :- include('player.pl').
 :- include('board.pl').
-:- include('display.pl').
 :- include('globals.pl').
+:- include('display.pl').
 
 %		------- %
 % #factos 		%
@@ -82,12 +82,12 @@ setPlayer2(Board-Mode-PlayerTurn-Player1-_Player2,
 
 changePlayerTurn(Game, NewGame):-
 	getPlayerTurn(Game, PlayerTurn),
-	PlayerTurn == whitePlayer, !,
+	PlayerTurn == whitePlayer,
 	setPlayerTurn(Game, blackPlayer, NewGame).
 
 changePlayerTurn(Game, NewGame):-
 	getPlayerTurn(Game, PlayerTurn),
-	PlayerTurn == blackPlayer, !,
+	PlayerTurn == blackPlayer,
 	setPlayerTurn(Game, whitePlayer, NewGame).
 
 getCurrentPlayer(_Board-_Mode-PlayerTurn-Player1-_Player2, Player1):-
@@ -162,15 +162,23 @@ messageNotOwned:-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-validateBothCoordinates(FromX, FromY, FromX, FromY):- !, 
+validateCoordinates(X, Y):- 
+	X > 0, Y > 0,
+	X < 8, Y < 8.
+validateCoordinates(_X, _Y):-
+	messageInvalidCoordinates.
+
+askSourceCell(X, Y):-
+	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
+	getCoordinates(X, Y), validateCoordinates(X, Y), nl.
+
+askDestinationCell(X, Y):-
+	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
+	getCoordinates(X, Y), validateCoordinates(X, Y), nl.
+
+validateBothCoordinates(FromX, FromY, FromX, FromY):-
 	messageSameCoordinates.
 validateBothCoordinates(_FromX, _FromY, _ToX, _ToY).
-
-validateCoordinates(X, Y):- 
-	X > 0, X < 8,
-	Y > 0, Y < 8.
-validateCoordinates(_, _):-
-	messageInvalidCoordinates.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -178,15 +186,13 @@ validateSource(X, Y, Board):-
 	getSymbol(X, Y, Board, Symbol),
 	isTwopiece(Symbol),
 	messageSourceTwopiece.
+validateSource(_X, _Y, _Board).
 
 validateDestination(X, Y, Board):-
 	getSymbol(X, Y, Board, Symbol),
 	isTwopiece(Symbol),
 	messageDestinationTwopiece.
-
-validateMove(FromX, FromY, _ToX, _ToY, Board, Player):-
-	playerOwnsBoth(FromX, FromY, Board, Player), !,
-	write('Player owns both pieces, please choose one:'), nl.
+validateDestination(_X, _Y, _Board).
 
 invalidMove:-
 	write('INVALID MOVE!'), nl,
@@ -203,7 +209,7 @@ validateMoveDisc(FromX, FromY, _ToX, _ToY, Board, Player):-
 	\+playerOwnsDisc(FromX, FromY, Board, Player),
 	messageNotOwned.
 validateMoveDisc(FromX, FromY, ToX, ToY, Board, _Player):-
-	canMoveDisc(FromX, FromY, ToX, ToY, Board), !.
+	canMoveDisc(FromX, FromY, ToX, ToY, Board).
 validateMoveDisc(_FromX, _FromY, _ToX, _ToY, _Board, _player):-
 	invalidMove.
 
@@ -211,7 +217,7 @@ validateMoveRing(FromX, FromY, _ToX, _ToY, Board, Player):-
 	\+playerOwnsRing(FromX, FromY, Board, Player),
 	messageNotOwned.
 validateMoveRing(FromX, FromY, ToX, ToY, Board, _Player):-
-	canMoveRing(FromX, FromY, ToX, ToY, Board), !.
+	canMoveRing(FromX, FromY, ToX, ToY, Board).
 validateMoveRing(_FromX, _FromY, _ToX, _ToY, _Board, _Player):-
 	invalidMove.
 
@@ -219,10 +225,8 @@ validateMoveRing(_FromX, _FromY, _ToX, _ToY, _Board, _Player):-
 
 askMoveRing(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
-	validateCoordinates(FromX, FromY),
 	validateSource(FromX, FromY, Board),
 	askDestinationCell(ToX, ToY),
-	validateCoordinates(ToX, ToY),
 	validateDestination(ToX, ToY, Board),
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	validateMoveRing(FromX, FromY, ToX, ToY, Board, Player),
@@ -230,10 +234,8 @@ askMoveRing(Board, Player, NewBoard):-
 
 askMoveDisc(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
-	validateCoordinates(FromX, FromY),
 	vaidateSource(FromX, FromY, Board),
 	askDestinationCell(ToX, ToY),
-	validateCoordinates(ToX, ToY),
 	validateDestination(ToX, ToY, Board),
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	validateMoveDisc(FromX, FromY, ToX, ToY, Board, Player),
@@ -243,34 +245,33 @@ askMoveDisc(Board, Player, NewBoard):-
 
 validatePlaceRing(X, Y, Board, _Player):-
 	getSymbol(X, Y, Board, Symbol),
-	isTwopiece(Symbol),
+	isTwopiece(Symbol), !,
 	messageDestinationTwopiece.
 validatePlaceRing(_X, _Y, _Board, Player):-
-	\+hasRings(Player),
+	\+hasRings(Player), !,
 	messageNoRings.
 validatePlaceRing(X, Y, Board, _Player):-
-	canPlaceRing(Board, X, Y).
-validatePlaceRing(_X, _Y, _Board, _Player):-
+	\+canPlaceRing(Board, X, Y), !,
 	messageRingExists.
+validatePlaceRing(_X, _Y, _Board, _Player).
 
 validatePlaceDisc(X, Y, Board, _Player):-
 	getSymbol(X, Y, Board, Symbol),
 	isTwopiece(Symbol), !,
 	messageDestinationTwopiece.
-validatePlaceDisc(_X, _T, _Board, Player):-
+validatePlaceDisc(_X, _Y, _Board, Player):-
 	\+hasDiscs(Player), !,
 	messageNoDiscs.
-validatePlaceDisc(X, Y, Board, _):-
-	canPlaceDisc(Board, X, Y).
-validatePlaceDisc(_X, _Y, _Board, _Player):-
+validatePlaceDisc(X, Y, Board, _Player):-
+	\+canPlaceDisc(Board, X, Y), !,
 	messageDiscExists.
+validatePlaceDisc(_X, _Y, _Board, _Player).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
-	validateCoordinates(X, Y), !,
-	validatePlaceRing(X, Y, Board, Player),
+	validatePlaceRing(X, Y, Board, Player), !,
 	getPlayerName(Player, Name),
 	getPlayerColor(Name, Color),
 	placeRing(X, Y, Color, Board, NewBoard),
@@ -278,8 +279,7 @@ askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 
 askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
-	validateCoordinates(X, Y), !,
-	validatePlaceDisc(X, Y, Board, Player),
+	validatePlaceDisc(X, Y, Board, Player), !,
 	getPlayerName(Player, Name),
 	getPlayerColor(Name, Color),
 	placeDisc(X, Y, Color, Board, NewBoard),
@@ -287,45 +287,56 @@ askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-askMove(Game, NewGame):-
+askFirstMove(Game, NewGame):-
 	getGameBoard(Game, Board),
 	getCurrentPlayer(Game, Player),
 	printTurn(Player),
-	write('> SELECT MOVE:\t1. Place Disc'), nl,
+	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
 	write('\t\t2. Place Ring'), nl,
 	write('\t\t3. Move Disc'), nl,
 	write('\t\t4. Move Ring'), nl,
 	getInt(Choice),
-	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer),
-	setGameBoard(Game, NewBoard, TempGame1),
-	setCurrentPlayer(TempGame1, NewPlayer, TempGame2),
-	changePlayerTurn(TempGame2, NewGame),
-	printBoard(Board).
+	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer), !,
+	setGameBoard(Game, NewBoard, TempGame),
+	setCurrentPlayer(TempGame, NewPlayer, NewGame).
+
+askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
+	write('> SELECT SECOND MOVE:\t1. Place Disc'), nl,
+	write('\t\t2. Move Disc'), nl,
+	getInt(Choice),
+	askDiscAction(Board, Player, Choice, NewBoard, NewPlayer).
+
+askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
+	write('> SELECT SECOND MOVE:\t1. Place Ring'), nl,
+	write('\t\t2. Move Ring'), nl,
+	getInt(Choice),
+	askRingAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askMoveAction(Board, Player, 1, NewBoard, NewPlayer):- 
-	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
-
+	askPlaceDisc(Board, Player, TempBoard, TempPlayer), !,
+	askSecondMove(TempBoard, TempPlayer, ring, NewBoard, NewPlayer).
 askMoveAction(Board, Player, 2, NewBoard, NewPlayer):- 
-	askPlaceRing(Board, Player, NewBoard, NewPlayer).
-
-askMoveAction(_Board, _Turn, 3, _NewBoard, _NewPlayer):-
-	askMoveDisc(Board, Player, NewBoard).
-
-askMoveAction(_Board, _Turn, 4, _NewBoard, _NewPlayer):-
-	askMoveRing(Board, Player, NewBoard).
-
-askMoveAction(_Board, _Turn, _Choice, _NewPlayer):- 
+	askPlaceRing(Board, Player, TempBoard, TempPlayer), !,
+	askSecondMove(TempBoard, TempPlayer, disc, NewBoard, NewPlayer).
+askMoveAction(Board, Player, 3, NewBoard, NewPlayer):-
+	askMoveDisc(Board, Player, TempBoard),
+	askSecondMove(TempBoard, Player, ring, NewBoard,  NewPlayer).
+askMoveAction(Board, Player, 4, NewBoard, NewPlayer):-
+	askMoveRing(Board, Player, TempBoard), !,
+	askSecondMove(TempBoard, Player, disc, NewBoard, NewPlayer).
+askMoveAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):- 
 	messageInvalidChoice.
 
-askBothCoordinates(FromX, FromY, ToX, ToY):-
-	askSourceCell(FromX, FromY), !,
-	askDestinationCell(ToX, ToY), !,
-	validateBothCoordinates(FromX, FromY, ToX, ToY).
+askDiscAction(Board, Player, 1, NewBoard, NewPlayer):-
+	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
+askDiscAction(Board, Player, 2, NewBoard, _NewPlayer):-
+	askMoveDisc(Board, Player, NewBoard).
+askDiscAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):-
+	messageInvalidChoice.
 
-askSourceCell(X, Y):-
-	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
-	getCoordinates(X, Y), nl.
-
-askDestinationCell(X, Y):-
-	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
-	getCoordinates(X, Y), nl.
+askRingAction(Board, Player, 1, NewBoard, NewPlayer):-
+	askPlaceRing(Board, Player, NewBoard, NewPlayer).
+askRingAction(Board, Player, 2, NewBoard, _NewPlayer):-
+	askMoveRing(Board, Player, NewBoard).
+askRingAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):-
+	messageInvalidChoice.

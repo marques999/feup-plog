@@ -30,19 +30,15 @@ resetPlayer(playerState(Name, _NumberDiscs, _NumberRings), NewState):-
 getPlayerName(playerState(Name, _NumberDiscs, _NumberRings), Name).
 
 hasRings(playerState(Name, _NumberDiscs, NumberRings)):-
-	player(Name),
 	NumberRings > 0.
 
 hasDiscs(playerState(Name, NumberDiscs, _NumberRings)):-
-	player(Name),
 	NumberDiscs > 0.
 
 decrementDiscs(playerState(Name, NumberDiscs, _NumberRings), 
 	playerState(Name, NewDiscs, _NumberRings)):-
-	player(Name),
 	NewDiscs is NumberDiscs - 1.
 
 decrementRings(playerState(Name, _NumberDiscs, NumberRings),
 	playerState(Name, _NumberDiscs, NewRings)):-
-	player(Name),
 	NewRings is NumberRings - 1.
