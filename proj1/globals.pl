@@ -31,11 +31,8 @@ getCode(Input):-
 	get_code(_).
 
 getInt(Input):-
-	get_code(TempInput),
+	getCode(TempInput),
 	Input is TempInput - 48.
 
 getCoordinates(X, Y):-
-	getInt(X), 
-	get_code(_),
-	getInt(Y),
-	get_code(_).
+	getInt(X), getInt(Y).

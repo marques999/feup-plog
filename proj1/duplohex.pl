@@ -113,7 +113,7 @@ setCurrentPlayer(Board-Mode-PlayerTurn-Player1-Player2, NewPlayer,
 messageInvalidChoice:-
 	write('INVALID INPUT!'), nl,
 	write('Please enter a valid number'), nl,
-	pressEnterToContinue, nl, fail.
+	pressEnterToContinue, nl.
 
 messageSameCoordinates:-
 	write('INVALID INPUT!'), nl,
@@ -170,11 +170,11 @@ validateCoordinates(_X, _Y):-
 
 askSourceCell(X, Y):-
 	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
-	getCoordinates(X, Y), validateCoordinates(X, Y), nl.
+	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
 askDestinationCell(X, Y):-
 	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
-	getCoordinates(X, Y), validateCoordinates(X, Y), nl.
+	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
 validateBothCoordinates(FromX, FromY, FromX, FromY):-
 	messageSameCoordinates.
@@ -287,28 +287,31 @@ askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-askFirstMove(Game, NewGame):-
+askMoves(Game, NewGame):-
 	getGameBoard(Game, Board),
 	getCurrentPlayer(Game, Player),
 	printTurn(Player),
-	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
-	write('\t\t2. Place Ring'), nl,
-	write('\t\t3. Move Disc'), nl,
-	write('\t\t4. Move Ring'), nl,
-	getInt(Choice),
-	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer), !,
+	askFirstMove(Board, Player, NewBoard, NewPlayer), !,
 	setGameBoard(Game, NewBoard, TempGame),
 	setCurrentPlayer(TempGame, NewPlayer, NewGame).
 
+askFirstMove(Board, Player, NewBoard, NewPlayer):-
+	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
+	write('\t\t\t2. Place Ring'), nl,
+	write('\t\t\t3. Move Disc'), nl,
+	write('\t\t\t4. Move Ring'), nl,
+	getInt(Choice),
+	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
+
 askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
 	write('> SELECT SECOND MOVE:\t1. Place Disc'), nl,
-	write('\t\t2. Move Disc'), nl,
+	write('\t\t\t2. Move Disc'), nl,
 	getInt(Choice),
 	askDiscAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
 	write('> SELECT SECOND MOVE:\t1. Place Ring'), nl,
-	write('\t\t2. Move Ring'), nl,
+	write('\t\t\t2. Move Ring'), nl,
 	getInt(Choice),
 	askRingAction(Board, Player, Choice, NewBoard, NewPlayer).
 
@@ -319,24 +322,36 @@ askMoveAction(Board, Player, 2, NewBoard, NewPlayer):-
 	askPlaceRing(Board, Player, TempBoard, TempPlayer), !,
 	askSecondMove(TempBoard, TempPlayer, disc, NewBoard, NewPlayer).
 askMoveAction(Board, Player, 3, NewBoard, NewPlayer):-
-	askMoveDisc(Board, Player, TempBoard),
+	askMoveDisc(Board, Player, TempBoard), !,
 	askSecondMove(TempBoard, Player, ring, NewBoard,  NewPlayer).
 askMoveAction(Board, Player, 4, NewBoard, NewPlayer):-
 	askMoveRing(Board, Player, TempBoard), !,
 	askSecondMove(TempBoard, Player, disc, NewBoard, NewPlayer).
-askMoveAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):- 
-	messageInvalidChoice.
+askMoveAction(Board, Player, Choice, NewBoard, NewPlayer):-
+	Choice > 0, Choice =< 2, !,
+	askFirstMove(Board, Player, NewBoard, NewPlayer).
+askMoveAction(Board, Player, _Choice, NewBoard, NewPlayer):-
+	messageInvalidChoice, !,
+	askFirstMove(Board, Player, NewBoard, NewPlayer).
 
 askDiscAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
 askDiscAction(Board, Player, 2, NewBoard, _NewPlayer):-
 	askMoveDisc(Board, Player, NewBoard).
-askDiscAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):-
-	messageInvalidChoice.
+askDiscAction(Board, Player, Choice, NewBoard, NewPlayer):- 
+	Choice > 0, Choice =< 2, !,
+	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
+askDiscAction(Board, Player, _Choice, NewBoard, NewPlayer):-
+	messageInvalidChoice, !,
+	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
 
 askRingAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceRing(Board, Player, NewBoard, NewPlayer).
 askRingAction(Board, Player, 2, NewBoard, _NewPlayer):-
 	askMoveRing(Board, Player, NewBoard).
-askRingAction(_Board, _Player, _Choice, _NewBoard, _NewPlayer):-
-	messageInvalidChoice.
+askRingAction(Board, Player, Choice, NewBoard, NewPlayer):- 
+	Choice > 0, Choice =< 2, !,
+	askSecondMove(Board, Player, ring, NewBoard, NewPlayer).
+askRingAction(Board, Player, _Choice, NewBoard, NewPlayer):-
+	messageInvalidChoice, !,
+	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
