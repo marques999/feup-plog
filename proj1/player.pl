@@ -12,8 +12,8 @@ player(blackPlayer).
 getPlayerColor(whitePlayer, white).
 getPlayerColor(blackPlayer, black).
 
-getPlayerName(whitePlayer, 'WHITE PLAYER').
-getPlayerName(blackPlayer, 'BLACK PLAYER').
+playerName(whitePlayer, 'WHITE PLAYER').
+playerName(blackPlayer, 'BLACK PLAYER').
 
 %		------- %
 % #predicados 	%
@@ -27,11 +27,13 @@ resetPlayer(playerState(Name, _, _), NewState):-
 	player(Name),
 	NewState = playerState(Name, 24, 24).
 
-hasRings(playerStatus(Name, _, NumberRings)):-
+getPlayerName(playerState(Name, _NumberDiscs, _NumberRings), Name).
+
+hasRings(playerState(Name, _, NumberRings)):-
 	player(Name),
 	NumberRings > 0.
 
-hasDiscs(playerStatus(Name, NumberDiscs, _)):-
+hasDiscs(playerState(Name, NumberDiscs, _)):-
 	player(Name),
 	NumberDiscs > 0.
 

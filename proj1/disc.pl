@@ -12,7 +12,6 @@ isDisc(Symbol, white):-
 	Symbol < 16, 2 is Symbol /\ 3.
 
 insertDisc(Destination, Source, NewSymbol) :-
-	isDisc(Source, _),
 	\+isTwopiece(Destination),
 	NewSymbol is Destination \/ Source.
 
@@ -47,3 +46,24 @@ placeDisc(X, Y, Color, Board, NewBoard):-
 	createSinglePiece(disc, Color, Source),
 	insertDisc(Destination, Source, Symbol),
 	setSymbol(X, Y, Symbol, Board, NewBoard).
+
+checkPathDisc(Length, _, _, _, Length).
+checkPathDisc(_, Length, _, _, Length).
+checkPathDisc(0, _, _, _, _).
+checkPathDisc(_, 0, _, _, _).
+checkPathDisc(X, Y, Board, _, Color, _):-
+	matrix_at(X, Y, Board, Symbol),
+	\+isDisc(Symbol, Color), !.
+checkPathDisc(X, Y, Board, Color, Length):-
+	XP1 is X + 1,
+	XM1 is X - 1,
+	YP1 is Y + 1,
+	YM1 is Y - 1,
+	checkPathDisc(XP1, YP1, Board, Color, Length),
+	checkPathDisc(XM1, YP1, Board, Color, Length),
+	checkPathDisc(XP1, YM1, Board, Color, Length),
+	checkPathDisc(XM1, YM1, Board, Color, Length),
+	checkPathDisc(XP1, Y, Board, Color, Length),
+	checkPathDisc(XM1, Y, Board, Color, Length),
+	checkPathDisc(X, YP1, Board, Color, Length),
+	checkPathDisc(X, YM1, Board, Color, Length).

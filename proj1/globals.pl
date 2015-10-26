@@ -1,3 +1,11 @@
+%===========================%
+%	  GLOBAL DEFINITIONS	%
+%===========================%
+
+%		------- %
+% #predicados 	%
+%		------- %
+
 pressEnterToContinue:-
 	write('Press <Enter> to continue...'), nl,
 	waitForEnter, !.

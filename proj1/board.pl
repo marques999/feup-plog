@@ -68,13 +68,13 @@ playerOwnsRing(X, Y, Board, Player):-
 	getPlayerColor(Player, Color),
 	isRing(Symbol, Color).
 
-getPieceColor(X, Y, Player, Board, Symbol):-
-	getSymbol(FromX, FromY, Board, Symbol),
+getPieceColor(X, Y, Player, Board):-
+	getSymbol(X, Y, Board, Symbol),
 	getPlayerColor(Player, Color),
 	isDisc(Symbol, Color).
 
-getPieceColor(X, Y, Player, Board, Symbol):-
-	getSymbol(FromX, FromY, Board, Symbol),
+getPieceColor(X, Y, Player, Board):-
+	getSymbol(X, Y, Board, Symbol),
 	getPlayerColor(Player, Color),
 	isRing(Symbol, Color).
 
@@ -92,53 +92,3 @@ checkPath(X, Y, Board, Length):-
 	matrix_at(X, Y, Board, Symbol),
 	isDisc(Symbol, Color),
 	checkPathDisc(X, Y, Board, Color, Length).
-
-checkPathDisc(Length, _, _, _, Length).
-checkPathDisc(_, Length, _, _, Length).
-checkPathDisc(0, _, _, _, _).
-checkPathDisc(_, 0, _, _, _).
-
-checkPathDisc(X, Y, Board, _, Color, _):-
-	matrix_at(X, Y, Board, Symbol),
-	\+isDisc(Symbol, Color), !.
-
-checkPathDisc(X, Y, Board, Color, Length):-
-	XP1 is X + 1,
-	XM1 is X - 1,
-	YP1 is Y + 1,
-	YM1 is Y - 1,
-	checkPathDisc(XP1, YP1, Board, Color, Length),
-	checkPathDisc(XM1, YP1, Board, Color, Length),
-	checkPathDisc(XP1, YM1, Board, Color, Length),
-	checkPathDisc(XM1, YM1, Board, Color, Length),
-	checkPathDisc(XP1, Y, Board, Color, Length),
-	checkPathDisc(XM1, Y, Board, Color, Length),
-	checkPathDisc(X, YP1, Board, Color, Length),
-	checkPathDisc(X, YM1, Board, Color, Length).
-
-checkPathRing(Length, _, _, _, Length).
-checkPathRing(_, Length, _, _, Length).
-checkPathRing(0, _, _, _, _).
-checkPathRing(_, 0, _, _, _).
-
-checkPathRing(X, Y, Board, _, Color, _):-
-	matrix_at(X, Y, Board, Symbol),
-	\+isRing(Symbol, Color), !.
-
-checkPathRing(X, Y, Board, Color, Length):-
-	XP1 is X + 1,
-	XM1 is X - 1,
-	YP1 is Y + 1,
-	YM1 is Y - 1,
-	checkPathRing(XP1, YP1, Board, Color, Length),
-	checkPathRing(XM1, YP1, Board, Color, Length),
-	checkPathRing(XP1, YM1, Board, Color, Length),
-	checkPathRing(XM1, YM1, Board, Color, Length),
-	checkPathRing(XP1, Y, Board, Color, Length),
-	checkPathRing(XM1, Y, Board, Color, Length),
-	checkPathRing(X, YP1, Board, Color, Length),
-	checkPathRing(X, YM1, Board, Color, Length).
-
-validMoves(Board, Player, X, Y, List):-
-	matrix_at(X, Y, Board, Symbol),
-	\+isTwopiece(Symbol).

@@ -41,9 +41,20 @@ printTab(Y):-
 	Y1 is Y - 1,
 	printTab(Y1).
 
-printBoard(Board, Length):-
-	printFirstRow(Length),
-	printRows(Board, Length).
+printBoard(Board):-
+	nl,	printFirstRow(7),
+	printRows(Board, 7), nl.
+
+printColumnIdentifiers(Length):-
+	printColumnIdentifiers(Length, 0).
+
+printColumnIdentifiers(Length, Length).
+printColumnIdentifiers(Length, Current):-
+	Next is Current + 1,
+	write('   '),
+	write(Next),
+	write('    '),
+	printColumnIdentifiers(Length, Next).
 
 printRows(Board, Length) :-
 	printRows(Board, Length, 0).
@@ -55,6 +66,8 @@ printRows([H|T], Length, Current):-
 	printRows(T, Length, Next).
 
 printFirstRow(Length):-
+	write('     '),
+	printColumnIdentifiers(Length), nl,
 	write('    +'),
 	createSeparator(Length, '-------+'), nl.
 
@@ -76,8 +89,10 @@ printRowItems(Items, Current):-
 	printTab(Current),
 	write('    | '),
 	printFirstLine(Items), nl,
+	Next is Current + 1,
+	write(Next),
 	printTab(Current),
-	write('    | '),
+	write('   | '),
 	printSecondLine(Items), nl,
 	printTab(Current),
 	write('    | '),

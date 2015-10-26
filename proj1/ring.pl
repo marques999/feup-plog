@@ -12,7 +12,6 @@ isRing(Symbol, white):-
 	Symbol < 16, 8 is Symbol /\ 12.
 
 insertRing(Destination, Source, NewSymbol) :-
-	isRing(Source, _),
 	\+isTwopiece(Destination),
 	NewSymbol is Destination \/ Source.
 
@@ -47,3 +46,26 @@ placeRing(X, Y, Color, Board, NewBoard):-
 	createSinglePiece(ring, Color, Source),
 	insertRing(Destination, Source, Symbol),
 	setSymbol(X, Y, Symbol, Board, NewBoard).
+
+checkPathRing(Length, _, _, _, Length).
+checkPathRing(_, Length, _, _, Length).
+checkPathRing(0, _, _, _, _).
+checkPathRing(_, 0, _, _, _).
+
+checkPathRing(X, Y, Board, _, Color, _):-
+	matrix_at(X, Y, Board, Symbol),
+	\+isRing(Symbol, Color), !.
+
+checkPathRing(X, Y, Board, Color, Length):-
+	XP1 is X + 1,
+	XM1 is X - 1,
+	YP1 is Y + 1,
+	YM1 is Y - 1,
+	checkPathRing(XP1, YP1, Board, Color, Length),
+	checkPathRing(XM1, YP1, Board, Color, Length),
+	checkPathRing(XP1, YM1, Board, Color, Length),
+	checkPathRing(XM1, YM1, Board, Color, Length),
+	checkPathRing(XP1, Y, Board, Color, Length),
+	checkPathRing(XM1, Y, Board, Color, Length),
+	checkPathRing(X, YP1, Board, Color, Length),
+	checkPathRing(X, YM1, Board, Color, Length).

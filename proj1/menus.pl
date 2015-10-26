@@ -68,34 +68,6 @@ gameMenuAction(_):-
 	pressEnterToContinue, nl,
 	gameMenu.
 
-printBoardMenu:- nl,
-	write('+================================+'), nl,
-	write('+     ..:: SELECT BOARD ::..     +'), nl,
-	write('+================================+'), nl,
-	write('|                                |'), nl,
-	write('|   1. Small (6 x 6)             |'), nl,
-	write('|   2. Medium (7 x 7)            |'), nl,
-	write('|   3. Large (8 x 8)             |'), nl,
-	write('|                                |'), nl,
-	write('|   4. <- Back                   |'), nl,
-	write('|                                |'), nl,
-	write('+================================+'), nl, nl,
-	write('Please choose an option:'), nl.
-
-boardMenu:-
-	printBoardMenu,
-	getChar(Input),
-	boardMenuAction(Input).
-
-boardMenuAction('1'):- startPvPGame, mainMenu.
-boardMenuAction('2'):- startPvBGame, mainMenu.
-boardMenuAction('3'):- startBvBGame, mainMenu.
-boardMenuAction('4').
-boardMenuAction(_):-
-	write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue, nl,
-	boardMenu.
-
 startPvPGame:-
 	createPvPGame(Game),
 	playGame(Game).
