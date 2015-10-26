@@ -150,9 +150,34 @@ messageSourceTwopiece:-
 	write('Source cell is full and can\'t be moved (already occupied by two pieces)'), nl,
 	pressEnterToContinue, nl, fail.
 
+messageSourceNotDisc:-
+	write('INVALID MOVE!'), nl,
+	write('Source cell is not occupied by a disc'), nl,
+	pressEnterToContinue, nl, fail.
+
+messageSourceNotRing:-
+	write('INVALID MOVE!'), nl,
+	write('Source cell is not occupied by a ring'), nl,
+	pressEnterToContinue, nl, fail.
+
+messageDestinationNotDisc:-
+	write('INVALID MOVE!'), nl,
+	write('Destination cell is not occupied by a disc'), nl,
+	pressEnterToContinue, nl, fail.
+
+messageDestinationNotRing:-
+	write('INVALID MOVE!'), nl,
+	write('Destination cell is not occupied by a ring'), nl,
+	pressEnterToContinue, nl, fail.
+
 messageDestinationTwopiece:-
 	write('INVALID MOVE!'), nl,
 	write('Destination cell is full and can\'t be moved (already occupied by two pieces)'), nl,
+	pressEnterToContinue, nl, fail.
+
+messageNotNeighbours:-
+	write('INVALID MOVE!'), nl,
+	write('Source cell and destination cell aren\'t neighbors!'), nl,
 	pressEnterToContinue, nl, fail.
 
 messageNotOwned:-
@@ -162,12 +187,6 @@ messageNotOwned:-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-validateCoordinates(X, Y):- 
-	X > 0, Y > 0,
-	X < 8, Y < 8.
-validateCoordinates(_X, _Y):-
-	messageInvalidCoordinates.
-
 askSourceCell(X, Y):-
 	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
@@ -176,84 +195,88 @@ askDestinationCell(X, Y):-
 	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+validateSource(Symbol, _Piece):-
+	isTwopiece(Symbol), !,
+	messageSourceTwopiece.
+validateSource(Symbol, disc):-
+	isDisc(Symbol, _).
+validateSource(_Symbol, disc):- !,
+	messageSourceNotDisc.
+validateSource(Symbol, ring):-
+	isRing(Symbol, _).
+validateSource(_Symbol, ring):- !,
+	messageSourceNotRing.
+
+validateDestination(Symbol, _Piece):-
+	isTwopiece(Symbol), !,
+	messageDestinationTwopiece.
+validateDestination(Symbol, disc):-
+	isDisc(Symbol, _).
+validateDestination(_Symbol, disc):- !,
+	messageDestinationNotDisc.
+validateDestination(Symbol, ring):-
+	isRing(Symbol, _).
+validateDestination(_Symbol, ring):- !,
+	messageDestinationNotRing.
+
+validateCoordinates(X, Y):- 
+	X > 0, Y > 0,
+	X < 8, Y < 8.
+validateCoordinates(_X, _Y):-
+	messageInvalidCoordinates.
+
 validateBothCoordinates(FromX, FromY, FromX, FromY):-
 	messageSameCoordinates.
-validateBothCoordinates(_FromX, _FromY, _ToX, _ToY).
+validateBothCoordinates(FromX, FromY, ToX, ToY):-
+	isNeighbour(FromX, FromY, ToX, ToY).
+validateBothCoordinates(_FromX, _FromY, _ToX, _ToY):-
+	messageNotNeighbours.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-validateSource(X, Y, Board):-
+validateDiscOwnership(X, Y, Board, Player):-
 	getSymbol(X, Y, Board, Symbol),
-	isTwopiece(Symbol),
-	messageSourceTwopiece.
-validateSource(_X, _Y, _Board).
+	getPlayerName(Player, PlayerName),
+	getPlayerColor(PlayerName, Color),
+	isDisc(Symbol, Color).
+validateDiscOwnership(_X, _Y, _Board, _Player):-
+	messageNotOwned.
 
-validateDestination(X, Y, Board):-
+validateRingOwnership(X, Y, Board, Player):-
 	getSymbol(X, Y, Board, Symbol),
-	isTwopiece(Symbol),
-	messageDestinationTwopiece.
-validateDestination(_X, _Y, _Board).
-
-invalidMove:-
-	write('INVALID MOVE!'), nl,
-	write('A checker can only move to a forward or a diagonally forward (north, north-east or north-west) adjacent empty cell.'), nl,
-	write('A checker can jump over a friendly checker if the next cell in the same direction of the jump is empty.'), nl,
-	write('Finally, a checker can capture an oponent\'s checker by jumping over them, similarly to the jumping move.'), nl,
-	write('In addition to the three possible move/jumping directions, a capture can also occur to the sides (left or right).'), nl,
-	pressEnterToContinue, nl,
-	fail.
+	getPlayerName(Player, PlayerName),
+	getPlayerColor(PlayerName, Color),
+	isRing(Symbol, Color).
+validateRingOwnership(_X, _Y, _Board, _Player):-
+	messageNotOwned.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-validateMoveDisc(FromX, FromY, _ToX, _ToY, Board, Player):-
-	\+playerOwnsDisc(FromX, FromY, Board, Player),
-	messageNotOwned.
-validateMoveDisc(FromX, FromY, ToX, ToY, Board, _Player):-
-	canMoveDisc(FromX, FromY, ToX, ToY, Board).
-validateMoveDisc(_FromX, _FromY, _ToX, _ToY, _Board, _player):-
-	invalidMove.
-
-validateMoveRing(FromX, FromY, _ToX, _ToY, Board, Player):-
-	\+playerOwnsRing(FromX, FromY, Board, Player),
-	messageNotOwned.
-validateMoveRing(FromX, FromY, ToX, ToY, Board, _Player):-
-	canMoveRing(FromX, FromY, ToX, ToY, Board).
-validateMoveRing(_FromX, _FromY, _ToX, _ToY, _Board, _Player):-
-	invalidMove.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-askMoveRing(Board, Player, NewBoard):-
-	askSourceCell(FromX, FromY),
-	validateSource(FromX, FromY, Board),
-	askDestinationCell(ToX, ToY),
-	validateDestination(ToX, ToY, Board),
-	validateBothCoordinates(FromX, FromY, ToX, ToY),
-	validateMoveRing(FromX, FromY, ToX, ToY, Board, Player),
-	moveRing(FromX, FromY, ToX, ToY, Board, NewBoard).
 
 askMoveDisc(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
-	vaidateSource(FromX, FromY, Board),
+	getSymbol(FromX, FromY, Board, Source),
+	validateSource(Source, disc), !,
+	validateDiscOwnership(FromX, FromY, Board, Player), !,
 	askDestinationCell(ToX, ToY),
-	validateDestination(ToX, ToY, Board),
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
-	validateMoveDisc(FromX, FromY, ToX, ToY, Board, Player),
+	getSymbol(ToX, ToY, Board, Destination),
+	validateDestination(Destination, ring), !,
 	moveDisc(FromX, FromY, ToX, ToY, Board, NewBoard).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+askMoveRing(Board, Player, NewBoard):-
+	askSourceCell(FromX, FromY),
+	getSymbol(FromX, FromY, Board, Source),
+	validateSource(Source, ring), !,
+	validateRingOwnership(FromX, FromY, Board, Player), !,
+	askDestinationCell(ToX, ToY),
+	validateBothCoordinates(FromX, FromY, ToX, ToY),
+	getSymbol(ToX, ToY, Board, Destination),
+	validateDestination(Destination, disc), !,
+	moveRing(FromX, FromY, ToX, ToY, Board, NewBoard).
 
-validatePlaceRing(X, Y, Board, _Player):-
-	getSymbol(X, Y, Board, Symbol),
-	isTwopiece(Symbol), !,
-	messageDestinationTwopiece.
-validatePlaceRing(_X, _Y, _Board, Player):-
-	\+hasRings(Player), !,
-	messageNoRings.
-validatePlaceRing(X, Y, Board, _Player):-
-	\+canPlaceRing(Board, X, Y), !,
-	messageRingExists.
-validatePlaceRing(_X, _Y, _Board, _Player).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 validatePlaceDisc(X, Y, Board, _Player):-
 	getSymbol(X, Y, Board, Symbol),
@@ -267,15 +290,19 @@ validatePlaceDisc(X, Y, Board, _Player):-
 	messageDiscExists.
 validatePlaceDisc(_X, _Y, _Board, _Player).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+validatePlaceRing(X, Y, Board, _Player):-
+	getSymbol(X, Y, Board, Symbol),
+	isTwopiece(Symbol), !,
+	messageDestinationTwopiece.
+validatePlaceRing(_X, _Y, _Board, Player):-
+	\+hasRings(Player), !,
+	messageNoRings.
+validatePlaceRing(X, Y, Board, _Player):-
+	\+canPlaceRing(Board, X, Y), !,
+	messageRingExists.
+validatePlaceRing(_X, _Y, _Board, _Player).
 
-askPlaceRing(Board, Player, NewBoard, NewPlayer):-
-	askDestinationCell(X, Y),
-	validatePlaceRing(X, Y, Board, Player), !,
-	getPlayerName(Player, Name),
-	getPlayerColor(Name, Color),
-	placeRing(X, Y, Color, Board, NewBoard),
-	decrementRings(Player, NewPlayer).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
@@ -284,6 +311,14 @@ askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	getPlayerColor(Name, Color),
 	placeDisc(X, Y, Color, Board, NewBoard),
 	decrementDiscs(Player, NewPlayer).
+
+askPlaceRing(Board, Player, NewBoard, NewPlayer):-
+	askDestinationCell(X, Y),
+	validatePlaceRing(X, Y, Board, Player), !,
+	getPlayerName(Player, Name),
+	getPlayerColor(Name, Color),
+	placeRing(X, Y, Color, Board, NewBoard),
+	decrementRings(Player, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -332,7 +367,7 @@ askMoveAction(Board, Player, 4, NewBoard, NewPlayer):-
 	askMoveRing(Board, Player, TempBoard), !,
 	askSecondMove(TempBoard, Player, disc, NewBoard, NewPlayer).
 askMoveAction(Board, Player, Choice, NewBoard, NewPlayer):-
-	Choice > 0, Choice =< 2, !,
+	Choice > 0, Choice =< 4, !,
 	askFirstMove(Board, Player, NewBoard, NewPlayer).
 askMoveAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,

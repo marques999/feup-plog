@@ -20,13 +20,6 @@ removeRing(Symbol, Color, NewSymbol):-
 	createSinglePiece(ring, Color, Toggle),
 	NewSymbol is Symbol /\ \(Toggle).
 
-canMoveRing(FromX, FromY, ToX, ToY, Board):-
-	isNeighbour(FromX, FromY, ToX, ToY),
-	getSymbol(FromX, FromY, Board, Source),
-	isRing(Source, _),
-	getSymbol(ToX, ToY, Board, Destination),
-	isDisc(Destination, _).
-
 moveRing(FromX, FromY, ToX, ToY, Board, NewBoard):-
 	getSymbol(ToX, ToY, Board, Destination),
 	getSymbol(FromX, FromY, Board, Source),
