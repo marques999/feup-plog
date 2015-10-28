@@ -120,83 +120,6 @@ setCurrentPlayer(Board-Mode-PlayerTurn-Player1-Player2, NewPlayer,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-messageInvalidChoice:-
-	write('INVALID INPUT!'), nl,
-	write('Please enter a valid number'), nl,
-	pressEnterToContinue, nl.
-
-messageSameCoordinates:-
-	write('INVALID INPUT!'), nl,
-	write('Source and destination cell coordinates must be different'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageInvalidCoordinates:-
-	write('INVALID INPUT!'), nl,
-	write('Cell coordinates must be an integer between 0 and 7'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageNoRings:-
-	write('INVALID MOVE!'), nl,
-	write('Player has no rings left to be played'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageNoDiscs:-
-	write('INVALID MOVE!'), nl,
-	write('Player has no discs left to be played'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageRingExists:-
-	write('INVALID MOVE!'), nl,
-	write('Destination cell should not be already occupied by a ring'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageDiscExists:-
-	write('INVALID MOVE!'), nl,
-	write('Destination cell should not be already occupied by a disc'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageSourceTwopiece:-
-	write('INVALID MOVE!'), nl,
-	write('Source cell is full and can\'t be moved (already occupied by two pieces)'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageSourceNotDisc:-
-	write('INVALID MOVE!'), nl,
-	write('Source cell is not occupied by a disc'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageSourceNotRing:-
-	write('INVALID MOVE!'), nl,
-	write('Source cell is not occupied by a ring'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageDestinationNotDisc:-
-	write('INVALID MOVE!'), nl,
-	write('Destination cell is not occupied by a disc'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageDestinationNotRing:-
-	write('INVALID MOVE!'), nl,
-	write('Destination cell is not occupied by a ring'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageDestinationTwopiece:-
-	write('INVALID MOVE!'), nl,
-	write('Destination cell is full and can\'t be moved (already occupied by two pieces)'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageNotNeighbours:-
-	write('INVALID MOVE!'), nl,
-	write('Source cell and destination cell aren\'t neighbors!'), nl,
-	pressEnterToContinue, nl, fail.
-
-messageNotOwned:-
-	write('INVALID MOVE!'), nl,
-	write('A player can only move his/her own pieces'), nl,
-	pressEnterToContinue, nl, fail.
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 askSourceCell(X, Y):-
 	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
@@ -246,16 +169,14 @@ validateBothCoordinates(_FromX, _FromY, _ToX, _ToY):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-validateDiscOwnership(X, Y, Board, Player):-
-	getSymbol(X, Y, Board, Symbol),
+validateDiscOwnership(Symbol, Player):-
 	getPlayerName(Player, PlayerName),
 	getPlayerColor(PlayerName, Color),
 	isDisc(Symbol, Color).
 validateDiscOwnership(_X, _Y, _Board, _Player):-
 	messageNotOwned.
 
-validateRingOwnership(X, Y, Board, Player):-
-	getSymbol(X, Y, Board, Symbol),
+validateRingOwnership(Symbol, Player):-
 	getPlayerName(Player, PlayerName),
 	getPlayerColor(PlayerName, Color),
 	isRing(Symbol, Color).
@@ -268,7 +189,7 @@ askMoveDisc(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
 	getSymbol(FromX, FromY, Board, Source),
 	validateSource(Source, disc), !,
-	validateDiscOwnership(FromX, FromY, Board, Player), !,
+	validateDiscOwnership(Source, Player), !,
 	askDestinationCell(ToX, ToY),
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Destination),
@@ -279,7 +200,7 @@ askMoveRing(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
 	getSymbol(FromX, FromY, Board, Source),
 	validateSource(Source, ring), !,
-	validateRingOwnership(FromX, FromY, Board, Player), !,
+	validateRingOwnership(Source, Player), !,
 	askDestinationCell(ToX, ToY),
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Destination),
@@ -332,17 +253,48 @@ askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-askMoves(Game, NewGame):-
-	getGameBoard(Game, Board),
-	getCurrentPlayer(Game, Player),
-	printTurn(Player),
-	askFirstMove(Board, Player, NewBoard, NewPlayer), !,
-	setGameBoard(Game, NewBoard, TempGame),
-	setCurrentPlayer(TempGame, NewPlayer, TempGame2),
-	changePlayerTurn(TempGame2, NewGame),
-	printBoard(NewBoard).
+playGame:-
+        initializePvP(Game, whitePlayer, blackPlayer),    
+        getGameBoard(Game, Board),
+        getCurrentPlayer(Game, Player),
+        printState(Game),
+        askInitialMove(Board, Player, NewBoard, NewPlayer), !,
+        move(Game, NewBoard, NewPlayer, NewGame), !,
+        playGame(NewGame).
 
-askFirstMove(Board, Player, NewBoard, NewPlayer):-
+playGame(Game):-
+        getGameBoard(Game, Board),
+        getCurrentPlayer(Game, Player),
+        printState(Game),
+        askMove(Board, Player, NewBoard, NewPlayer), !,
+        move(Game, NewBoard, NewPlayer, NewGame), !, 
+        playGame(NewGame).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+move(Game, Board, Player, NewGame):-
+        setGameBoard(Game, Board, TempGame),
+        setCurrentPlayer(TempGame, Player, TempGame2),
+        changePlayerTurn(TempGame2, NewGame).
+        
+askInitialMove(Board, Player, NewBoard, NewPlayer):-
+        write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
+        write('\t\t\t2. Place Ring'), nl,
+        getInt(Choice),
+        askInitialAction(Board, Player, Choice, NewBoard, NewPlayer).
+
+askInitialAction(Board, Player, 1, NewBoard, NewPlayer):-
+        askPlaceDisc(Board, Player, NewBoard, NewPlayer).
+askInitialAction(Board, Player, 2, NewBoard, NewPlayer):-
+        askPlaceRing(Board, Player, NewBoard, NewPlayer).
+askInitialAction(Board, Player, Choice, NewBoard, NewPlayer):-
+        Choice > 0, Choice =< 2, !,
+        askInitialMove(Board, Player, NewBoard, NewPlayer).
+askInitialAction(Board, Player, _Choice, NewBoard, NewPlayer):-
+        messageInvalidChoice, !,
+        askInitialMove(Board, Player, NewBoard, NewPlayer).
+
+askMove(Board, Player, NewBoard, NewPlayer):-
 	printBoard(Board),
 	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
 	write('\t\t\t2. Place Ring'), nl,
@@ -379,10 +331,10 @@ askMoveAction(Board, Player, 4, NewBoard, NewPlayer):-
 	askSecondMove(TempBoard, Player, disc, NewBoard, NewPlayer).
 askMoveAction(Board, Player, Choice, NewBoard, NewPlayer):-
 	Choice > 0, Choice =< 4, !,
-	askFirstMove(Board, Player, NewBoard, NewPlayer).
+	askMove(Board, Player, NewBoard, NewPlayer).
 askMoveAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
-	askFirstMove(Board, Player, NewBoard, NewPlayer).
+	askMove(Board, Player, NewBoard, NewPlayer).
 
 askDiscAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, NewBoard, NewPlayer).

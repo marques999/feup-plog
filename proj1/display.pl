@@ -112,8 +112,31 @@ printSecondLine([H|T]):-
 	write(' | '),
 	printSecondLine(T).
 
+printPlayerInfo(Player):-
+        getPlayerName(Player, PlayerName),
+        getNumberRings(Player, NumberRings),
+        getNumberDiscs(Player, NumberDiscs),
+        write('| '),
+        write(PlayerName),
+        write(' | rings : '),
+        write(NumberRings),
+        write(' | discs : '),
+        write(NumberDiscs), 
+        write(' |'), nl.
+
+printState(Game):-
+        getGameBoard(Game, Board),
+        getPlayer1(Game, Player1),
+        getPlayer2(Game, Player2),
+        getPlayerTurn(Game, PlayerTurn),
+        printBoard(Board),
+        write('+---------------------------------------+'), nl,
+        printPlayerInfo(Player1),
+        printPlayerInfo(Player2),
+        write('+---------------------------------------+'), nl,
+        nl, printTurn(PlayerTurn), nl.
+
 printTurn(Player):-
-	getPlayerName(Player, PlayerName),
 	write('> IT\'S '), 
-	write(PlayerName), 
+	write(Player), 
 	write('\'S TURN...'), nl.

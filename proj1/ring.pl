@@ -42,15 +42,17 @@ placeRing(X, Y, Color, Board, NewBoard):-
 
 checkPathRing(Start, End, Board, Color, Lista):-  
 	checkPathRing(Start, End, Board, Color, [Start], Lista). 
-checkPathRing(StartX-StartY, End, Board, white, Lista, Lista):-
+checkPathRing(StartX-StartY, _End, _Board, white, Lista, Lista):-
 	Lista \== [StartX-StartY],
 	StartX == 1.
-checkPathRing(StartX-StartY, End, Board, white, Lista, Lista):-
+checkPathRing(StartX-StartY, _End, _Board, white, Lista, Lista):-
+        Lista \== [StartX-StartY],
 	StartX == 7.
-checkPathRing(StartX-StartY, End, Board, black, Lista, Lista):-
+checkPathRing(StartX-StartY, _End, _Board, black, Lista, Lista):-
 	Lista \== [StartX-StartY],
 	StartY == 1.
-checkPathRing(StartX-StartY, End, Board, black, Lista, Lista):-
+checkPathRing(StartX-StartY, _End, _Board, black, Lista, Lista):-
+        Lista \== [StartX-StartY],
 	StartY == 7.
 checkPathRing(Start, End, Board, Color, Lista, ListaFim):- 
 	ligacaoRing(Start, Middle, Board), 

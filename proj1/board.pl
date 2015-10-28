@@ -30,6 +30,15 @@ isTwopiece(Symbol):-
 isEmpty(Symbol):-
 	Symbol is 0.
 
+isWhiteSymbol(Symbol):-
+        isDisc(Symbol, white).
+isWhiteSymbol(Symbol):-
+        isRing(Symbol, white).
+isBlackSymbol(Symbol):-
+        isDisc(Symbol, black).
+isBlackSymbol(Symbol):-
+        isRing(Symbol, black).
+
 ligacaoRing(StartX-StartY, EndX-EndY, Board):-
 	isNeighbour(StartX, StartY, EndX, EndY),
 	getSymbol(StartX, StartY, Board, Source),
@@ -109,3 +118,31 @@ checkPath(X, Y, Board, Length):-
 	checkPathDisc(X, Y, Board, Color, Length).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+scanWhite(Board, Position, List):-
+        list_at(Position, Board, Row),
+        scanWhite(Position, 0, Row, List).
+
+scanWhite(_X, _Y, [], _).   
+scanWhite(X, Y, [H|T], Lista):-
+        isWhiteSymbol(H),
+        append(Lista, [X-Y], NovaLista),
+        Y1 is Y + 1,
+        scanWhite(X, Y1, T, NovaLista).
+scanWhite(X, Y, [_H|T], Lista):-
+        Y1 is Y + 1,
+        scanWhite(X, Y1, T, Lista).
+
+  
+scanBlack(Board, Position, List):-
+        list_at(Position, Board, Row),
+        scanBlack(0, Position, Row, List).
+
+scanBlack(X, Y, [H|T], Lista):-
+        isBlackSymbol(H),
+        append(Lista, [X-Y], NovaLista),
+        X1 is X + 1,
+        scanBlack(X1, Y, T, NovaLista).
+scanBlack(X, Y, [_H|T], Lista):-
+        X1 is X + 1,
+        scanBlack(X1, Y, T, Lista).

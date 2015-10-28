@@ -42,15 +42,17 @@ placeDisc(X, Y, Color, Board, NewBoard):-
 
 checkPathDisc(Start, End, Board, Color, Lista):-  
 	checkPathDisc(Start, End, Board, Color, [Start], Lista). 
-checkPathDisc(StartX-StartY, End, Board, white, Lista, Lista):-
+checkPathDisc(StartX-StartY, _End, _Board, white, Lista, Lista):-
 	Lista \== [StartX-StartY],
 	StartX == 1.
-checkPathDisc(StartX-StartY, End, Board, white, Lista, Lista):-
+checkPathDisc(StartX-StartY, _End, _Board, white, Lista, Lista):-
+        Lista \== [StartX-StartY],
 	StartX == 7.
-checkPathDisc(StartX-StartY, End, Board, black, Lista, Lista):-
+checkPathDisc(StartX-StartY, _End, _Board, black, Lista, Lista):-
 	Lista \== [StartX-StartY],
 	StartY == 1.
-checkPathDisc(StartX-StartY, End, Board, black, Lista, Lista):-
+checkPathDisc(StartX-StartY, _End, _Board, black, Lista, Lista):-
+        Lista \== [StartX-StartY],
 	StartY == 7.
 checkPathDisc(Start, End, Board, Color, Lista, ListaFim):- 
 	ligacaoRing(Start, Middle, Board), 
