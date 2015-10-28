@@ -26,44 +26,18 @@ printMainMenu:- nl,
 	write('+================================+'), nl, nl,
 	write('Please choose an option:'), nl.
 
-mainMenu:-
-	printMainMenu,
-	getChar(Input),
-	mainMenuAction(Input).
-
-mainMenuAction('1'):- gameMenu, mainMenu.
-mainMenuAction('2'):- helpMenu, mainMenu.
-mainMenuAction('3'):- aboutMenu, mainMenu.
-mainMenuAction('4').
-mainMenuAction(_):-
-	write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue, nl,
-	mainMenu.
-
 printColorMenu:- nl,
-	write('+===============================+'), nl,
-	write('+    ..:: SELECT COLOR ::..     +'), nl,
+        write('+===============================+'), nl,
+        write('+    ..:: SELECT COLOR ::..     +'), nl,
 	write('+===============================+'), nl,
 	write('|                               |'), nl,
-	write('|   1. Black			           |'), nl,
+	write('|   1. Black                    |'), nl,
 	write('|   2. White                    |'), nl,
 	write('|                               |'), nl,
 	write('|   3. <- Back                  |'), nl,
 	write('|                               |'), nl,
 	write('+===============================+'), nl, nl,
 	write('Please choose an option:'), nl.
-
-colorMenu:-
-	printColorMenu,
-	getChar(Input),
-	colorMenuAction(Input).
-
-colorMenuAction('1'):- gameMenu(blackPlayer), mainMenu.
-colorMenuAction('2'):- gameMenu(whitePlayer), mainMenu.
-colorMenuAction(_):-
-	write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue, nl,
-	gameMenu.
 
 printGameMenu:- nl,
 	write('+===============================+'), nl,
@@ -79,165 +53,149 @@ printGameMenu:- nl,
 	write('+===============================+'), nl, nl,
 	write('Please choose an option:'), nl.
 
+mainMenu:-
+	printMainMenu,
+	getInt(Input),
+	mainMenuAction(Input).
+
+mainMenuAction(1):- colorMenu, mainMenu.
+mainMenuAction(2):- helpMenu, mainMenu.
+mainMenuAction(3):- aboutMenu, mainMenu.
+mainMenuAction(4).
+mainMenuAction(_):-
+	nl, write('ERROR: you have entered an invalid value...'), nl,
+	pressEnterToContinue,
+	mainMenu.
+
+colorMenu:-
+	printColorMenu,
+	getInt(Input),
+	colorMenuAction(Input).
+
+colorMenuAction(1):- gameMenu(blackPlayer), mainMenu.
+colorMenuAction(2):- gameMenu(whitePlayer), mainMenu.
+colorMenuAction(3).
+colorMenuAction(_):-
+	nl, write('ERROR: you have entered an invalid value...'), nl,
+	pressEnterToContinue,
+	colorMenu.
+
 gameMenu(Player):-
 	printGameMenu,
-	getChar(Input),
+	getInt(Input),
 	gameMenuAction(Input, Player).
 
-gameMenuAction('1', Player):- startPvPGame(Player), mainMenu.
-gameMenuAction('2', Player):- startPvBGame(Player), mainMenu.
-gameMenuAction('3', Player):- startBvBGame(Player), mainMenu.
-gameMenuAction('4', Player).
-gameMenuAction(_):-
-	write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue, nl,
-	gameMenu.
+gameMenuAction(1, Player):- startPvPGame(Player), mainMenu.
+gameMenuAction(2, Player):- startPvBGame(Player), mainMenu.
+gameMenuAction(3, Player):- startBvBGame(Player), mainMenu.
+gameMenuAction(4, _).
+gameMenuAction(_, Player):-
+	nl, write('ERROR: you have entered an invalid value...'), nl,
+	pressEnterToContinue,
+	gameMenu(Player).
 
 startPvPGame(Player):-
-	initializePvP(Game, Player),
-	playGame(Game).
+        initializePvP(Game, Player),
+        getGameMode(Game, Mode), !,
+        playGame(Game, Mode).
 
 startPvBGame(Player):-
 	initializePvB(Game, Player),
-	playGame(Game).
+        getGameMode(Game, Mode), !,
+        playGame(Game, Mode).
 
 startBvBGame(Player):-
 	initializeBvB(Game, Player),
-	playGame(Game).
+        getGameMode(Game, Mode), !,
+        playGame(Game, Mode).
 
 helpMenu:-
 	write('+=================================================================+'), nl,
 	write('+                ..:: GAME INSTRUCTIONS ::..                      +'), nl,
 	write('+=================================================================+'), nl,
-	write('=                                                                 ='), nl,
-	write('=   Eximo is a member of the Checkers family.                     ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Objective:                                                    ='), nl,
-	write('=     Capture all your opponent\'s pieces by jumping over them,    ='), nl,
-	write('=     or stalemate the opponent so he has no moves.               ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Turn:                                                         ='), nl,
-	write('=     In each turn, a player can make one of the two actions:     ='), nl,
-	write('=     move or capture.                                            ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Move:                                                         ='), nl,
-	write('=     A checker can move in 3 directions: forward or diagonally   ='), nl,
-	write('=     forward (north, north-east or north-west).                  ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                   Page 1 of 5   ='), nl,
-	write('=                                                                 ='), nl,
-	write('==================================================================='), nl,
+	write('|                                                                 |'), nl,
+	write('|   DuploHex is a connection game related to Hex that includes    |'), nl,
+	write('|   discs and rings. In order to play DuploHex you need an 7x7    |'), nl,
+	write('|   Hex board, 25 black and 25 white rings, and 25 black and 25   |'), nl,
+	write('|   white discs.                                                  |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   Objective:                                                    |'), nl,
+	write('|     Each player must connect the two opposing sides of the      |'), nl,
+	write('|     board marked by their colors either with their discs or     |'), nl,
+	write('|     their rings.                                                |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   Start:                                                        |'), nl,
+	write('|     Game starts with an empty board.                            |'), nl,
+	write('|     White starts by placing one disc or ring on any cell.       |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                   Page 1 of 3   |'), nl,
+	write('|                                                                 |'), nl,
+	write('+=================================================================+'), nl,
 	nl, pressEnterToContinue, nl,
 
-	write('==================================================================='), nl,
-	write('=                      ..:: How to play ::..                      ='), nl,
-	write('==================================================================='), nl,
-	write('=                                                                 ='), nl,
-	write('=   There are two types of moves:                                 ='), nl,
-	write('=     ordinary move and jumping move.                             ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Ordinary move: a checker moves to a (forward or diagonally    ='), nl,
-	write('=      forward) adjacent and empty square.                        ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Jumping move: a checker moves to a (forward or diagonally     ='), nl,
-	write('=     forward) adjacent friendly piece if the next square in      ='), nl,
-	write('=     the same direction is empty, placing the jumping checker    ='), nl,
-	write('=     on the next empty square. If the same player\'s checker      ='), nl,
-	write('=     can continue moving by jumping another friendly piece       ='), nl,
-	write('=     then it must do so. During the jumping move that checker    ='), nl,
-	write('=     cannot capture.                                             ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                   Page 2 of 5   ='), nl,
-	write('=                                                                 ='), nl,
-	write('==================================================================='), nl,
+	write('+=================================================================+'), nl,
+	write('+                ..:: GAME INSTRUCTIONS ::..                      +'), nl,
+	write('+=================================================================+'), nl,
+	write('|                                                                 |'), nl,
+	write('|   Each player in turn must perform two mandatory actions:       |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   1 : add one of her discs to an empty cell or move one of her  |'), nl,
+	write('|       discs on the board into any ring located in a neighbour   |'), nl,
+	write('|       cell (must not be already occupied by both)               |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   2 : one of her rings to an empty cell or move one of her      |'), nl,
+	write('|       rings on the board to a neighbour cell occupied by a      |'), nl,
+	write('|       disc (must not be already occupied by both)               |'), nl,
+	write('|                                                                 |'), nl,
+	write('|    The disc-ring pair (a disc inside a ring) cannot be moved    |'), nl,
+	write('|    for the rest of the game.                                    |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                   Page 2 of 3   |'), nl,
+	write('|                                                                 |'), nl,
+	write('+=================================================================+'), nl,
 	nl, pressEnterToContinue, nl,
 
-	write('==================================================================='), nl,
-	write('=                      ..:: How to play ::..                      ='), nl,
-	write('==================================================================='), nl,
-	write('=                                                                 ='), nl,
-	write('=   When there is more than one way to jump, the player may       ='), nl,
-	write('=   choose which piece to jump with, and which jumping option     ='), nl,
-	write('=   or sequence of jumps to make. The jumping sequence chosen     ='), nl,
-	write('=   is not required to be the one which maximizes the number of   ='), nl,
-	write('=   jumps; however, a player must make all available jumps in     ='), nl,
-	write('=   the sequence chosen.                                          ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   Capture:                                                      ='), nl,
-	write('=     A checker can capture in 5 directions: forward,             ='), nl,
-	write('=     diagonally forward, right or left (north, north-east,       ='), nl,
-	write('=     north-west, east or west).                                  ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                   Page 3 of 5   ='), nl,
-	write('=                                                                 ='), nl,
-	write('==================================================================='), nl,
-	nl, pressEnterToContinue, nl,
+	write('+=================================================================+'), nl,
+	write('+                ..:: GAME INSTRUCTIONS ::..                      +'), nl,
+	write('+=================================================================+'), nl,
+	write('|                                                                 |'), nl,
+	write('|   Players may not pass. Pieces cannot be stacked.               |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   Finally, if a player cannot perform a legal action, she must  |'), nl,
+	write('|   in her turn add one of their discs or rings on any cell of    |'), nl,
+	write('|   the board occupied by a ring or a disc, respectively.         |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   For a shorter game, you can play on a 6x6 board.              |'), nl,
+	write('|   To set up such board simply fill two adjacent border rows     |'), nl,
+	write('|   with rings and discs of the corresponding colour before the   |'), nl,
+	write('|   game starts.                                                  |'), nl,
+	write('|                                                                 |'), nl,
+	write('|   DuploHex @ BoardGameGeek                                      |'), nl,
+	write('|     https://boardgamegeek.com/boardgame/174474/duplohex         |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                                 |'), nl,
+	write('|                                                   Page 3 of 3   |'), nl,
+	write('|                                                                 |'), nl,
+	write('+=================================================================+'), nl,
+	nl, pressEnterToContinue.
 
-	write('==================================================================='), nl,
-	write('=                      ..:: How to play ::..                      ='), nl,
-	write('==================================================================='), nl,
-	write('=                                                                 ='), nl,
-	write('=   A checker jumps over a (forward, diagonally forward, right    ='), nl,
-	write('=   or left) adjacent opponent\'s piece if the next square in      ='), nl,
-	write('=   the same direction is empty, placing the jumping checker on   ='), nl,
-	write('=   the next empty square. The opponent\'s piece is removed from   ='), nl,
-	write('=   the board immediately. If the same player\'s checker can       ='), nl,
-	write('=   continue capturing by jumping another opponent\'s piece then   ='), nl,
-	write('=   it must do so. Capturing is mandatory, and you must keep      ='), nl,
-	write('=   capturing as long as it is possible.                          ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   As in the jumping move, the player chooses freely which       ='), nl,
-	write('=   jumping sequence to take.                                     ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                   Page 4 of 5   ='), nl,
-	write('=                                                                 ='), nl,
-	write('==================================================================='), nl,
-	nl, pressEnterToContinue, nl,
-
-	write('==================================================================='), nl,
-	write('=                      ..:: How to play ::..                      ='), nl,
-	write('==================================================================='), nl,
-	write('=                                                                 ='), nl,
-	write('=   On the last row:                                              ='), nl,
-	write('=   When a checker reaches the other end of the board, it is      ='), nl,
-	write('=   removed from the board immediately and the player gets two    ='), nl,
-	write('=   extra-moves to make instantly: dropping two new checkers in   ='), nl,
-	write('=   any empty square in his own first two rows, except in the     ='), nl,
-	write('=   four squares on the sides.                                    ='), nl,
-	write('=   The drop zone for Black: b1, c1, d1, e1, f1, g1, b2, c2,      ='), nl,
-	write('=   d2, e2, f2, g2; for White: b8, c8, d8, e8, f8, g8, b7, c7,    ='), nl,
-	write('=   d7, e7, f7, g7).                                              ='), nl,
-	write('=                                                                 ='), nl,
-	write('=   If a checker reaches the other end of the board and there     ='), nl,
-	write('=   isn\'t any empty square in the drop zone, the player loses     ='), nl,
-	write('=   that piece. If there is just one empty square in the drop     ='), nl,
-	write('=   zone, the player gets only one drop.                          ='), nl,
-	write('=                                                                 ='), nl,
-	write('=                                                   Page 5 of 5   ='), nl,
-	write('=                                                                 ='), nl,
-	write('==================================================================='), nl,
-	nl, pressEnterToContinue, nl.
-
-aboutMenu:-
+aboutMenu:- nl,
 	write('+===============================+'), nl,
 	write('+        ..:: ABOUT ::..        +'), nl,
 	write('+===============================+'), nl,
-	write('=                               ='), nl,
-	write('=   FEUP                        ='), nl,
-	write('=   MIEIC 2015/2016             ='), nl,
-	write('=                               ='), nl,
-	write('=   Authors:                    ='), nl,
-	write('=    > Carlos Samouco           ='), nl,
-	write('=    > Diogo Marques            ='), nl,
-	write('=                               ='), nl,
-	write('=                               ='), nl,
+	write('|                               |'), nl,
+	write('|   FEUP / MIEIC                |'), nl,
+	write('|   Ano Letivo 2015-2016        |'), nl,
+	write('|                               |'), nl,
+	write('|   Authors:                    |'), nl,
+	write('|                               |'), nl,
+	write('|    > Carlos Samouco           |'), nl,
+	write('|      up201305187@fe.up.pt     |'), nl,
+	write('|                               |'), nl,
+	write('|    > Diogo Marques            |'), nl,
+	write('|      up201305642@fe.up.pt     |'), nl,
+	write('|                               |'), nl,
 	write('+===============================+'), nl,
-	nl, pressEnterToContinue, nl.
+	nl, pressEnterToContinue.

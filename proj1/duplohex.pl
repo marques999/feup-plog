@@ -290,6 +290,16 @@ move(Game, Board, Player, NewGame):-
 		setCurrentPlayer(TempGame, Player, TempGame2),
 		changePlayerTurn(TempGame2, NewGame).
 
+letHumanPlay(Board, Player, NewBoard, NewPlayer):-
+        write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
+        write('\t\t\t2. Place Ring'), nl,
+        write('\t\t\t3. Move Disc'), nl,
+        write('\t\t\t4. Move Ring'), nl,
+        getInt(Choice),
+        askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 askInitialMove(Board, Player, NewBoard, NewPlayer):-
 		write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
 		write('\t\t\t2. Place Ring'), nl,
@@ -307,14 +317,7 @@ askInitialAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 		messageInvalidChoice, !,
 		askInitialMove(Board, Player, NewBoard, NewPlayer).
 
-letHumanPlay(Board, Player, NewBoard, NewPlayer):-
-	printBoard(Board),
-	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
-	write('\t\t\t2. Place Ring'), nl,
-	write('\t\t\t3. Move Disc'), nl,
-	write('\t\t\t4. Move Ring'), nl,
-	getInt(Choice),
-	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
 	printBoard(Board),
@@ -329,6 +332,8 @@ askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
 	write('\t\t\t2. Move Ring'), nl,
 	getInt(Choice),
 	askRingAction(Board, Player, Choice, NewBoard, NewPlayer).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askMoveAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, TempBoard, TempPlayer), !,
@@ -349,6 +354,8 @@ askMoveAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
 	letHumanPlay(Board, Player, NewBoard, NewPlayer).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 askDiscAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
 askDiscAction(Board, Player, 2, NewBoard, _NewPlayer):-
@@ -360,6 +367,8 @@ askDiscAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
 	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 askRingAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceRing(Board, Player, NewBoard, NewPlayer).
 askRingAction(Board, Player, 2, NewBoard, _NewPlayer):-
@@ -370,3 +379,5 @@ askRingAction(Board, Player, Choice, NewBoard, NewPlayer):-
 askRingAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
 	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
