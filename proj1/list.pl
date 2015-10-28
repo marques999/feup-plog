@@ -31,7 +31,7 @@ moveSymbol(FromX, FromY, ToX, ToY, Symbol, Board, NewBoard):-
 
 getSymbol(X, Y, List, Symbol):-
 	X > 0,
-	list_at(X, List, Row),
+	list_at(X, List, Row), !,
 	list_at(Y, Row, Symbol).
 
 %===============================%
@@ -52,5 +52,5 @@ list_set(I, Symbol, [H|L], [H|Result]):-
 list_at(1, [H|_], H).
 list_at(X, [_|T], Symbol):-
 	X > 1,
-	X1 is X - 1,
+	X1 is X - 1, !,
 	list_at(X1, T, Symbol).

@@ -25,6 +25,16 @@ testMatrix([
 	[5, 1, 9, 1, 2, 5, 6]
 ]).
 
+testPath([
+	[0, 1, 8, 1, 0, 0, 0],
+	[0, 1, 8, 8, 9, 0, 5],
+	[0, 1, 8, 4, 2, 5, 0],
+	[6, 4, 8, 2, 2, 0, 0],
+	[0, 2, 8, 1, 2, 0, 6],
+	[0, 1, 8, 8, 8, 0, 0],
+	[5, 1, 9, 8, 1, 5, 6]
+]).
+
 gameMode(pvp).
 gameMode(pvb).
 gameMode(bvb).
@@ -328,7 +338,8 @@ askMoves(Game, NewGame):-
 	printTurn(Player),
 	askFirstMove(Board, Player, NewBoard, NewPlayer), !,
 	setGameBoard(Game, NewBoard, TempGame),
-	setCurrentPlayer(TempGame, NewPlayer, NewGame),
+	setCurrentPlayer(TempGame, NewPlayer, TempGame2),
+	changePlayerTurn(TempGame2, NewGame),
 	printBoard(NewBoard).
 
 askFirstMove(Board, Player, NewBoard, NewPlayer):-

@@ -40,23 +40,21 @@ placeDisc(X, Y, Color, Board, NewBoard):-
 	insertDisc(Destination, Source, Symbol),
 	setSymbol(X, Y, Symbol, Board, NewBoard).
 
-checkPathDisc(Length, _, _, _, Length).
-checkPathDisc(_, Length, _, _, Length).
-checkPathDisc(0, _, _, _, _).
-checkPathDisc(_, 0, _, _, _).
-checkPathDisc(X, Y, Board, _, Color, _):-
-	matrix_at(X, Y, Board, Symbol),
-	\+isDisc(Symbol, Color), !.
-checkPathDisc(X, Y, Board, Color, Length):-
-	XP1 is X + 1,
-	XM1 is X - 1,
-	YP1 is Y + 1,
-	YM1 is Y - 1,
-	checkPathDisc(XP1, YP1, Board, Color, Length),
-	checkPathDisc(XM1, YP1, Board, Color, Length),
-	checkPathDisc(XP1, YM1, Board, Color, Length),
-	checkPathDisc(XM1, YM1, Board, Color, Length),
-	checkPathDisc(XP1, Y, Board, Color, Length),
-	checkPathDisc(XM1, Y, Board, Color, Length),
-	checkPathDisc(X, YP1, Board, Color, Length),
-	checkPathDisc(X, YM1, Board, Color, Length).
+checkPathDisc(Start, End, Board, Color, Lista):-  
+	checkPathDisc(Start, End, Board, Color, [Start], Lista). 
+checkPathDisc(StartX-StartY, End, Board, white, Lista, Lista):-
+	Lista \== [StartX-StartY],
+	StartX == 1.
+checkPathDisc(StartX-StartY, End, Board, white, Lista, Lista):-
+	StartX == 7.
+checkPathDisc(StartX-StartY, End, Board, black, Lista, Lista):-
+	Lista \== [StartX-StartY],
+	StartY == 1.
+checkPathDisc(StartX-StartY, End, Board, black, Lista, Lista):-
+	StartY == 7.
+checkPathDisc(Start, End, Board, Color, Lista, ListaFim):- 
+	ligacaoRing(Start, Middle, Board), 
+	Middle \= End,
+	\+member(Middle, Lista),  
+	append(Lista, [Middle], Lista2), 
+	checkPathDisc(Middle, End, Board, Color, Lista2, ListaFim).

@@ -40,25 +40,21 @@ placeRing(X, Y, Color, Board, NewBoard):-
 	insertRing(Destination, Source, Symbol),
 	setSymbol(X, Y, Symbol, Board, NewBoard).
 
-checkPathRing(Length, _, _, _, Length).
-checkPathRing(_, Length, _, _, Length).
-checkPathRing(0, _, _, _, _).
-checkPathRing(_, 0, _, _, _).
-
-checkPathRing(X, Y, Board, _, Color, _):-
-	matrix_at(X, Y, Board, Symbol),
-	\+isRing(Symbol, Color), !.
-
-checkPathRing(X, Y, Board, Color, Length):-
-	XP1 is X + 1,
-	XM1 is X - 1,
-	YP1 is Y + 1,
-	YM1 is Y - 1,
-	checkPathRing(XP1, YP1, Board, Color, Length),
-	checkPathRing(XM1, YP1, Board, Color, Length),
-	checkPathRing(XP1, YM1, Board, Color, Length),
-	checkPathRing(XM1, YM1, Board, Color, Length),
-	checkPathRing(XP1, Y, Board, Color, Length),
-	checkPathRing(XM1, Y, Board, Color, Length),
-	checkPathRing(X, YP1, Board, Color, Length),
-	checkPathRing(X, YM1, Board, Color, Length).
+checkPathRing(Start, End, Board, Color, Lista):-  
+	checkPathRing(Start, End, Board, Color, [Start], Lista). 
+checkPathRing(StartX-StartY, End, Board, white, Lista, Lista):-
+	Lista \== [StartX-StartY],
+	StartX == 1.
+checkPathRing(StartX-StartY, End, Board, white, Lista, Lista):-
+	StartX == 7.
+checkPathRing(StartX-StartY, End, Board, black, Lista, Lista):-
+	Lista \== [StartX-StartY],
+	StartY == 1.
+checkPathRing(StartX-StartY, End, Board, black, Lista, Lista):-
+	StartY == 7.
+checkPathRing(Start, End, Board, Color, Lista, ListaFim):- 
+	ligacaoRing(Start, Middle, Board), 
+	Middle \= End,
+	\+member(Middle, Lista),  
+	append(Lista, [Middle], Lista2), 
+	checkPathRing(Middle, End, Board, Color, Lista2, ListaFim).

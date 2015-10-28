@@ -6,6 +6,7 @@
 % #includes		%
 %		------- %
 
+:- include('point.pl').
 :- include('list.pl').
 :- include('disc.pl').
 :- include('ring.pl').
@@ -29,18 +30,24 @@ isTwopiece(Symbol):-
 isEmpty(Symbol):-
 	Symbol is 0.
 
+ligacaoRing(StartX-StartY, EndX-EndY, Board):-
+	isNeighbour(StartX, StartY, EndX, EndY),
+	getSymbol(StartX, StartY, Board, Source),
+	getSymbol(EndX, EndY, Board, Destination),
+	isRing(Source, Color),
+	isRing(Destination, Color).
+
+ligacaoDisc(StartX-StartY, EndX-EndY, Board):-
+	isNeighbour(StartX, StartY, EndX, EndY),
+	getSymbol(StartX, StartY, Board, Source),
+	getSymbol(EndX, EndY, Board, Destination),
+	isDisc(Source, Color),
+	isDisc(Destination, Color).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-sameRow(From, To):- To is From - 1.
 sameRow(From, To):- To is From + 1.
-
-isNeighbour(FromX, FromY, FromX, ToY):-
-	sameRow(FromY, ToY),
-	ToY > 0, ToY < 8.
-
-isNeighbour(FromX, FromY, ToX, FromY):-
-	sameRow(FromX, ToX),
-	ToX > 0, ToX < 8.
+sameRow(From, To):- To is From - 1.
 
 isNeighbour(FromX, FromY, ToX, ToY):-
 	ToX is FromX - 1,
@@ -53,6 +60,14 @@ isNeighbour(FromX, FromY, ToX, ToY):-
 	ToX > 0, ToX < 8, 
 	ToY is FromY - 1,
 	ToY > 0, ToY < 8.
+
+isNeighbour(FromX, FromY, FromX, ToY):-
+	sameRow(FromY, ToY),
+	ToY > 0, ToY < 8.
+
+isNeighbour(FromX, FromY, ToX, FromY):-
+	sameRow(FromX, ToX),
+	ToX > 0, ToX < 8.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -82,13 +97,15 @@ isLeftWall(_, Y) :- Y is 0.
 isRightWall(_, Y, Length) :- Y is Length.
 
 checkPath(X, Y, Board, Length):-
-	matrix_at(X, Y, Board, Symbol),
+	getSymbol(X, Y, Board, Symbol),
 	isRing(Symbol, Color),
+	checkPathRing(X, Y, Board, Color, 0),
 	checkPathRing(X, Y, Board, Color, Length).
 
 checkPath(X, Y, Board, Length):-
-	matrix_at(X, Y, Board, Symbol),
+	getSymbol(X, Y, Board, Symbol),
 	isDisc(Symbol, Color),
+	checkPathDisc(X, Y, Board, Color, 0),
 	checkPathDisc(X, Y, Board, Color, Length).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
