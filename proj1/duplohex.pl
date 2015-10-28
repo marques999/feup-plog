@@ -43,25 +43,37 @@ gameMode(bvb).
 % #predicados 	%
 %		------- %
 
-initializePvP(Game, Player1Color, Player2Color):-
+initializePvP(Game, blackPlayer):-
 	testMatrix(Board),
-	Player1Color \= Player2Color,
-	initializePlayer(Player1Color, Player1),
-	initializePlayer(Player2Color, Player2),
+	initializePlayer(blackPlayer, Player1),
+	initializePlayer(whitePlayer, Player2),
 	Game = Board-pvp-whitePlayer-Player1-Player2, !.
-
-initializePvB(Game, Player1Color, Player2Color):-
+initializePvP(Game, whitePlayer):-
 	testMatrix(Board),
-	Player1Color \= Player2Color,
-	initializePlayer(Player1Color, Player1),
-	initializePlayer(Player2Color, Player2),
+	initializePlayer(whitePlayer, Player1),
+	initializePlayer(blackPlayer, Player2),
+	Game = Board-pvp-whitePlayer-Player1-Player2, !.
+	
+initializePvB(Game, blackPlayer):-
+	testMatrix(Board),
+	initializePlayer(blackPlayer, Player1),
+	initializePlayer(whitePlayer, Player2),
+	Game = Board-pvb-whitePlayer-Player1-Player2, !.
+initializePvB(Game, whitePlayer):-
+	testMatrix(Board),
+	initializePlayer(whitePlayer, Player1),
+	initializePlayer(blackPlayer, Player2),
 	Game = Board-pvb-whitePlayer-Player1-Player2, !.
 
-initializeBvB(Game, Player1Color, Player2Color):-
+initializeBvB(Game, blackPlayer):-
 	testMatrix(Board),
-	Player1Color \= Player2Color,
-	initializePlayer(Player1Color, Player1),
-	initializePlayer(Player2Color, Player2),
+	initializePlayer(blackPlayer, Player1),
+	initializePlayer(whitePlayer, Player2),
+	Game = Board-bvb-whitePlayer-Player1-Player2, !.
+initializeBvB(Game, whitePlayer):-
+	testMatrix(Board),
+	initializePlayer(whitePlayer, Player1),
+	initializePlayer(blackPlayer, Player2),
 	Game = Board-bvb-whitePlayer-Player1-Player2, !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

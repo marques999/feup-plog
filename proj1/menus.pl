@@ -40,6 +40,31 @@ mainMenuAction(_):-
 	pressEnterToContinue, nl,
 	mainMenu.
 
+printColorMenu:- nl,
+	write('+===============================+'), nl,
+	write('+    ..:: SELECT COLOR ::..     +'), nl,
+	write('+===============================+'), nl,
+	write('|                               |'), nl,
+	write('|   1. Black			           |'), nl,
+	write('|   2. White                    |'), nl,
+	write('|                               |'), nl,
+	write('|   3. <- Back                  |'), nl,
+	write('|                               |'), nl,
+	write('+===============================+'), nl, nl,
+	write('Please choose an option:'), nl.
+
+colorMenu:-
+	printColorMenu,
+	getChar(Input),
+	colorMenuAction(Input).
+
+colorMenuAction('1'):- gameMenu(blackPlayer), mainMenu.
+colorMenuAction('2'):- gameMenu(whitePlayer), mainMenu.
+colorMenuAction(_):-
+	write('ERROR: you have entered an invalid value...'), nl,
+	pressEnterToContinue, nl,
+	gameMenu.
+
 printGameMenu:- nl,
 	write('+===============================+'), nl,
 	write('+     ..:: SELECT MODE ::..     +'), nl,
@@ -54,30 +79,30 @@ printGameMenu:- nl,
 	write('+===============================+'), nl, nl,
 	write('Please choose an option:'), nl.
 
-gameMenu:-
+gameMenu(Player):-
 	printGameMenu,
 	getChar(Input),
-	gameMenuAction(Input).
+	gameMenuAction(Input, Player).
 
-gameMenuAction('1'):- startPvPGame, mainMenu.
-gameMenuAction('2'):- startPvBGame, mainMenu.
-gameMenuAction('3'):- startBvBGame, mainMenu.
-gameMenuAction('4').
+gameMenuAction('1', Player):- startPvPGame(Player), mainMenu.
+gameMenuAction('2', Player):- startPvBGame(Player), mainMenu.
+gameMenuAction('3', Player):- startBvBGame(Player), mainMenu.
+gameMenuAction('4', Player).
 gameMenuAction(_):-
 	write('ERROR: you have entered an invalid value...'), nl,
 	pressEnterToContinue, nl,
 	gameMenu.
 
-startPvPGame:-
-	createPvPGame(Game),
+startPvPGame(Player):-
+	initializePvP(Game, Player),
 	playGame(Game).
 
-startPvBGame:-
-	createPvBGame(Game),
+startPvBGame(Player):-
+	initializePvB(Game, Player),
 	playGame(Game).
 
-startBvBGame:-
-	createBvBGame(Game),
+startBvBGame(Player):-
+	initializeBvB(Game, Player),
 	playGame(Game).
 
 helpMenu:-
