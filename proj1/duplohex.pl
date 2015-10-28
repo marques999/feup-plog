@@ -12,7 +12,7 @@
 :- include('display.pl').
 
 %		------- %
-% #factos 		%
+% #factos		%
 %		------- %
 
 testMatrix([
@@ -40,7 +40,7 @@ gameMode(pvb).
 gameMode(bvb).
 
 %		------- %
-% #predicados 	%
+% #predicados	%
 %		------- %
 
 initializePvP(Game, blackPlayer):-
@@ -53,7 +53,7 @@ initializePvP(Game, whitePlayer):-
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
 	Game = Board-pvp-whitePlayer-Player1-Player2, !.
-	
+
 initializePvB(Game, blackPlayer):-
 	testMatrix(Board),
 	initializePlayer(blackPlayer, Player1),
@@ -83,21 +83,21 @@ setGameBoard(_Board-Mode-PlayerTurn-Player1-Player2,
 	NewBoard, NewBoard-Mode-PlayerTurn-Player1-Player2).
 
 getGameMode(_Board-Mode-_PlayerTurn-_Player1-_Player2, Mode).
-setGameMode(Board-_-PlayerTurn-Player1-Player2, 
+setGameMode(Board-_-PlayerTurn-Player1-Player2,
 	NewMode, Board-NewMode-PlayerTurn-Player1-Player2):-
 	gameMode(NewMode).
 
 getPlayerTurn(_Board-_Mode-PlayerTurn-_Player1-_Player2, PlayerTurn).
-setPlayerTurn(Board-Mode-_PlayerTurn-Player1-Player2, 
+setPlayerTurn(Board-Mode-_PlayerTurn-Player1-Player2,
 	NewTurn, Board-Mode-NewTurn-Player1-Player2):-
 	player(NewTurn).
 
 getPlayer1(_Board-_Mode-_PlayerTurn-Player1-_Player2, Player1).
-setPlayer1(Board-Mode-PlayerTurn-_Player1-Player2, 
+setPlayer1(Board-Mode-PlayerTurn-_Player1-Player2,
 	NewPlayer, Board-Mode-PlayerTurn-NewPlayer-Player2).
 
 getPlayer2(_Board-_Mode-_PlayerTurn-_Player1-Player2, Player2).
-setPlayer2(Board-Mode-PlayerTurn-Player1-_Player2, 
+setPlayer2(Board-Mode-PlayerTurn-Player1-_Player2,
 	NewPlayer, Board-Mode-PlayerTurn-Player1-NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -166,7 +166,7 @@ validateDestination(Symbol, ring):-
 validateDestination(_Symbol, ring):- !,
 	messageDestinationNotRing.
 
-validateCoordinates(X, Y):- 
+validateCoordinates(X, Y):-
 	X > 0, Y > 0,
 	X < 8, Y < 8.
 validateCoordinates(_X, _Y):-
@@ -266,47 +266,48 @@ askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 playGame:-
-        initializePvP(Game, whitePlayer, blackPlayer),    
-        getGameBoard(Game, Board),
-        getCurrentPlayer(Game, Player),
-        printState(Game),
-        askInitialMove(Board, Player, NewBoard, NewPlayer), !,
-        move(Game, NewBoard, NewPlayer, NewGame), !,
-        playGame(NewGame).
+		initializePvP(Game, whitePlayer, blackPlayer),
+		getGameBoard(Game, Board),
+		getGameMode(Game, Mode),
+		getCurrentPlayer(Game, Player),
+		printState(Game),
+		askInitialMove(Board, Player, NewBoard, NewPlayer), !,
+		move(Game, NewBoard, NewPlayer, NewGame), !,
+		playGame(NewGame, Mode).
 
-playGame(Game):-
-        getGameBoard(Game, Board),
-        getCurrentPlayer(Game, Player),
-        printState(Game),
-        askMove(Board, Player, NewBoard, NewPlayer), !,
-        move(Game, NewBoard, NewPlayer, NewGame), !, 
-        playGame(NewGame).
+playGame(Game, pvp):-
+		getGameBoard(Game, Board),
+		getCurrentPlayer(Game, Player),
+		printState(Game),
+		letHumanPlay(Board, Player, NewBoard, NewPlayer), !,
+		move(Game, NewBoard, NewPlayer, NewGame), !,
+		playGame(NewGame, pvp).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 move(Game, Board, Player, NewGame):-
-        setGameBoard(Game, Board, TempGame),
-        setCurrentPlayer(TempGame, Player, TempGame2),
-        changePlayerTurn(TempGame2, NewGame).
-        
+		setGameBoard(Game, Board, TempGame),
+		setCurrentPlayer(TempGame, Player, TempGame2),
+		changePlayerTurn(TempGame2, NewGame).
+
 askInitialMove(Board, Player, NewBoard, NewPlayer):-
-        write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
-        write('\t\t\t2. Place Ring'), nl,
-        getInt(Choice),
-        askInitialAction(Board, Player, Choice, NewBoard, NewPlayer).
+		write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
+		write('\t\t\t2. Place Ring'), nl,
+		getInt(Choice),
+		askInitialAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askInitialAction(Board, Player, 1, NewBoard, NewPlayer):-
-        askPlaceDisc(Board, Player, NewBoard, NewPlayer).
+		askPlaceDisc(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, 2, NewBoard, NewPlayer):-
-        askPlaceRing(Board, Player, NewBoard, NewPlayer).
+		askPlaceRing(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, Choice, NewBoard, NewPlayer):-
-        Choice > 0, Choice =< 2, !,
-        askInitialMove(Board, Player, NewBoard, NewPlayer).
+		Choice > 0, Choice =< 2, !,
+		askInitialMove(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, _Choice, NewBoard, NewPlayer):-
-        messageInvalidChoice, !,
-        askInitialMove(Board, Player, NewBoard, NewPlayer).
+		messageInvalidChoice, !,
+		askInitialMove(Board, Player, NewBoard, NewPlayer).
 
-askMove(Board, Player, NewBoard, NewPlayer):-
+letHumanPlay(Board, Player, NewBoard, NewPlayer):-
 	printBoard(Board),
 	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
 	write('\t\t\t2. Place Ring'), nl,
@@ -329,10 +330,10 @@ askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
 	getInt(Choice),
 	askRingAction(Board, Player, Choice, NewBoard, NewPlayer).
 
-askMoveAction(Board, Player, 1, NewBoard, NewPlayer):- 
+askMoveAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, TempBoard, TempPlayer), !,
 	askSecondMove(TempBoard, TempPlayer, ring, NewBoard, NewPlayer).
-askMoveAction(Board, Player, 2, NewBoard, NewPlayer):- 
+askMoveAction(Board, Player, 2, NewBoard, NewPlayer):-
 	askPlaceRing(Board, Player, TempBoard, TempPlayer), !,
 	askSecondMove(TempBoard, TempPlayer, disc, NewBoard, NewPlayer).
 askMoveAction(Board, Player, 3, NewBoard, NewPlayer):-
@@ -343,16 +344,16 @@ askMoveAction(Board, Player, 4, NewBoard, NewPlayer):-
 	askSecondMove(TempBoard, Player, disc, NewBoard, NewPlayer).
 askMoveAction(Board, Player, Choice, NewBoard, NewPlayer):-
 	Choice > 0, Choice =< 4, !,
-	askMove(Board, Player, NewBoard, NewPlayer).
+	letHumanPlay(Board, Player, NewBoard, NewPlayer).
 askMoveAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
-	askMove(Board, Player, NewBoard, NewPlayer).
+	letHumanPlay(Board, Player, NewBoard, NewPlayer).
 
 askDiscAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
 askDiscAction(Board, Player, 2, NewBoard, _NewPlayer):-
 	askMoveDisc(Board, Player, NewBoard).
-askDiscAction(Board, Player, Choice, NewBoard, NewPlayer):- 
+askDiscAction(Board, Player, Choice, NewBoard, NewPlayer):-
 	Choice > 0, Choice =< 2, !,
 	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
 askDiscAction(Board, Player, _Choice, NewBoard, NewPlayer):-
@@ -363,7 +364,7 @@ askRingAction(Board, Player, 1, NewBoard, NewPlayer):-
 	askPlaceRing(Board, Player, NewBoard, NewPlayer).
 askRingAction(Board, Player, 2, NewBoard, _NewPlayer):-
 	askMoveRing(Board, Player, NewBoard).
-askRingAction(Board, Player, Choice, NewBoard, NewPlayer):- 
+askRingAction(Board, Player, Choice, NewBoard, NewPlayer):-
 	Choice > 0, Choice =< 2, !,
 	askSecondMove(Board, Player, ring, NewBoard, NewPlayer).
 askRingAction(Board, Player, _Choice, NewBoard, NewPlayer):-
