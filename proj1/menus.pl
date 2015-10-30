@@ -97,17 +97,17 @@ gameMenuAction(_, Player):-
 startPvPGame(Player):-
         initializePvP(Game, Player),
         getGameMode(Game, Mode), !,
-        playGame(Game, Mode).
+        playGame(Game).
 
 startPvBGame(Player):-
 	initializePvB(Game, Player),
         getGameMode(Game, Mode), !,
-        playGame(Game, Mode).
+        playGame(Game).
 
 startBvBGame(Player):-
 	initializeBvB(Game, Player),
         getGameMode(Game, Mode), !,
-        playGame(Game, Mode).
+        playGame(Game).
 
 helpMenu:-
 	write('+=================================================================+'), nl,

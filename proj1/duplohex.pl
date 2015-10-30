@@ -25,6 +25,16 @@ testMatrix([
 	[5, 1, 9, 1, 2, 5, 6]
 ]).
 
+emptyMatrix([
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0]
+]).
+
 testPath([
 	[0, 1, 8, 1, 0, 0, 0],
 	[0, 1, 8, 8, 9, 0, 5],
@@ -44,34 +54,34 @@ gameMode(bvb).
 %		------- %
 
 initializePvP(Game, blackPlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
 	Game = Board-pvp-whitePlayer-Player1-Player2, !.
 initializePvP(Game, whitePlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
 	Game = Board-pvp-whitePlayer-Player1-Player2, !.
 
 initializePvB(Game, blackPlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
 	Game = Board-pvb-whitePlayer-Player1-Player2, !.
 initializePvB(Game, whitePlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
 	Game = Board-pvb-whitePlayer-Player1-Player2, !.
 
 initializeBvB(Game, blackPlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
 	Game = Board-bvb-whitePlayer-Player1-Player2, !.
 initializeBvB(Game, whitePlayer):-
-	testMatrix(Board),
+	emptyMatrix(Board),
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
 	Game = Board-bvb-whitePlayer-Player1-Player2, !.
@@ -265,8 +275,7 @@ askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-playGame:-
-		initializePvP(Game, whitePlayer, blackPlayer),
+playGame(Game):-
 		getGameBoard(Game, Board),
 		getGameMode(Game, Mode),
 		getCurrentPlayer(Game, Player),
