@@ -10,8 +10,8 @@ generateMatrix(Size, Current, [Row | Tail]):-
 
 generateList(0, []).
 generateList(Size, [0 | Result]):-
-	NextIndex is Size - 1,
-	generateList(NextIndex, Result).
+	Next is Size - 1,
+	generateList(Next, Result).
 
 %===============================%
 %		MATRIX OPERATIONS		%

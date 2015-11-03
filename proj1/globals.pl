@@ -2,6 +2,21 @@
 %	  GLOBAL DEFINITIONS	%
 %===========================%
 
+%               ------- %
+% #includes             %
+%               ------- %
+
+:- use_module(library(random)).
+:- use_module(library(system)).
+
+%               ------- %
+% #predicados           %
+%               ------- %
+
+messageInvalidValue:-
+        nl, write('ERROR: you have entered an invalid value...'), nl,
+        pressEnterToContinue, !.
+
 messageInvalidChoice:-
         write('INVALID INPUT!'), nl,
         write('Please enter a valid number'), nl,
@@ -25,6 +40,11 @@ messageNoRings:-
 messageNoDiscs:-
         write('INVALID MOVE!'), nl,
         write('Player has no discs left to be played'), nl,
+        pressEnterToContinue, nl, fail.
+
+messagePieceExists:-
+        write('INVALID MOVE!'), nl,
+        write('Destination cell should not be already occupied by a piece'), nl,
         pressEnterToContinue, nl, fail.
 
 messageRingExists:-
@@ -63,32 +83,34 @@ messageDestinationNotRing:-
         pressEnterToContinue, nl, fail.
 
 messageDestinationTwopiece:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell is full and can\'t be moved (already occupied by two pieces)'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell is full and can\'t be moved (already occupied by two pieces)'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageNotNeighbours:-
-        write('INVALID MOVE!'), nl,
-        write('Source cell and destination cell aren\'t neighbors!'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Source cell and destination cell aren\'t neighbors!'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageNotOwned:-
-        write('INVALID MOVE!'), nl,
-        write('A player can only move his/her own pieces'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('A player can only move his/her own pieces'), nl,
+	pressEnterToContinue, nl, fail.
 
 messagePlayerWins(Player):-
-        getPlayerName(Player, PlayerName),
-        write('CONGRATULATIONS!'), nl,
-        write(PlayerName),
-        write(' has won the match!'), nl,
-        pressEnterToContinue, nl.
+	getPlayerName(Player, PlayerName),
+	write('CONGRATULATIONS!'), nl,
+	write(PlayerName),
+	write(' has won the match!'), nl,
+	pressEnterToContinue, nl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%		------- %
-% #predicados 	%
-%		------- %
+initializeRandomSeed:-
+	now(Usec),
+	Seed is Usec mod 30269,
+	getrand(random(X, Y, Z, _)),
+	setrand(random(Seed, X, Y, Z)), !.
 
 pressEnterToContinue:-
 	write('Press <Enter> to continue...'), nl,

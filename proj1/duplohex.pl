@@ -8,6 +8,7 @@
 
 :- include('player.pl').
 :- include('board.pl').
+:- include('bot.pl').
 :- include('globals.pl').
 :- include('display.pl').
 
@@ -18,9 +19,9 @@
 testMatrix([
 	[0, 1, 2, 1, 0, 0, 0],
 	[0, 1, 2, 8, 9, 0, 5],
-	[0, 1, 2, 4, 2, 5, 0],
+	[0, 1, 1, 4, 2, 5, 0],
 	[6, 4, 1, 1, 2, 0, 0],
-	[0, 2, 2, 1, 10, 0, 6],
+	[0, 2, 1, 1, 10, 0, 6],
 	[0, 1, 2, 10, 5, 0, 0],
 	[5, 1, 9, 1, 2, 5, 6]
 ]).
@@ -33,6 +34,16 @@ emptyMatrix([
 	[0, 0, 0, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0],
 	[0, 0, 0, 0, 0, 0, 0]
+]).
+
+empty6x6Matrix([
+	[1, 4, 4, 1, 4, 1, 1],
+	[2, 0, 0, 0, 0, 0, 2],
+	[8, 0, 0, 0, 0, 0, 8],
+	[2, 0, 0, 0, 0, 0, 8],
+	[8, 0, 0, 0, 0, 0, 2],
+	[2, 0, 0, 0, 0, 0, 2],
+	[1, 4, 1, 4, 1, 4, 8]
 ]).
 
 testPath([
@@ -53,92 +64,85 @@ gameMode(bvb).
 % #predicados	%
 %		------- %
 
-initializePvP(Game, blackPlayer):-
-	emptyMatrix(Board),
+initializePvP(Game, Board, blackPlayer):-
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
-	Game = Board-pvp-whitePlayer-Player1-Player2, !.
-initializePvP(Game, whitePlayer):-
-	emptyMatrix(Board),
+	Game = Board-pvp-random-whitePlayer-Player1-Player2, !.
+initializePvP(Game, Board, whitePlayer):-
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
-	Game = Board-pvp-whitePlayer-Player1-Player2, !.
+	Game = Board-pvp-random-whitePlayer-Player1-Player2, !.
 
-initializePvB(Game, blackPlayer):-
-	emptyMatrix(Board),
+initializePvB(Game, Board, blackPlayer, BotMode):-
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
-	Game = Board-pvb-whitePlayer-Player1-Player2, !.
-initializePvB(Game, whitePlayer):-
-	emptyMatrix(Board),
+	Game = Board-pvb-BotMode-whitePlayer-Player1-Player2, !.
+initializePvB(Game, Board, whitePlayer, BotMode):-
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
-	Game = Board-pvb-whitePlayer-Player1-Player2, !.
+	Game = Board-pvb-BotMode-whitePlayer-Player1-Player2, !.
 
-initializeBvB(Game, blackPlayer):-
-	emptyMatrix(Board),
+initializeBvB(Game, Board, blackPlayer, BotMode):-
 	initializePlayer(blackPlayer, Player1),
 	initializePlayer(whitePlayer, Player2),
-	Game = Board-bvb-whitePlayer-Player1-Player2, !.
-initializeBvB(Game, whitePlayer):-
-	emptyMatrix(Board),
+	Game = Board-bvb-BotMode-whitePlayer-Player1-Player2, !.
+initializeBvB(Game, Board, whitePlayer, BotMode):-
 	initializePlayer(whitePlayer, Player1),
 	initializePlayer(blackPlayer, Player2),
-	Game = Board-bvb-whitePlayer-Player1-Player2, !.
+	Game = Board-bvb-BotMode-whitePlayer-Player1-Player2, !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-getGameBoard(Board-_Mode-_PlayerTurn-_Player1-_Player2, Board).
-setGameBoard(_Board-Mode-PlayerTurn-Player1-Player2,
-	NewBoard, NewBoard-Mode-PlayerTurn-Player1-Player2).
+getGameBoard(Board-_Mode-_BotMode-_PlayerTurn-_Player1-_Player2, Board).
+setGameBoard(_Board-Mode-BotMode-PlayerTurn-Player1-Player2,
+	NewBoard, NewBoard-Mode-BotMode-PlayerTurn-Player1-Player2).
 
-getGameMode(_Board-Mode-_PlayerTurn-_Player1-_Player2, Mode).
-setGameMode(Board-_-PlayerTurn-Player1-Player2,
-	NewMode, Board-NewMode-PlayerTurn-Player1-Player2):-
+getGameMode(_Board-Mode-_BotMode-_PlayerTurn-_Player1-_Player2, Mode).
+setGameMode(Board-_Mode-BotMode-PlayerTurn-Player1-Player2,
+	NewMode, Board-NewMode-BotMode-PlayerTurn-Player1-Player2):-
 	gameMode(NewMode).
 
-getPlayerTurn(_Board-_Mode-PlayerTurn-_Player1-_Player2, PlayerTurn).
-setPlayerTurn(Board-Mode-_PlayerTurn-Player1-Player2,
-	NewTurn, Board-Mode-NewTurn-Player1-Player2):-
+getBotMode(_Board-_Mode-BotMode-_PlayerTurn-_Player1-_Player2, BotMode).
+setBotMode(Board-Mode-_BotMode-PlayerTurn-Player1-Player2,
+	NewMode, Board-Mode-NewMode-PlayerTurn-Player1-Player2):-
+	botMode(NewMode).
+
+getPlayerTurn(_Board-_Mode-_BotMode-PlayerTurn-_Player1-_Player2, PlayerTurn).
+setPlayerTurn(Board-Mode-BotMode-_PlayerTurn-Player1-Player2,
+	NewTurn, Board-Mode-BotMode-NewTurn-Player1-Player2):-
 	player(NewTurn).
 
-getPlayer1(_Board-_Mode-_PlayerTurn-Player1-_Player2, Player1).
-setPlayer1(Board-Mode-PlayerTurn-_Player1-Player2,
-	NewPlayer, Board-Mode-PlayerTurn-NewPlayer-Player2).
+getPlayer1(_Board-_Mode-_BotMode-_PlayerTurn-Player1-_Player2, Player1).
+setPlayer1(Board-Mode-BotMode-PlayerTurn-_Player1-Player2,
+	NewPlayer, Board-Mode-BotMode-PlayerTurn-NewPlayer-Player2).
 
-getPlayer2(_Board-_Mode-_PlayerTurn-_Player1-Player2, Player2).
-setPlayer2(Board-Mode-PlayerTurn-Player1-_Player2,
-	NewPlayer, Board-Mode-PlayerTurn-Player1-NewPlayer).
+getPlayer2(_Board-_Mode-_BotMode-_PlayerTurn-_Player1-Player2, Player2).
+setPlayer2(Board-Mode-BotMode-PlayerTurn-Player1-_Player2,
+	NewPlayer, Board-Mode-BotMode-PlayerTurn-Player1-NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 changePlayerTurn(Game, NewGame):-
-	getPlayerTurn(Game, PlayerTurn),
-	PlayerTurn == whitePlayer,
+	getPlayerTurn(Game, whitePlayer),
 	setPlayerTurn(Game, blackPlayer, NewGame).
 
 changePlayerTurn(Game, NewGame):-
-	getPlayerTurn(Game, PlayerTurn),
-	PlayerTurn == blackPlayer,
+	getPlayerTurn(Game, blackPlayer),
 	setPlayerTurn(Game, whitePlayer, NewGame).
 
-getCurrentPlayer(_Board-_Mode-PlayerTurn-Player1-_Player2, Player1):-
-	getPlayerName(Player1, PlayerName),
-	PlayerName == PlayerTurn.
+getCurrentPlayer(_Board-_Mode-_BotMode-PlayerTurn-Player1-_Player2, Player1):-
+	getPlayerName(Player1, PlayerTurn).
 
-getCurrentPlayer(_Board-_Mode-PlayerTurn-_Player1-Player2, Player2):-
-	getPlayerName(Player2, PlayerName),
-	PlayerName == PlayerTurn.
+getCurrentPlayer(_Board-_Mode-_BotMode-PlayerTurn-_Player1-Player2, Player2):-
+	getPlayerName(Player2, PlayerTurn).
 
-setCurrentPlayer(Board-Mode-PlayerTurn-Player1-Player2, NewPlayer,
-	Board-Mode-PlayerTurn-NewPlayer-Player2):-
-	getPlayerName(Player1, Player1Name),
-	PlayerTurn == Player1Name.
+setCurrentPlayer(Board-Mode-BotMode-PlayerTurn-Player1-Player2, NewPlayer,
+	Board-Mode-BotMode-PlayerTurn-NewPlayer-Player2):-
+	getPlayerName(Player1, PlayerTurn).
 
-setCurrentPlayer(Board-Mode-PlayerTurn-Player1-Player2, NewPlayer,
-	Board-Mode-PlayerTurn-Player1-NewPlayer):-
-	getPlayerName(Player2, Player2Name),
-	PlayerTurn == Player2Name.
+setCurrentPlayer(Board-Mode-BotMode-PlayerTurn-Player1-Player2, NewPlayer,
+	Board-Mode-BotMode-PlayerTurn-Player1-NewPlayer):-
+	getPlayerName(Player2, PlayerTurn).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -192,17 +196,15 @@ validateBothCoordinates(_FromX, _FromY, _ToX, _ToY):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 validateDiscOwnership(Symbol, Player):-
-	getPlayerName(Player, PlayerName),
-	getPlayerColor(PlayerName, Color),
+	getPlayerColor(Player, Color),
 	isDisc(Symbol, Color).
-validateDiscOwnership(_X, _Y, _Board, _Player):-
+validateDiscOwnership(_X, _Y):-
 	messageNotOwned.
 
 validateRingOwnership(Symbol, Player):-
-	getPlayerName(Player, PlayerName),
-	getPlayerColor(PlayerName, Color),
+	getPlayerColor(Player, Color),
 	isRing(Symbol, Color).
-validateRingOwnership(_X, _Y, _Board, _Player):-
+validateRingOwnership(_X, _Y):-
 	messageNotOwned.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -216,7 +218,7 @@ askMoveDisc(Board, Player, NewBoard):-
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Destination),
 	validateDestination(Destination, ring), !,
-	moveDisc(FromX, FromY, ToX, ToY, Board, NewBoard).
+	moveDisc(FromX-FromY, ToX-ToY, Board, NewBoard).
 
 askMoveRing(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
@@ -227,7 +229,7 @@ askMoveRing(Board, Player, NewBoard):-
 	validateBothCoordinates(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Destination),
 	validateDestination(Destination, disc), !,
-	moveRing(FromX, FromY, ToX, ToY, Board, NewBoard).
+	moveRing(FromX-FromY, ToX-ToY, Board, NewBoard).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -240,7 +242,7 @@ validatePlaceDisc(_X, _Y, _Board, Player):-
 	messageNoDiscs.
 validatePlaceDisc(X, Y, Board, _Player):-
 	\+canPlaceDisc(Board, X, Y), !,
-	messageDiscExists.
+	messagePieceExists.
 validatePlaceDisc(_X, _Y, _Board, _Player).
 
 validatePlaceRing(X, Y, Board, _Player):-
@@ -252,7 +254,7 @@ validatePlaceRing(_X, _Y, _Board, Player):-
 	messageNoRings.
 validatePlaceRing(X, Y, Board, _Player):-
 	\+canPlaceRing(Board, X, Y), !,
-	messageRingExists.
+        messagePieceExists.
 validatePlaceRing(_X, _Y, _Board, _Player).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -260,71 +262,143 @@ validatePlaceRing(_X, _Y, _Board, _Player).
 askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
 	validatePlaceDisc(X, Y, Board, Player), !,
-	getPlayerName(Player, Name),
-	getPlayerColor(Name, Color),
-	placeDisc(X, Y, Color, Board, NewBoard),
+	getPlayerColor(Player, Color),
+	placeDisc(X-Y, Color, Board, NewBoard),
 	decrementDiscs(Player, NewPlayer).
 
 askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
 	validatePlaceRing(X, Y, Board, Player), !,
-	getPlayerName(Player, Name),
-	getPlayerColor(Name, Color),
-	placeRing(X, Y, Color, Board, NewBoard),
+	getPlayerColor(Player, Color),
+	placeRing(X-Y, Color, Board, NewBoard),
 	decrementRings(Player, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-playGame(Game):-
-		getGameBoard(Game, Board),
-		getGameMode(Game, Mode),
-		getCurrentPlayer(Game, Player),
-		printState(Game),
-		askInitialMove(Board, Player, NewBoard, NewPlayer), !,
-		move(Game, NewBoard, NewPlayer, NewGame), !,
-		playGame(NewGame, Mode).
+startGame(Game, pvp):-
+	getGameBoard(Game, Board),
+	getCurrentPlayer(Game, Player),
+	printState(Game),
+	askInitialMove(Board, Player, NewBoard, NewPlayer), !,
+	move(Game, NewBoard, NewPlayer, NewGame), !,
+	playGame(NewGame, pvp).
+
+startGame(Game, bvb):-
+	getGameBoard(Game, Board),
+	getCurrentPlayer(Game, Player),
+	botInitialMove(Board, Player, NewBoard, NewPlayer), !,
+	move(Game, NewBoard, NewPlayer, NewGame), !,
+	printState(NewGame),
+	pressEnterToContinue, nl,
+	playGame(NewGame, bvb).
+
+playGame(Game, _):-
+	getCurrentPlayer(Game, Player),
+	\+hasPieces(Player),
+	gameOver(Player).
 
 playGame(Game, pvp):-
-		getGameBoard(Game, Board),
-		getCurrentPlayer(Game, Player),
-		printState(Game),
-		letHumanPlay(Board, Player, NewBoard, NewPlayer), !,
-		move(Game, NewBoard, NewPlayer, NewGame), !,
-		playGame(NewGame, pvp).
+	getGameBoard(Game, Board),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	getCurrentPlayer(Game, Player),
+	getPlayerTurn(Game, PlayerTurn),
+	printState(Game),
+	letHumanPlay(Board, Player, NewBoard, NewPlayer), !,
+	move(Game, NewBoard, NewPlayer, NewGame), !,
+	\+hasPlayerWon(NewBoard, PlayerTurn),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	playGame(NewGame, pvp).
+
+playGame(Game, pvb):-
+	getGameBoard(Game, Board),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	getCurrentPlayer(Game, Player1),
+	letHumanPlay(Board, Player1, FirstBoard, FirstPlayer), !,
+	move(Game, FirstBoard, FirstPlayer, FirstGame), !,
+	printState(FirstGame),
+	\+hasPlayerWon(FirstBoard, Player1),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	getCurrentPlayer(Game, Player2),
+	letBotPlay(FirstBoard, Player2, randomBot, SecondBoard, SecondPlayer), !,
+	move(FirstGame, SecondBoard, SecondPlayer, SecondGame), !,
+	printState(SecondGame),
+	\+hasPlayerWon(FirstBoard, Player2),
+	playGame(SecondGame, pvb).
+
+playGame(Game, bvb):-
+	getGameBoard(Game, Board),
+	getBotMode(Game, BotMode),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	getCurrentPlayer(Game, Player),
+	letBotPlay(Board, Player, BotMode, NewBoard, NewPlayer), !,
+	move(Game, NewBoard, NewPlayer, NewGame), !,
+	printState(NewGame),
+	pressEnterToContinue, nl,
+	\+hasPlayerWon(NewBoard, Player),
+	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	playGame(NewGame, bvb).
+
+playGame(Game, _):-
+	getGameBoard(Game, Board),
+	getPlayer1(Game, Player1),
+	getPlayer2(Game, Player2),
+	hasPlayerWon(Board, Player1), !,
+	gameOver(Player2).
+
+playGame(Game, _):-
+	getGameBoard(Game, Board),
+	getPlayer1(Game, Player1),
+	getPlayer2(Game, Player2),
+	hasPlayerWon(Board, Player2), !,
+	gameOver(Player1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 move(Game, Board, Player, NewGame):-
-		setGameBoard(Game, Board, TempGame),
-		setCurrentPlayer(TempGame, Player, TempGame2),
-		changePlayerTurn(TempGame2, NewGame).
+	setGameBoard(Game, Board, TempGame),
+	setCurrentPlayer(TempGame, Player, TempGame2),
+	changePlayerTurn(TempGame2, NewGame).
+
+gameOver(Player):-
+	write('GAME OVER'),
+	getPlayerName(Player, PlayerName),
+	write(PlayerName),
+	write(' WINS!!!'), nl.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 letHumanPlay(Board, Player, NewBoard, NewPlayer):-
-        write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
-        write('\t\t\t2. Place Ring'), nl,
-        write('\t\t\t3. Move Disc'), nl,
-        write('\t\t\t4. Move Ring'), nl,
-        getInt(Choice),
-        askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
+	write('> SELECT FIRST MOVE:\t1. Place Disc'), nl,
+	write('\t\t\t2. Place Ring'), nl,
+	write('\t\t\t3. Move Disc'), nl,
+	write('\t\t\t4. Move Ring'), nl,
+	getInt(Choice),
+	askMoveAction(Board, Player, Choice, NewBoard, NewPlayer).
+
+letBotPlay(Board, Player, random, NewBoard, NewPlayer):-
+	botRandomMove(Board, Player, NewBoard, NewPlayer).
+
+letBotPlay(Board, Player, smart, NewBoard, NewPlayer):-
+	botSmartMove(Board, Player, NewBoard, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askInitialMove(Board, Player, NewBoard, NewPlayer):-
-		write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
-		write('\t\t\t2. Place Ring'), nl,
-		getInt(Choice),
-		askInitialAction(Board, Player, Choice, NewBoard, NewPlayer).
+	write('> SELECT INITIAL MOVE:\t1. Place Disc'), nl,
+	write('\t\t\t2. Place Ring'), nl,
+	getInt(Choice),
+	askInitialAction(Board, Player, Choice, NewBoard, NewPlayer).
 
 askInitialAction(Board, Player, 1, NewBoard, NewPlayer):-
-		askPlaceDisc(Board, Player, NewBoard, NewPlayer).
+	askPlaceDisc(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, 2, NewBoard, NewPlayer):-
-		askPlaceRing(Board, Player, NewBoard, NewPlayer).
+	askPlaceRing(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, Choice, NewBoard, NewPlayer):-
-		Choice > 0, Choice =< 2, !,
-		askInitialMove(Board, Player, NewBoard, NewPlayer).
+	Choice > 0, Choice =< 2, !,
+	askInitialMove(Board, Player, NewBoard, NewPlayer).
 askInitialAction(Board, Player, _Choice, NewBoard, NewPlayer):-
-		messageInvalidChoice, !,
-		askInitialMove(Board, Player, NewBoard, NewPlayer).
+	messageInvalidChoice, !,
+	askInitialMove(Board, Player, NewBoard, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

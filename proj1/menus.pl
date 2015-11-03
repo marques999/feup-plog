@@ -8,6 +8,10 @@
 
 :- include('duplohex.pl').
 
+:- meta_predicate(startPvPGame(?, 1)).
+:- meta_predicate(startPvBGame(?, ?, 1)).
+:- meta_predicate(startBvBGame(?, ?, 1)).
+
 %		------- %
 % #predicados 	%
 %		------- %
@@ -24,11 +28,11 @@ printMainMenu:- nl,
 	write('|   4. <- Exit                   |'), nl,
 	write('|                                |'), nl,
 	write('+================================+'), nl, nl,
-	write('Please choose an option:'), nl.
+	write('Please choose an option:'), nl, !.
 
 printColorMenu:- nl,
-        write('+===============================+'), nl,
-        write('+    ..:: SELECT COLOR ::..     +'), nl,
+	write('+===============================+'), nl,
+	write('+    ..:: SELECT COLOR ::..     +'), nl,
 	write('+===============================+'), nl,
 	write('|                               |'), nl,
 	write('|   1. Black                    |'), nl,
@@ -37,7 +41,33 @@ printColorMenu:- nl,
 	write('|   3. <- Back                  |'), nl,
 	write('|                               |'), nl,
 	write('+===============================+'), nl, nl,
-	write('Please choose an option:'), nl.
+	write('Please choose an option:'), nl, !.
+
+printBotMenu:- nl,
+        write('+===============================+'), nl,
+        write('+  ..:: SELECT DIFFICULTY ::..  +'), nl,
+        write('+===============================+'), nl,
+        write('|                               |'), nl,
+        write('|   1. Random Bots              |'), nl,
+        write('|   2. Smart Bots               |'), nl,
+        write('|                               |'), nl,
+        write('|   3. <- Back                  |'), nl,
+        write('|                               |'), nl,
+        write('+===============================+'), nl, nl,
+        write('Please choose an option:'), nl, !.
+
+printBoardMenu:- nl,
+	write('+===============================+'), nl,
+	write('+     ..:: SELECT BOARD ::..    +'), nl,
+	write('+===============================+'), nl,
+	write('|                               |'), nl,
+	write('|   1. 6 x 6                    |'), nl,
+	write('|   2. 7 x 7                    |'), nl,
+	write('|                               |'), nl,
+	write('|   3. <- Back                  |'), nl,
+	write('|                               |'), nl,
+	write('+===============================+'), nl, nl,
+	write('Please choose an option:'), nl, !.
 
 printGameMenu:- nl,
 	write('+===============================+'), nl,
@@ -51,20 +81,19 @@ printGameMenu:- nl,
 	write('|   4. <- Back                  |'), nl,
 	write('|                               |'), nl,
 	write('+===============================+'), nl, nl,
-	write('Please choose an option:'), nl.
+	write('Please choose an option:'), nl, !.
 
 mainMenu:-
 	printMainMenu,
 	getInt(Input),
 	mainMenuAction(Input).
 
-mainMenuAction(1):- colorMenu, mainMenu.
-mainMenuAction(2):- helpMenu, mainMenu.
-mainMenuAction(3):- aboutMenu, mainMenu.
+mainMenuAction(1):- colorMenu, !, mainMenu.
+mainMenuAction(2):- helpMenu, !, mainMenu.
+mainMenuAction(3):- aboutMenu, !, mainMenu.
 mainMenuAction(4).
 mainMenuAction(_):-
-	nl, write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue,
+	messageInvalidValue,
 	mainMenu.
 
 colorMenu:-
@@ -72,12 +101,11 @@ colorMenu:-
 	getInt(Input),
 	colorMenuAction(Input).
 
-colorMenuAction(1):- gameMenu(blackPlayer), mainMenu.
-colorMenuAction(2):- gameMenu(whitePlayer), mainMenu.
+colorMenuAction(1):- gameMenu(blackPlayer), !, colorMenu.
+colorMenuAction(2):- gameMenu(whitePlayer), !, colorMenu.
 colorMenuAction(3).
 colorMenuAction(_):-
-	nl, write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue,
+	messageInvalidValue,
 	colorMenu.
 
 gameMenu(Player):-
@@ -85,29 +113,54 @@ gameMenu(Player):-
 	getInt(Input),
 	gameMenuAction(Input, Player).
 
-gameMenuAction(1, Player):- startPvPGame(Player), mainMenu.
-gameMenuAction(2, Player):- startPvBGame(Player), mainMenu.
-gameMenuAction(3, Player):- startBvBGame(Player), mainMenu.
+gameMenuAction(1, Player):- startPvPGame(Player, emptyMatrix), !, mainMenu.
+gameMenuAction(2, Player):- boardMenu(Player, pvb), !, gameMenu(Player).
+gameMenuAction(3, Player):- boardMenu(Player, bvb), !, gameMenu(Player).
 gameMenuAction(4, _).
 gameMenuAction(_, Player):-
-	nl, write('ERROR: you have entered an invalid value...'), nl,
-	pressEnterToContinue,
+        messageInvalidValue,
 	gameMenu(Player).
 
-startPvPGame(Player):-
-        initializePvP(Game, Player),
-        getGameMode(Game, Mode), !,
-        playGame(Game).
+boardMenu(Player, Mode):-
+        printBoardMenu,
+        getInt(Input),
+        boardMenuAction(Input, Player, Mode).
 
-startPvBGame(Player):-
-	initializePvB(Game, Player),
-        getGameMode(Game, Mode), !,
-        playGame(Game).
+boardMenuAction(1, Player, Mode):- botMenu(Player, Mode, empty6x6Matrix), !, boardMenu(Player, Mode).
+boardMenuAction(2, Player, Mode):- botMenu(Player, Mode, emptyMatrix), !, boardMenu(Player, Mode).
+boardMenuAction(3, _, _).
+boardMenuAction(_, Player, Mode):-
+        messageInvalidValue,
+        boardMenu(Player, Mode).
 
-startBvBGame(Player):-
-	initializeBvB(Game, Player),
-        getGameMode(Game, Mode), !,
-        playGame(Game).
+botMenu(Player, Mode, Size):-
+        printBotMenu,
+        getInt(Input),
+        botMenuAction(Input, Player, Mode, Size).
+
+botMenuAction(1, Player, pvb, Size):- startPvBGame(Player, random, Size), !, mainMenu.
+botMenuAction(1, Player, bvb, Size):- startBvBGame(Player, random, Size), !, mainMenu.
+botMenuAction(2, Player, pvb, Size):- startPvBGame(Player, smart, Size), !, mainMenu.
+botMenuAction(2, Player, bvb, Size):- startBvBGame(Player, smart, Size), !, mainMenu.
+botMenuAction(3, _, _, _).
+botMenuAction(_, Player, Mode, Size):-
+        messageInvalidValue,
+        botMenu(Player, Mode, Size).
+
+startPvPGame(Player, Matrix):-
+        call(Matrix, Board),
+        initializePvP(Game, Board, Player), !,
+        startGame(Game, pvp).
+
+startPvBGame(Player, BotMode, Matrix):-
+        call(Matrix, Board),
+	initializePvB(Game, Board, Player, BotMode), !,
+        startGame(Game, pvb).
+
+startBvBGame(Player, BotMode, Matrix):-
+        call(Matrix, Board),
+        initializeBvB(Game, Board, Player, BotMode), !,
+        startGame(Game, bvb).
 
 helpMenu:-
 	write('+=================================================================+'), nl,
@@ -179,7 +232,7 @@ helpMenu:-
 	write('|                                                   Page 3 of 3   |'), nl,
 	write('|                                                                 |'), nl,
 	write('+=================================================================+'), nl,
-	nl, pressEnterToContinue.
+	nl, pressEnterToContinue, !.
 
 aboutMenu:- nl,
 	write('+===============================+'), nl,
@@ -198,4 +251,4 @@ aboutMenu:- nl,
 	write('|      up201305642@fe.up.pt     |'), nl,
 	write('|                               |'), nl,
 	write('+===============================+'), nl,
-	nl, pressEnterToContinue.
+	nl, pressEnterToContinue, !.

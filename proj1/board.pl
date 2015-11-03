@@ -6,7 +6,6 @@
 % #includes		%
 %		------- %
 
-:- include('point.pl').
 :- include('list.pl').
 :- include('disc.pl').
 :- include('ring.pl').
@@ -25,7 +24,8 @@ createSinglePiece(ring, white, 8).
 %		------- %
 
 isTwopiece(Symbol):-
-	isRing(Symbol, _), isDisc(Symbol, _).
+	isRing(Symbol, _), 
+        isDisc(Symbol, _).
 
 isEmpty(Symbol):-
 	Symbol is 0.
@@ -34,10 +34,13 @@ isWhiteSymbol(Symbol):-
         isDisc(Symbol, white).
 isWhiteSymbol(Symbol):-
         isRing(Symbol, white).
+
 isBlackSymbol(Symbol):-
         isDisc(Symbol, black).
 isBlackSymbol(Symbol):-
         isRing(Symbol, black).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 ligacaoRing(StartX-StartY, EndX-EndY, Board):-
 	isNeighbour(StartX, StartY, EndX, EndY),
@@ -100,49 +103,71 @@ playerOwnsRing(X, Y, Board, Player):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-isTopWall(X, _) :- X is 0.
-isBottomWall(X, _, Length) :- X is Length.
-isLeftWall(_, Y) :- Y is 0.
-isRightWall(_, Y, Length) :- Y is Length.
+hasPlayerWon(Board, Player):-
+        getPlayerColor(Player, black),
+        scanBlackWall(Board, List),
+        checkMultiplePaths(List, Board).
 
-checkPath(X, Y, Board, Length):-
-	getSymbol(X, Y, Board, Symbol),
-	isRing(Symbol, Color),
-	checkPathRing(X, Y, Board, Color, 0),
-	checkPathRing(X, Y, Board, Color, Length).
-
-checkPath(X, Y, Board, Length):-
-	getSymbol(X, Y, Board, Symbol),
-	isDisc(Symbol, Color),
-	checkPathDisc(X, Y, Board, Color, 0),
-	checkPathDisc(X, Y, Board, Color, Length).
+hasPlayerWon(Board, Player):-
+        getPlayerColor(Player, white),
+        scanWhiteWall(Board, List),
+        checkMultiplePaths(List, Board).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-scanWhite(Board, Position, List):-
-        list_at(Position, Board, Row),
-        scanWhite(Position, 0, Row, List).
+checkMultiplePaths([X-Y|_], Board):-
+        checkPath(X, Y, Board).
+checkMultiplePaths([_|T], Board):-
+       checkMultiplePaths(T, Board).
 
-scanWhite(_X, _Y, [], _).   
-scanWhite(X, Y, [H|T], Lista):-
-        isWhiteSymbol(H),
-        append(Lista, [X-Y], NovaLista),
+checkPath(X, Y, Board):-
+	getSymbol(X, Y, Board, Symbol),
+	isRing(Symbol, Color),
+        checkPathRing(X-Y, 7-7, Board, Color, Lista),
+        Lista \== [].
+
+checkPath(X, Y, Board):-
+	getSymbol(X, Y, Board, Symbol),
+	isDisc(Symbol, Color),
+        checkPathDisc(X-Y, 7-7, Board, Color, Lista),
+        Lista \== [].
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+scanMatrix([], _X, _Y, _Predicate, []).
+scanMatrix([H|T], X, Y, Predicate, Lista):-
+        scanMatrixRow(H, X, Y, Predicate, Row),
+        X1 is X + 1,
+        scanMatrix(T, X1, Y, Predicate, Resultado),
+        append(Row, Resultado, Lista).
+
+scanMatrixRow([], _X, _Y, _Predicate, []).
+scanMatrixRow([H|T], X, Y, Predicate, Lista):-
+        call(Predicate, H),
         Y1 is Y + 1,
-        scanWhite(X, Y1, T, NovaLista).
-scanWhite(X, Y, [_H|T], Lista):-
+        scanMatrixRow(T, X, Y1, Predicate, Resultado),
+        append([X-Y], Resultado, Lista).
+scanMatrixRow([_H|T], X, Y, Predicate, Lista):-
         Y1 is Y + 1,
-        scanWhite(X, Y1, T, Lista).
+        scanMatrixRow(T, X, Y1, Predicate, Lista).
 
-  
-scanBlack(Board, Position, List):-
-        list_at(Position, Board, Row),
-        scanBlack(0, Position, Row, List).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-scanBlack(X, Y, [H|T], Lista):-
-        isBlackSymbol(H),
+scanBlackWall(Board, List):-
+        list_at(1, Board, Row), !,
+        scanMatrixRow(Row, 1, 1, isBlackSymbol, List).
+scanWhiteWall(Board, List):-
+        scanWhite(1, 1, Board, [], List).
+
+scanWhite(8, _Y, _Board, Lista, Lista):- !.  
+scanWhite(X, Y, Board, Lista, Resultado):-
+        getSymbol(X, Y, Board, Symbol),
+        isWhiteSymbol(Symbol), !,
         append(Lista, [X-Y], NovaLista),
         X1 is X + 1,
-        scanBlack(X1, Y, T, NovaLista).
-scanBlack(X, Y, [_H|T], Lista):-
+        scanWhite(X1, Y, Board, NovaLista, Resultado).
+scanWhite(X, Y, Board, Lista, Resultado):-
         X1 is X + 1,
-        scanBlack(X1, Y, T, Lista).
+        scanWhite(X1, Y, Board, Lista, Resultado).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
