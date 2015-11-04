@@ -47,13 +47,13 @@ empty6x6Matrix([
 ]).
 
 testPath([
-	[0, 1, 8, 1, 0, 0, 0],
-	[0, 1, 8, 8, 9, 0, 5],
-	[0, 1, 8, 4, 2, 5, 0],
-	[6, 4, 8, 2, 2, 0, 0],
-	[0, 2, 8, 1, 2, 0, 6],
-	[0, 1, 8, 8, 8, 0, 0],
-	[5, 1, 9, 8, 1, 5, 6]
+	[0, 1, 5, 1, 0, 0, 0],
+	[0, 1, 5, 5, 9, 0, 5],
+	[0, 1, 4, 4, 2, 5, 0],
+	[6, 4, 4, 2, 2, 0, 0],
+	[0, 2, 5, 1, 2, 0, 6],
+	[0, 1, 4, 4, 4, 0, 0],
+	[5, 1, 9, 8, 5, 5, 6]
 ]).
 
 gameMode(pvp).
@@ -292,7 +292,9 @@ startGame(Game, bvb):-
 	pressEnterToContinue, nl,
 	playGame(NewGame, bvb).
 
-playGame(Game, _):-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+playGame(Game, _Mode):-
 	getCurrentPlayer(Game, Player),
 	\+hasPieces(Player),
 	gameOver(Player).
@@ -301,11 +303,10 @@ playGame(Game, pvp):-
 	getGameBoard(Game, Board),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	getCurrentPlayer(Game, Player),
-	getPlayerTurn(Game, PlayerTurn),
 	printState(Game),
 	letHumanPlay(Board, Player, NewBoard, NewPlayer), !,
 	move(Game, NewBoard, NewPlayer, NewGame), !,
-	\+hasPlayerWon(NewBoard, PlayerTurn),
+        \+hasPlayerWon(NewBoard, Player),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	playGame(NewGame, pvp).
 
@@ -321,8 +322,8 @@ playGame(Game, pvb):-
 	getCurrentPlayer(Game, Player2),
 	letBotPlay(FirstBoard, Player2, randomBot, SecondBoard, SecondPlayer), !,
 	move(FirstGame, SecondBoard, SecondPlayer, SecondGame), !,
-	printState(SecondGame),
-	\+hasPlayerWon(FirstBoard, Player2),
+        \+hasPlayerWon(SecondBoard, Player2),
+	printState(SecondGame),	
 	playGame(SecondGame, pvb).
 
 playGame(Game, bvb):-
@@ -331,26 +332,26 @@ playGame(Game, bvb):-
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	getCurrentPlayer(Game, Player),
 	letBotPlay(Board, Player, BotMode, NewBoard, NewPlayer), !,
-	move(Game, NewBoard, NewPlayer, NewGame), !,
-	printState(NewGame),
-	pressEnterToContinue, nl,
-	\+hasPlayerWon(NewBoard, Player),
+	move(Game, NewBoard, NewPlayer, NewGame),
+	\+hasPlayerWon(NewBoard, NewPlayer), !,
+        printState(NewGame),
+        pressEnterToContinue, nl,
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	playGame(NewGame, bvb).
 
-playGame(Game, _):-
+playGame(Game, _Mode):-
 	getGameBoard(Game, Board),
 	getPlayer1(Game, Player1),
-	getPlayer2(Game, Player2),
 	hasPlayerWon(Board, Player1), !,
-	gameOver(Player2).
+        printBoard(Board),
+        messagePlayerWins(Player1).
 
-playGame(Game, _):-
+playGame(Game, _Mode):-
 	getGameBoard(Game, Board),
-	getPlayer1(Game, Player1),
 	getPlayer2(Game, Player2),
 	hasPlayerWon(Board, Player2), !,
-	gameOver(Player1).
+        printBoard(Board),
+	messagePlayerWins(Player2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -358,6 +359,14 @@ move(Game, Board, Player, NewGame):-
 	setGameBoard(Game, Board, TempGame),
 	setCurrentPlayer(TempGame, Player, TempGame2),
 	changePlayerTurn(TempGame2, NewGame).
+
+isPlayerTurn(Game):-
+        getPlayer1(Game, Player1),
+        getCurrentPlayer(Game, Player1).
+
+isBotTurn(Game):-
+        getPlayer2(Game, Player2),
+        getCurrentPlayer(Game, Player2).
 
 gameOver(Player):-
 	write('GAME OVER'),
@@ -462,5 +471,3 @@ askRingAction(Board, Player, Choice, NewBoard, NewPlayer):-
 askRingAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 	messageInvalidChoice, !,
 	askSecondMove(Board, Player, disc, NewBoard, NewPlayer).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
