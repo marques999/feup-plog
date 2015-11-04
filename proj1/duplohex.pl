@@ -306,7 +306,7 @@ playGame(Game, pvp):-
 	printState(Game),
 	letHumanPlay(Board, Player, NewBoard, NewPlayer), !,
 	move(Game, NewBoard, NewPlayer, NewGame), !,
-        \+hasPlayerWon(NewBoard, Player),
+	\+hasPlayerWon(NewBoard, Player),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	playGame(NewGame, pvp).
 
@@ -319,23 +319,19 @@ playGame(Game, pvb):-
 	printState(FirstGame),
 	\+hasPlayerWon(FirstBoard, Player1),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-	getCurrentPlayer(Game, Player2),
-	letBotPlay(FirstBoard, Player2, randomBot, SecondBoard, SecondPlayer), !,
-	move(FirstGame, SecondBoard, SecondPlayer, SecondGame), !,
-        \+hasPlayerWon(SecondBoard, Player2),
-	printState(SecondGame),	
 	playGame(SecondGame, pvb).
 
 playGame(Game, bvb):-
-	getGameBoard(Game, Board),
 	getBotMode(Game, BotMode),
+	%retract(estado(Game)),
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	getGameBoard(Game, Board),
 	getCurrentPlayer(Game, Player),
 	letBotPlay(Board, Player, BotMode, NewBoard, NewPlayer), !,
 	move(Game, NewBoard, NewPlayer, NewGame),
 	\+hasPlayerWon(NewBoard, NewPlayer), !,
-        printState(NewGame),
-        pressEnterToContinue, nl,
+    printState(NewGame),
+    pressEnterToContinue, nl,
 	%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 	playGame(NewGame, bvb).
 
@@ -343,14 +339,14 @@ playGame(Game, _Mode):-
 	getGameBoard(Game, Board),
 	getPlayer1(Game, Player1),
 	hasPlayerWon(Board, Player1), !,
-        printBoard(Board),
-        messagePlayerWins(Player1).
+	printBoard(Board),
+	messagePlayerWins(Player1).
 
 playGame(Game, _Mode):-
 	getGameBoard(Game, Board),
 	getPlayer2(Game, Player2),
 	hasPlayerWon(Board, Player2), !,
-        printBoard(Board),
+	printBoard(Board),
 	messagePlayerWins(Player2).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

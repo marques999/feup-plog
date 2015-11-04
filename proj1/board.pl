@@ -106,33 +106,32 @@ playerOwnsRing(X, Y, Board, Player):-
 
 hasPlayerWon(Board, Player):-
         getPlayerColor(Player, black),
-        scanBlackWall(Board, List),
+        scanBlackWall(Board, List), !,
         checkMultiplePaths(List, Board).
 
 hasPlayerWon(Board, Player):-
         getPlayerColor(Player, white),
-        scanWhiteWall(Board, List),
+        scanWhiteWall(Board, List), !,
         checkMultiplePaths(List, Board).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 checkMultiplePaths([H|_], Board):-
-        checkPath(H, Board).
-
+	checkPath(H, Board).
 checkMultiplePaths([_|T], Board):-
-        checkMultiplePaths(T, Board).
+	checkMultiplePaths(T, Board).
 
 checkPath(X-Y, Board):-
-        getSymbol(X, Y, Board, Symbol),
-        isDisc(Symbol, Color),
-        checkPathDisc(X-Y, 7-7, Board, Color, Lista), !,
-        Lista \== [].
+	getSymbol(X, Y, Board, Symbol),
+	isDisc(Symbol, Color),
+	checkPathDisc(X-Y, 7-7, Board, Color, Lista), !,
+	Lista \== [].
 
 checkPath(X-Y, Board):-
 	getSymbol(X, Y, Board, Symbol),
 	isRing(Symbol, Color),
-        checkPathRing(X-Y, 7-7, Board, Color, Lista), !,
-        Lista \== [].
+    checkPathRing(X-Y, 7-7, Board, Color, Lista), !,
+    Lista \== [].
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
