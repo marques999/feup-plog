@@ -1,10 +1,10 @@
-%===========================%
-%	   	  MENU CLASS		%
-%===========================%
+%=======================================%
+%               MENU CLASS              %
+%=======================================%
 
-%			------- %
-% #includes			%
-%			------- %
+%                 ------------- %
+% #includes                     %
+%                 ------------- %
 
 :- include('duplohex.pl').
 
@@ -12,9 +12,9 @@
 :- meta_predicate(startPvBGame(?, ?, 1)).
 :- meta_predicate(startBvBGame(?, ?, 1)).
 
-%			------- %
-% #predicados       %
-%			------- %
+%                 ------------- %
+% #predicados                   %
+%                 ------------- %
 
 printMainMenu:- nl,
 	write('+================================+'), nl,
@@ -63,7 +63,7 @@ printBoardMenu:- nl,
 	write('|                               |'), nl,
 	write('|   1. 6 x 6                    |'), nl,
 	write('|   2. 7 x 7                    |'), nl,
-        write('|   3. Diagonal                 |'), nl,
+	write('|   3. Diagonal                 |'), nl,
 	write('|                               |'), nl,
 	write('|   3. <- Back                  |'), nl,
 	write('|                               |'), nl,

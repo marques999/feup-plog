@@ -1,23 +1,8 @@
-generateMatrix(0, [[]]).
-generateMatrix(Size, Matrix):-
-	generateMatrix(Size, Size, Matrix).
+%=======================================%
+%           MATRIX OPERATIONS           %
+%=======================================%
 
-generateMatrix(_, 0, []).
-generateMatrix(Size, Current, [Row | Tail]):-
-	generateList(Size, Row),
-	Next is Current - 1,
-	generateMatrix(Size, Next, Tail).
-
-generateList(0, []).
-generateList(Size, [0 | Result]):-
-	Next is Size - 1,
-	generateList(Next, Result).
-
-%===============================%
-%		MATRIX OPERATIONS		%
-%===============================%
-
-% altera o elemento presente na posiÃ§Ã£o de coordenadas (X,Y) de uma matriz
+% altera o elemento presente na posição de coordenadas (X,Y) de uma matriz
 setSymbol(1, Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
 	list_set(Y, NewElem, OldRow, NewRow).
 setSymbol(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
@@ -29,7 +14,7 @@ moveSymbol(FromX, FromY, ToX, ToY, Symbol, Board, NewBoard):-
 	setSymbol(ToX, ToY, Symbol, Board, TempBoard),
 	setSymbol(FromX, FromY, 0, TempBoard, NewBoard).
 
-% obtÃ©m o elemento presente na posiÃ§Ã£o de coordenadas (X,Y) de uma matriz
+% obtém o elemento presente na posição de coordenadas (X,Y) de uma matriz
 getSymbol(X, Y, List, Symbol):-
 	X > 0,
 	list_at(X, List, Row), !,
@@ -37,9 +22,9 @@ getSymbol(X, Y, List, Symbol):-
 getSymbol(X-Y, List, Symbol):-
 	getSymbol(X, Y, List, Symbol).
 
-%===============================%
-%		LIST OPERATIONS			%
-%===============================%
+%=======================================%
+%            LIST OPERATIONS            %
+%=======================================%
 
 % determina o comprimento de uma lista
 list_size([], 0).
@@ -47,14 +32,14 @@ list_size([_|T], Size):-
 	list_size(T, TailSize),
 	Size is TailSize + 1.
 
-% altera o elemento existente na posiÃ§Ã£o I de uma lista
+% altera o elemento presente na posição I de uma lista
 list_set(1, Symbol, [_|L], [Symbol|L]).
 list_set(I, Symbol, [H|L], [H|Result]):-
 	I > 1,
 	I1 is I-1,
 	list_set(I1, Symbol, L, Result).
 
-% obtÃ©m o elemento existente na posiÃ§Ã£o I de uma lista
+% obtém o elemento presente na posição I de uma lista
 list_at(1, [H|_], H).
 list_at(X, [_|T], Symbol):-
 	X > 1,

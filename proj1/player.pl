@@ -1,46 +1,42 @@
-%===========================%
-%		PLAYER CLASS		%
-%===========================%
+%=======================================%
+%              PLAYER CLASS             %
+%=======================================%
 
-%			------- %
-% #factos			%
-%			------- %
+%                 ------------- %
+% #factos                       %
+%                 ------------- %
 
 % nomes dos jogadores
 player(whitePlayer).
 player(blackPlayer).
 
-% cores dos jogadores correspondentes
+% cores dos jogadores
 playerColor(whitePlayer, white).
 playerColor(blackPlayer, black).
 
-% nomes dos jogadores correspondentes
-playerName(whitePlayer, 'WHITE PLAYER').
-playerName(blackPlayer, 'BLACK PLAYER').
-
-% obtÃ©m o nome de determinado jogador
+% obtém o nome de determinado jogador
 getPlayerName(playerState(Name, _NumberDiscs, _NumberRings), Name).
 
-% obtÃ©m o nÃºmero de discos que determinado jogador possui
+% obtém o número de discos que determinado jogador possui
 getNumberDiscs(playerState(_Name, NumberDiscs, _NumberRings), NumberDiscs).
 
-% obtÃ©m o nÃºmero de anÃ©is que determinado jogador possui
+% obtém o número de anéis que determinado jogador possui
 getNumberRings(playerState(_Name, _NumberDiscs, NumberRings), NumberRings).
 
-%			------- %
-% #predicados       %
-%			------- %
+% obtém a cor associada ao jogador adversário
+getEnemyColor(playerState(whitePlayer, _NumberDiscs, _NumberRings), black).
+getEnemyColor(playerState(blackPlayer, _NumberDiscs, _NumberRings), white).
 
-% gera um novo jogador com o nÃºmero de peÃ§as por omissÃ£o
-initializePlayer(Name, playerState(Name, 24, 24)):-
+%                 ------------- %
+% #predicados                   %
+%                 ------------- %
+
+% cria um novo jogador com o número de peças especificado
+initializePlayer(Name, NumberDiscs, NumberRings,
+	playerState(Name, NumberDiscs, NumberRings)):-
 	player(Name).
 
-% gera um novo jogador com o nÃºmero de peÃ§as especificado nos argumentos
-initializePlayer(Name, NumberDiscs, NumberRings, 
-        playerState(Name, NumberDiscs, NumberRings)):-
-        player(Name).
-
-% obtÃ©m a cor associada ao nome de determinado jogador
+% obtém a cor associada a um determinado jogador
 getPlayerColor(playerState(Name, _NumberDiscs, _NumberRings), Color):-
 	playerColor(Name, Color).
 
@@ -50,22 +46,24 @@ getPlayerColor(playerState(Name, _NumberDiscs, _NumberRings), Color):-
 hasDiscs(playerState(_Name, NumberDiscs, _NumberRings)):-
 	NumberDiscs > 0.
 
-% verifica se determinado jogador possui pelo menos uma das peÃ§as
-hasPieces(playerState(_Name, NumberDiscs, NumberRings)):-
-	NumberDiscs > 0, NumberRings > 0.
+% verifica se determinado jogador possui pelo menos uma das peças
+hasPieces(playerState(_Name, NumberDiscs, _NumberRings)):-
+	NumberDiscs > 0.
+hasPieces(playerState(_Name, _NumberDiscs, NumberRings)):-
+	NumberRings > 0.
 
-% verifica se determinado jogador possui anÃ©is
+% verifica se determinado jogador possui anéis
 hasRings(playerState(_Name, _NumberDiscs, NumberRings)):-
 	NumberRings > 0.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% decrementa o nÃºmero de discos que determinado jogador possui
+% decrementa o número de discos que determinado jogador possui
 decrementDiscs(playerState(Name, NumberDiscs, NumberRings),
 	playerState(Name, NewDiscs, NumberRings)):-
 	NewDiscs is NumberDiscs - 1.
 
-% decrementa o nÃºmero de anÃ©is que determinado jogador possui
+% decrementa o número de anéis que determinado jogador possui
 decrementRings(playerState(Name, NumberDiscs, NumberRings),
 	playerState(Name, NumberDiscs, NewRings)):-
 	NewRings is NumberRings - 1.
