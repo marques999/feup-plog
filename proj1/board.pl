@@ -25,27 +25,27 @@ isEmpty(0).
 % #predicados       %
 %			------- %
 
-% verifica se determinada célula contém uma peça dupla
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a dupla
 isTwopiece(Symbol):-
 	isRing(Symbol, _),
 	isDisc(Symbol, _).
 
-% verifica se determinada célula contém uma peça simples
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a simples
 isSinglePiece(Symbol):-
 	\+isEmpty(Symbol),
 	\+isTwopiece(Symbol).
 
-% verifica se determinada célula contém uma peça simples de cor branca
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a simples de cor branca
 isSingleWhitePiece(Symbol):-
 	isSinglePiece(Symbol),
 	isWhiteSymbol(Symbol).
 
-% verifica se determinada célula contém uma peça simples de cor preta
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a simples de cor preta
 isSingleBlackPiece(Symbol):-
 	isSinglePiece(Symbol),
 	isBlackSymbol(Symbol).
 
-% verifica se duas células têm peças de tipo diferente
+% verifica se duas cÃ©lulas tÃªm peÃ§as de tipo diferente
 isDifferentSymbol(Source, Destination):-
 	isDisc(Source, _),
 	isRing(Destination, _).
@@ -53,13 +53,13 @@ isDifferentSymbol(Source, Destination):-
 	isRing(Source, _),
 	isDisc(Destination, _).
 
-% verifica se determinada célula contém uma peça (simples || dupla) de cor branca
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a (simples || dupla) de cor branca
 isWhiteSymbol(Symbol):-
 	isDisc(Symbol, white).
 isWhiteSymbol(Symbol):-
 	isRing(Symbol, white).
 
-% verifica se determinada célula contém uma peça (simples || dupla) de cor preta
+% verifica se determinada cÃ©lula contÃ©m uma peÃ§a (simples || dupla) de cor preta
 isBlackSymbol(Symbol):-
 	isDisc(Symbol, black).
 isBlackSymbol(Symbol):-
@@ -67,68 +67,68 @@ isBlackSymbol(Symbol):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% conta o número de discos simples existentes no tabuleiro
+% conta o nÃºmero de discos simples existentes no tabuleiro
 countDiscs(Board, Lista, Number):-
 	scanMatrix(Board, 1, 1, isSingleDisc, Lista),
 	list_size(Lista, Number), !.
 
-% conta o número de anéis simples existentes no tabuleiro
+% conta o nÃºmero de anÃ©is simples existentes no tabuleiro
 countRings(Board, Lista, Number):-
 	scanMatrix(Board, 1, 1, isSingleRing, Lista),
 	list_size(Lista, Number), !.
 
-% obtém uma lista com as coordenadas das peças simples de cor preta
+% obtÃ©m uma lista com as coordenadas das peÃ§as simples de cor preta
 scanBlackPieces(Board, Lista):-
 	scanMatrix(Board, 1, 1, isSingleBlackPiece, Lista), !.
 
-% conta o número de discos de cor preta existentes no tabuleiro
+% conta o nÃºmero de discos de cor preta existentes no tabuleiro
 countBlackDiscs(Board, Number):-
         scanMatrix(Board, 1, 1, isSingleBlackDisc, Lista),
         list_size(Lista, Number), !.
                                   
-% conta o número de peças simples de cor preta existentes no tabuleiro
+% conta o nÃºmero de peÃ§as simples de cor preta existentes no tabuleiro
 countBlackPieces(Board, Number):-
 	scanMatrix(Board, 1, 1, isSingleBlackPiece, Lista),
 	list_size(Lista, Number), !.
 
-% conta o número de anéis de cor branca existentes no tabuleiro
+% conta o nÃºmero de anÃ©is de cor branca existentes no tabuleiro
 countBlackRings(Board, Number):-
         scanMatrix(Board, 1, 1, isSingleBlackRing, Lista),
         list_size(Lista, Number), !.
 
-% obtém uma lista com as coordenadas das peças simples de cor branca
+% obtÃ©m uma lista com as coordenadas das peÃ§as simples de cor branca
 scanWhitePieces(Board, Lista):-
 	scanMatrix(Board, 1, 1, isSingleWhitePiece, Lista), !.
 
-% conta o número de discos de cor branca existentes no tabuleiro
+% conta o nÃºmero de discos de cor branca existentes no tabuleiro
 countWhiteDiscs(Board, Number):-
         scanMatrix(Board, 1, 1, isSingleWhiteDisc, Lista),
         list_size(Lista, Number), !.
 
-% conta o número de peças simples de cor branca existentes no tabuleiro
+% conta o nÃºmero de peÃ§as simples de cor branca existentes no tabuleiro
 countWhitePieces(Board, Number):-
 	scanMatrix(Board, 1, 1, isSingleWhitePiece, Lista),
 	list_size(Lista, Number), !.
 
-% conta o número de anéis de cor branca existentes no tabuleiro
+% conta o nÃºmero de anÃ©is de cor branca existentes no tabuleiro
 countWhiteRings(Board, Number):-
         scanMatrix(Board, 1, 1, isSingleWhiteRing, Lista),
         list_size(Lista, Number), !.
 
-% obtém uma lista com as coordenadas das peças simples existentes no tabuleiro
+% obtÃ©m uma lista com as coordenadas das peÃ§as simples existentes no tabuleiro
 scanSinglePieces(Board, Lista):-
 	scanMatrix(Board, 1, 1, isSinglePiece, Lista), !.
 
-% conta o número de células vazias no tabuleiro
+% conta o nÃºmero de cÃ©lulas vazias no tabuleiro
 countEmptyCells(Board, Number):-
 	scanMatrix(Board, 1, 1, isEmpty, Lista),
 	list_size(Lista, Number), !.
 
-% obtém uma lista com as coordenadas vizinhas de uma célual do tabuleiro
+% obtÃ©m uma lista com as coordenadas vizinhas de uma cÃ©lual do tabuleiro
 scanNeighbors(FromX-FromY, Lista):-
         findall(ToX-ToY, isNeighbour(FromX, FromY, ToX, ToY), Lista), !.
 
-% obtém uma lista com as coordenadas e número de celulas vazias no tabuleiro
+% obtÃ©m uma lista com as coordenadas e nÃºmero de celulas vazias no tabuleiro
 scanEmptyCells(Board, Lista, Number):-
 	scanMatrix(Board, 1, 1, isEmpty, Lista),
 	list_size(Lista, Number), !.
@@ -157,7 +157,7 @@ isPlayerStuck(Board, Player):-
 	scanBlackPieces(Board, ListBlack),
 	\+hasMovesLeft(Board, ListBlack, ListSingle).
 
-% verifica se determinado jogador pode mover alguma peça
+% verifica se determinado jogador pode mover alguma peÃ§a
 hasMovesLeft(Board, ListColored, ListSingle):-
 	member(X, ListSingle),
 	member(Y, ListColored),
@@ -196,14 +196,14 @@ isNeighbour(FromX-FromY, ToX-ToY):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se ambas as peças existentes numa célula pertencem a determinado jogador
+% verifica se ambas as peÃ§as existentes numa cÃ©lula pertencem a determinado jogador
 playerOwnsBoth(X, Y, Board, Player):-
 	getSymbol(X, Y, Board, Symbol),
 	getPlayerColor(Player, Color),
 	isRing(Symbol, Color),
 	isDisc(Symbol, Color).
 
-% verifica se um disco existente nuam célula pertence a determinado jogador
+% verifica se um disco existente nuam cÃ©lula pertence a determinado jogador
 playerOwnsDisc(Symbol, Player):-
 	getPlayerColor(Player, Color),
 	isDisc(Symbol, Color).
@@ -229,7 +229,7 @@ hasPlayerWon(Board, Player):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% dadas várias posições, verifica se é possível encontrar um caminho
+% dadas vÃ¡rias posiÃ§Ãµes, verifica se Ã© possÃ­vel encontrar um caminho
 checkMultiplePaths([H|_], Color, Board):-
 	checkPath(H, Color, Board).
 checkMultiplePaths([_|T], Color, Board):-

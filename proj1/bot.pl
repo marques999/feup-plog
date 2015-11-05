@@ -31,7 +31,7 @@ bestMove(FromX-FromY, Board, [ToX-ToY|T], _ToX-_ToY, Score):-
 bestMove(From, Board, [_|T], To, Score):-
 	bestMove(From, Board, T, To, Score).
 
-% pontua a jogada com "2" se as peÁas adjacentes s„o diferentes
+% pontua a jogada com "2" se as pe√ßas adjacentes s√£o diferentes
 scoreMove(Source, Destination, 2):-
 	isDisc(Source, Color),
 	isRing(Destination, _),
@@ -41,7 +41,7 @@ scoreMove(Source, Destination, 2):-
 	isDisc(Destination, _),
 	\+isDisc(Destination, Color).
 
-% pontua a jogada com "1" se as peÁas adjacentes pertencem ao mesmo jogador
+% pontua a jogada com "1" se as pe√ßas adjacentes pertencem ao mesmo jogador
 scoreMove(Source, Destination, 1):-
 	isDisc(Source, Color),
 	isRing(Destination, Color).
@@ -49,24 +49,24 @@ scoreMove(Source, Destination, 1):-
 	isRing(Source, Color),
 	isDisc(Destination, Color).
 
-% pontua a jogada com "0" se as peÁas adjacentes s„o iguais ou n„o existem
+% pontua a jogada com "0" se as pe√ßas adjacentes s√£o iguais ou n√£o existem
 scoreMove(_Source, _Destination, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o inicial do computador: colocar um disco
+% ac√ß√£o inicial do computador: colocar um disco
 botInitialMove(Board, Player, NewBoard, NewPlayer):-
 	random(0, 2, Action),
 	Action > 0, !,
 	botRandomPlace(Board, Player, Position, disc),
 	botAction(1, Position, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o inicial do computador: colocar um anel
+% ac√ß√£o inicial do computador: colocar um anel
 botInitialMove(Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, ring),
 	botAction(3, Position, Board, Player, NewBoard, NewPlayer).
 
-% predicado gerador de movimento aleatÛrio do computador
+% predicado gerador de movimento aleat√≥rio do computador
 botRandomMove(Board, Player, NewBoard, NewPlayer):-
 	random(1, 5, Number),
 	hasDiscs(Player), hasRings(Player), !,
@@ -78,7 +78,7 @@ botSmartMove(Board, Player, Board, Player):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do computador: colocar um disco no tabuleiro
+% ac√ß√£o do computador: colocar um disco no tabuleiro
 botAction(1, Position, Board, Player, NewBoard, NewPlayer):-
 	hasDiscs(Player), !,
 	getPlayerColor(Player, Color),
@@ -86,7 +86,7 @@ botAction(1, Position, Board, Player, NewBoard, NewPlayer):-
 	placeDisc(Position, Color, Board, NewBoard),
 	decrementDiscs(Player, NewPlayer).
 
-% acÁ„o do computador: colocar um anel no tabuleiro
+% ac√ß√£o do computador: colocar um anel no tabuleiro
 botAction(3, Position, Board, Player, NewBoard, NewPlayer):-
 	hasRings(Player), !,
 	getPlayerColor(Player, Color),
@@ -94,13 +94,13 @@ botAction(3, Position, Board, Player, NewBoard, NewPlayer):-
 	placeRing(Position, Color, Board, NewBoard),
 	decrementRings(Player, NewPlayer).
 
-% acÁ„o do computador: mover um disco para uma cÈlula ocupada por um anel
+% ac√ß√£o do computador: mover um disco para uma c√©lula ocupada por um anel
 botAction(2, From, To, Board, Player, NewBoard, Player):-
 	botCanMoveDisc(From, To, Board, Player), !,
 	printMoveAction(Player, disc, From, To),
 	moveDisc(From, To, Board, NewBoard).
 
-% acÁ„o do computador: mover um anel para uma cÈlula ocupada por um disco
+% ac√ß√£o do computador: mover um anel para uma c√©lula ocupada por um disco
 botAction(4, From, To, Board, Player, NewBoard, Player):-
 	botCanMoveRing(From, To, Board, Player),
 	printMoveAction(Player, ring, From, To),
@@ -108,51 +108,51 @@ botAction(4, From, To, Board, Player, NewBoard, Player):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% imprime no ecr„ informaÁıes relativas ao movimento "colocar peÁa" do computador
+% imprime no ecr√£ informa√ß√µes relativas ao movimento "colocar pe√ßa" do computador
 printPlaceAction(Player, Piece, Position):-
 	getPlayerName(Player, PlayerName),
 	format('~w placed ~w at position ~w\n', [PlayerName, Piece, Position]), nl.
 
-% imprime no ecr„ informaÁıes relativas ao movimento "mover peÁa" do computador
+% imprime no ecr√£ informa√ß√µes relativas ao movimento "mover pe√ßa" do computador
 printMoveAction(Player, Piece, From, To):-
 	getPlayerName(Player, PlayerName),
 	format('~w moving ~w from position ~w to position ~w\n', [PlayerName, Piece, From, To]), nl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "colocar disco"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "colocar disco"
 botRandomAction(1, Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, disc),
 	botAction(1, Position, Board, Player, TempBoard, TempPlayer), !,
 	botSecondRandom(ring, TempBoard, TempPlayer, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "mover disco"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "mover disco"
 botRandomAction(2, Board, Player, NewBoard, NewPlayer):-
 	botRandomSource(Board, disc, Player, From),
 	botRandomDestination(From, To),
 	botAction(2, From, To, Board, Player, TempBoard, TempPlayer), !,
 	botSecondRandom(ring, TempBoard, TempPlayer, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "colocar anel"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "colocar anel"
 botRandomAction(3, Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, ring),
 	botAction(3, Position, Board, Player,TempBoard,TempPlayer), !,
 	botSecondRandom(disc, TempBoard, TempPlayer, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "mover anel"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "mover anel"
 botRandomAction(4, Board, Player, NewBoard, NewPlayer):-
 	botRandomSource(Board, ring, Player, From),
 	botRandomDestination(From, To),
 	botAction(4, From, To, Board, Player, TempBoard,TempPlayer), !,
 	botSecondRandom(disc, TempBoard, TempPlayer, NewBoard, NewPlayer).
 
-% acÁ„o do computador: fallback
+% ac√ß√£o do computador: fallback
 botRandomAction(_, Board, Player, NewBoard, NewPlayer):-
 	botRandomMove(Board, Player, NewBoard, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do computador: realiza um segundo movimento aleatÛrio com um disco
+% ac√ß√£o do computador: realiza um segundo movimento aleat√≥rio com um disco
 botSecondRandom(disc, Board, Player, NewBoard, NewPlayer):-
 	random(1, 11, Action),
 	Action > 5, !,
@@ -163,7 +163,7 @@ botSecondRandom(disc, Board, Player, NewBoard, NewPlayer):-
 	botRandomDestination(From, To),
 	botAction(2, From, To, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um segundo movimento aleatÛrio com um anel
+% ac√ß√£o do computador: realiza um segundo movimento aleat√≥rio com um anel
 botSecondRandom(ring, Board, Player, NewBoard, NewPlayer):-
 	random(1, 11, Action),
 	Action > 5, !,
@@ -174,29 +174,29 @@ botSecondRandom(ring, Board, Player, NewBoard, NewPlayer):-
 	botRandomDestination(From, To),
 	botAction(4, From, To, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o do computador: fallback
+% ac√ß√£o do computador: fallback
 botSecondRandom(Piece, Board, Player, NewBoard, NewPlayer):-
 	botSecondRandom(Piece, Board, Player, NewBoard, NewPlayer).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "colocar disco"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "colocar disco"
 botSmartAction(1, Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, disc),
 	botAction(1, Position, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "mover disco"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "mover disco"
 botSmartAction(2, Board, Player, NewBoard, NewPlayer):-
 	botRandomSource(Board, disc, Player, From),
 	botRandomDestination(From, To),
 	botAction(2, From, To, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "colocar anel"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "colocar anel"
 botSmartAction(3, Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, ring),
 	botAction(3, Position, Board, Player, NewBoard, NewPlayer).
 
-% acÁ„o do computador: realiza um movimento aleatÛrio do tipo "mover anel"
+% ac√ß√£o do computador: realiza um movimento aleat√≥rio do tipo "mover anel"
 botSmartAction(4, Board, Player, NewBoard, NewPlayer):-
 	botRandomSource(Board, ring, Player, From),
 	botRandomDestination(From, To),
@@ -204,7 +204,7 @@ botSmartAction(4, Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se o computador pode mover um anel da posiÁ„o (FromX,FromY) para (ToX,ToY)
+% verifica se o computador pode mover um anel da posi√ß√£o (FromX,FromY) para (ToX,ToY)
 botCanMoveRing(FromX-FromY, ToX-ToY, Board, Player):-
 	getSymbol(FromX, FromY, Board, Source),
 	getSymbol(ToX, ToY, Board, Destination),
@@ -212,7 +212,7 @@ botCanMoveRing(FromX-FromY, ToX-ToY, Board, Player):-
 	isRing(Source, Color), !,
 	isSingleDisc(Destination).
 
-% verifica se o computador pode mover um disco da posiÁ„o (FromX,FromY) para (ToX,ToY)
+% verifica se o computador pode mover um disco da posi√ß√£o (FromX,FromY) para (ToX,ToY)
 botCanMoveDisc(FromX-FromY, ToX-ToY, Board, Player):-
 	getSymbol(FromX, FromY, Board, Source),
 	getSymbol(ToX, ToY, Board, Destination),
@@ -222,7 +222,7 @@ botCanMoveDisc(FromX-FromY, ToX-ToY, Board, Player):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% gera aleatoriamente uma cÈlula de origem v·lida
+% gera aleatoriamente uma c√©lula de origem v√°lida
 botRandomSource(Board, Piece, Player, Resultado):-
 	getPlayerColor(Player, Color),
 	botScanMatrix(Board, Piece, Color, Lista), !,
@@ -231,7 +231,7 @@ botRandomSource(Board, Piece, Player, Resultado):-
 	random(1, TamanhoExtra, Numero),
 	list_at(Numero, Lista, Resultado), !.
 
-% gera aleatoriamente uma cÈlula de destino v·lida
+% gera aleatoriamente uma c√©lula de destino v√°lida
 botRandomDestination(X-Y, Position):-
 	scanNeighbors(X-Y, Lista), !,
 	list_size(Lista, Tamanho),
@@ -239,7 +239,7 @@ botRandomDestination(X-Y, Position):-
 	random(1, TamanhoExtra, Number),
 	list_at(Number, Lista, Position), !.
 
-% verifica se existem jogadas restantes, procurando cÈlulas vazias no tabuleiro
+% verifica se existem jogadas restantes, procurando c√©lulas vazias no tabuleiro
 botRandomPlace(Board, Player, Position, _Piece):-
 	\+isPlayerStuck(Board, Player), !,
 	scanEmptyCells(Board, Lista, Tamanho),
@@ -247,7 +247,7 @@ botRandomPlace(Board, Player, Position, _Piece):-
 	random(1, TamanhoExtra, Number),
 	list_at(Number, Lista, Position), !.
 
-% caso contr·rio, procura anÈis no tabuleiro onde colocar um disco
+% caso contr√°rio, procura an√©is no tabuleiro onde colocar um disco
 botRandomPlace(Board, _Player, Position, disc):-
 	write('PLAYER IS STUCK'),
 	countRings(Board, Lista, Tamanho),
@@ -256,7 +256,7 @@ botRandomPlace(Board, _Player, Position, disc):-
 	random(1, TamanhoExtra, Number),
 	list_at(Number, Lista, Position), !.
 
-% caso contr·rio, procura discos no tabuleiro onde colocar um anel
+% caso contr√°rio, procura discos no tabuleiro onde colocar um anel
 botRandomPlace(Board, _Player, Position, ring):-
 	write('PLAYER IS STUCK'),
 	countDiscs(Board, Lista, Tamanho),
@@ -267,18 +267,18 @@ botRandomPlace(Board, _Player, Position, ring):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% encontra todas as peÁas do tabuleiro que sejam discos pretos
+% encontra todas as pe√ßas do tabuleiro que sejam discos pretos
 botScanMatrix(Board, disc, black, Lista):-
 	scanMatrix(Board, 1, 1, isSingleBlackDisc, Lista).
 
-% encontra todas as peÁas do tabuleiro que sejam discos brancos
+% encontra todas as pe√ßas do tabuleiro que sejam discos brancos
 botScanMatrix(Board, disc, white, Lista):-
 	scanMatrix(Board, 1, 1, isSingleWhiteDisc, Lista).
 
-% encontra todas as peÁas do tabuleiro que sejam anÈis pretos
+% encontra todas as pe√ßas do tabuleiro que sejam an√©is pretos
 botScanMatrix(Board, ring, black, Lista):-
 	scanMatrix(Board, 1, 1, isSingleBlackRing, Lista).
 
-% encontra todas as peÁas do tabuleiro que sejam anÈis brancos
+% encontra todas as pe√ßas do tabuleiro que sejam an√©is brancos
 botScanMatrix(Board, ring, white, Lista):-
 	scanMatrix(Board, 1, 1, isSingleWhiteRing, Lista).

@@ -121,7 +121,7 @@ initializeBvB(Game, Board, whitePlayer, BotMode):-
         initializePlayer(blackPlayer, BlackDiscs, BlackRings, Player2),
 	Game = Board-bvb-BotMode-whitePlayer-Player1-Player2, !.
 
-% conta o n˙mero de peÁas existentes num tabuleiro prÈ-definido
+% conta o n√∫mero de pe√ßas existentes num tabuleiro pr√©-definido
 countPieces(Board, BlackDiscs, BlackRings, WhiteDiscs, WhiteRings):-
         countBlackDiscs(Board, TempBlackDiscs),
         countBlackRings(Board, TempBlackRings),
@@ -156,7 +156,7 @@ setBotMode(Board-Mode-_BotMode-PlayerTurn-Player1-Player2,
 
 getPlayerTurn(_Board-_Mode-_BotMode-PlayerTurn-_Player1-_Player2, PlayerTurn).
 
-% altera a prÛxima cor a jogar no jogo atual
+% altera a pr√≥xima cor a jogar no jogo atual
 setPlayerTurn(Board-Mode-BotMode-_PlayerTurn-Player1-Player2,
 	NewTurn, Board-Mode-BotMode-NewTurn-Player1-Player2):-
 	player(NewTurn).
@@ -167,7 +167,7 @@ getPlayer1(_Board-_Mode-_BotMode-_PlayerTurn-Player1-_Player2, Player1).
 setPlayer1(Board-Mode-BotMode-PlayerTurn-_Player1-Player2,
 	NewPlayer, Board-Mode-BotMode-PlayerTurn-NewPlayer-Player2).
 
-% obtÈm
+% obt√©m
 getPlayer2(_Board-_Mode-_BotMode-_PlayerTurn-_Player1-Player2, Player2).
 
 setPlayer2(Board-Mode-BotMode-PlayerTurn-Player1-_Player2,
@@ -183,7 +183,7 @@ changePlayerTurn(Game, NewGame):-
 	getPlayerTurn(Game, blackPlayer),
 	setPlayerTurn(Game, whitePlayer, NewGame).
 
-% obtÈm a estrutura de dados do jogador atual
+% obt√©m a estrutura de dados do jogador atual
 getCurrentPlayer(_Board-_Mode-_BotMode-PlayerTurn-Player1-_Player2, Player1):-
 	getPlayerName(Player1, PlayerTurn).
 getCurrentPlayer(_Board-_Mode-_BotMode-PlayerTurn-_Player1-Player2, Player2):-
@@ -199,19 +199,19 @@ setCurrentPlayer(Board-Mode-BotMode-PlayerTurn-Player1-Player2, NewPlayer,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% pede ao utilizador para introduzir uma cÈlula de origem v·lida
+% pede ao utilizador para introduzir uma c√©lula de origem v√°lida
 askSourceCell(X, Y):-
 	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
-% pede ao utilizador para introduzir uma cÈlula de destino v·lida
+% pede ao utilizador para introduzir uma c√©lula de destino v√°lida
 askDestinationCell(X, Y):-
 	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se as coordenadas introduzidas pelo utilizador s„o v·lidas (cÈlula de origem)
+% verifica se as coordenadas introduzidas pelo utilizador s√£o v√°lidas (c√©lula de origem)
 validateSource(Symbol, _Piece):-
 	isTwopiece(Symbol), !,
 	messageSourceTwopiece.
@@ -224,7 +224,7 @@ validateSource(Symbol, ring):-
 validateSource(_Symbol, ring):- !,
 	messageSourceNotRing.
 
-% verifica se as coordenadas introduzidas pelo utilizador s„o v·lidas (cÈlula de destino)
+% verifica se as coordenadas introduzidas pelo utilizador s√£o v√°lidas (c√©lula de destino)
 validateDestination(Symbol, _Piece):-
 	isTwopiece(Symbol), !,
 	messageDestinationTwopiece.
@@ -244,8 +244,8 @@ validateCoordinates(X, Y):-
 validateCoordinates(_X, _Y):-
 	messageInvalidCoordinates.
 
-% verifica se ambas as coordenadas introduzidas pelo utilizador s„o diferentes
-% verifica tambÈm se as cÈlulas associadas ‡s coordenadas s„o vizinhas
+% verifica se ambas as coordenadas introduzidas pelo utilizador s√£o diferentes
+% verifica tamb√©m se as c√©lulas associadas √†s coordenadas s√£o vizinhas
 validateBothCoordinates(FromX, FromY, FromX, FromY):-
 	messageSameCoordinates.
 validateBothCoordinates(FromX, FromY, ToX, ToY):-
@@ -269,7 +269,7 @@ validateRingOwnership(_X, _Y):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do jogador humano: realiza um movimento do tipo "mover disco"
+% ac√ß√£o do jogador humano: realiza um movimento do tipo "mover disco"
 askMoveDisc(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
 	getSymbol(FromX, FromY, Board, Source),
@@ -281,7 +281,7 @@ askMoveDisc(Board, Player, NewBoard):-
 	validateDestination(Destination, ring), !,
 	moveDisc(FromX-FromY, ToX-ToY, Board, NewBoard).
 
-% acÁ„o do jogador humano: realiza um movimento do tipo "mover anel"
+% ac√ß√£o do jogador humano: realiza um movimento do tipo "mover anel"
 askMoveRing(Board, Player, NewBoard):-
 	askSourceCell(FromX, FromY),
 	getSymbol(FromX, FromY, Board, Source),
@@ -331,7 +331,7 @@ validatePlaceRing(_X, _Y, _Board, _Player).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acÁ„o do jogador humano: realiza um movimento do tipo "colocar disco"
+% ac√ß√£o do jogador humano: realiza um movimento do tipo "colocar disco"
 askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
 	validatePlaceDisc(X, Y, Board, Player), !,
@@ -339,7 +339,7 @@ askPlaceDisc(Board, Player, NewBoard, NewPlayer):-
 	placeDisc(X-Y, Color, Board, NewBoard),
 	decrementDiscs(Player, NewPlayer).
 
-% acÁ„o do jogador humano: realiza um movimento do tipo "colocar anel"
+% ac√ß√£o do jogador humano: realiza um movimento do tipo "colocar anel"
 askPlaceRing(Board, Player, NewBoard, NewPlayer):-
 	askDestinationCell(X, Y),
 	validatePlaceRing(X, Y, Board, Player), !,
@@ -354,13 +354,13 @@ startGame(Game, pvp):-
         startHuman(Game, NewGame),
 	playGame(NewGame, pvp).
 
-% inicia uma nova partida no modo Player vs Bot (Player comeÁa primeiro)
+% inicia uma nova partida no modo Player vs Bot (Player come√ßa primeiro)
 startGame(Game, pvb):-
         isPlayerTurn(Game), !,
         startHuman(Game, NewGame),
         playGame(NewGame, pvb).
 
-% inicia uma nova partida no modo Player vs Bot (Bot comeÁa primeiro)
+% inicia uma nova partida no modo Player vs Bot (Bot come√ßa primeiro)
 startGame(Game, pvb):-
         startBot(Game, NewGame),
         playGame(NewGame, pvb).
@@ -372,7 +372,7 @@ startGame(Game, bvb):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se ainda restam peÁas ao jogador atual
+% verifica se ainda restam pe√ßas ao jogador atual
 playGame(Game, _Mode):-
 	getCurrentPlayer(Game, Player),
 	\+hasPieces(Player),
@@ -455,12 +455,12 @@ startBot(Game, NewGame):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% determina se o jogador humano È o prÛximo a jogar no modo Player vs Bot
+% determina se o jogador humano √© o pr√≥ximo a jogar no modo Player vs Bot
 isPlayerTurn(Game):-
         getCurrentPlayer(Game, Player),
         getPlayer1(Game, Player), !.
 
-% determina se o computador È o prÛximo a jogar no modo Player vs Bot
+% determina se o computador √© o pr√≥ximo a jogar no modo Player vs Bot
 isBotTurn(Game):-
         getCurrentPlayer(Game, Player),
         getPlayer2(Game, Player), !.
@@ -500,7 +500,7 @@ askInitialAction(Board, Player, _Choice, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% pede um segundo movimento ao jogador (apÛs ter jogado anÈis no primeiro)
+% pede um segundo movimento ao jogador (ap√≥s ter jogado an√©is no primeiro)
 askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
 	printBoard(Board),
 	write('> SELECT SECOND MOVE:\t1. Place Disc'), nl,
@@ -508,7 +508,7 @@ askSecondMove(Board, Player, disc, NewBoard, NewPlayer):-
 	getInt(Choice),
 	askDiscAction(Board, Player, Choice, NewBoard, NewPlayer).
 
-% pede um segundo movimento ao jogador (apÛs ter jogado discos no primeiro)
+% pede um segundo movimento ao jogador (ap√≥s ter jogado discos no primeiro)
 askSecondMove(Board, Player, ring, NewBoard, NewPlayer):-
 	printBoard(Board),
 	write('> SELECT SECOND MOVE:\t1. Place Ring'), nl,

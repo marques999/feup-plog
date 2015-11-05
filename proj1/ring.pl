@@ -6,23 +6,23 @@
 % #predicados       %
 %			------- %
 
-% verifica se uma determinada célula se encontra ocupada por um anel preto
+% verifica se uma determinada cÃ©lula se encontra ocupada por um anel preto
 isRing(Symbol, black):-
 	4 is Symbol /\ 12.
 
-% verifica se uma determinada célula se encontra ocupada por um anel branco
+% verifica se uma determinada cÃ©lula se encontra ocupada por um anel branco
 isRing(Symbol, white):-
 	8 is Symbol /\ 12.
 
-% verifica se uma determinada célula se encontra ocupada por uma peça simples (anel preto)
+% verifica se uma determinada cÃ©lula se encontra ocupada por uma peÃ§a simples (anel preto)
 isSingleBlackRing(Symbol):-
 	4 is Symbol /\ 15.
 
-% verifica se uma determinada célula se encontra ocupada por uma peça simples (anel branco)
+% verifica se uma determinada cÃ©lula se encontra ocupada por uma peÃ§a simples (anel branco)
 isSingleWhiteRing(Symbol):-
 	8 is Symbol /\ 15.
 
-% verifica se uma determinada célula se encontra ocupada por uma peça simples (anel qualquer)
+% verifica se uma determinada cÃ©lula se encontra ocupada por uma peÃ§a simples (anel qualquer)
 isSingleRing(Symbol):-
 	isSingleBlackRing(Symbol).
 isSingleRing(Symbol):-
@@ -30,30 +30,30 @@ isSingleRing(Symbol):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% calcula a nova peça do tabuleiro após adição de um anel
+% calcula a nova peÃ§a do tabuleiro apÃ³s adiÃ§Ã£o de um anel
 insertRing(Destination, Source, NewSymbol):-
 	\+isTwopiece(Destination),
 	NewSymbol is Destination \/ Source.
 
-% move um anel para uma célula ocupada por um disco
+% move um anel para uma cÃ©lula ocupada por um disco
 moveRing(FromX-FromY, ToX-ToY, Board, NewBoard):-
 	getSymbol(ToX, ToY, Board, Destination),
 	getSymbol(FromX, FromY, Board, Source),
 	insertRing(Destination, Source, NewDestination),
 	moveSymbol(FromX, FromY, ToX, ToY, NewDestination, Board, NewBoard).
 
-% verifica se é possível colocar um anel numa célula (situação normal de jogo)
+% verifica se Ã© possÃ­vel colocar um anel numa cÃ©lula (situaÃ§Ã£o normal de jogo)
 canPlaceRing(Board, X, Y):-
 	getSymbol(X, Y, Board, Destination),
 	isEmpty(Destination).
 
-% verifica se é possível colocar um anel numa célula (situação excepcional de jogo)
+% verifica se Ã© possÃ­vel colocar um anel numa cÃ©lula (situaÃ§Ã£o excepcional de jogo)
 canSpecialRing(Board, X, Y):-
 	getSymbol(X, Y, Board, Symbol),
 	\+isTwopiece(Symbol),
 	isDisc(Symbol, _).
 
-% coloca um anel numa determinada célula do tabuleiro
+% coloca um anel numa determinada cÃ©lula do tabuleiro
 placeRing(X-Y, Color, Board, NewBoard):-
 	getSymbol(X, Y, Board, Destination),
 	createSinglePiece(ring, Color, Source),
@@ -62,7 +62,7 @@ placeRing(X-Y, Color, Board, NewBoard):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se duas células se encontram ligadas por um anel da mesma cor
+% verifica se duas cÃ©lulas se encontram ligadas por um anel da mesma cor
 connectedRing(StartX-StartY, EndX-EndY, Board):-
 	isNeighbour(StartX, StartY, EndX, EndY),
 	getSymbol(StartX, StartY, Board, Source),
@@ -70,7 +70,7 @@ connectedRing(StartX-StartY, EndX-EndY, Board):-
 	isRing(Source, Color),
 	isRing(Destination, Color).
 
-% gera um caminho ligado por anéis entre duas células do tabuleiro
+% gera um caminho ligado por anÃ©is entre duas cÃ©lulas do tabuleiro
 checkPathRing(Start, End, Board, Color, Lista):-
 	checkPathRing(Start, End, Board, Color, [Start], Lista).
 checkPathRing(7-StartY, _End, _Board, black, Lista, Lista):-

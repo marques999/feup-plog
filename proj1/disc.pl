@@ -6,23 +6,23 @@
 % #predicados       %
 %			------- %
 
-% verifica se uma determinada célula se encontra ocupada por um disco preto
+% verifica se uma determinada cÃ©lula se encontra ocupada por um disco preto
 isDisc(Symbol, black):-
 	1 is Symbol /\ 3.
 
-% verifica se uma determinada célula se encontra ocupada por um disco branco
+% verifica se uma determinada cÃ©lula se encontra ocupada por um disco branco
 isDisc(Symbol, white):-
 	2 is Symbol /\ 3.
 
-% verifica se uma determinada célula se encontra ocupada por por uma peça simples (disco preto)
+% verifica se uma determinada cÃ©lula se encontra ocupada por por uma peÃ§a simples (disco preto)
 isSingleBlackDisc(Symbol):-
 	1 is Symbol /\ 15.
 
-% verifica se uma determinada célula se encontra ocupada por por uma peça simples (disco branco)
+% verifica se uma determinada cÃ©lula se encontra ocupada por por uma peÃ§a simples (disco branco)
 isSingleWhiteDisc(Symbol):-
 	2 is Symbol /\ 15.
 
-% verifica se uma determinada célula se encontra ocupada por por uma peça simples (disco qualquer)
+% verifica se uma determinada cÃ©lula se encontra ocupada por por uma peÃ§a simples (disco qualquer)
 isSingleDisc(Symbol):-
 	isSingleBlackDisc(Symbol).
 isSingleDisc(Symbol):-
@@ -30,30 +30,30 @@ isSingleDisc(Symbol):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% calcula a nova peça do tabuleiro após adição de um disco
+% calcula a nova peÃ§a do tabuleiro apÃ³s adiÃ§Ã£o de um disco
 insertDisc(Destination, Source, NewSymbol):-
 	\+isTwopiece(Destination),
 	NewSymbol is Destination \/ Source.
 
-% move um disco para uma célula ocupada por um anel
+% move um disco para uma cÃ©lula ocupada por um anel
 moveDisc(FromX-FromY, ToX-ToY, Board, NewBoard):-
 	getSymbol(ToX, ToY, Board, Destination),
 	getSymbol(FromX, FromY, Board, Source),
 	insertDisc(Destination, Source, NewDestination),
 	moveSymbol(FromX, FromY, ToX, ToY, NewDestination, Board, NewBoard).
 
-% verifica se é possível colocar um disco numa célula (situação normal de jogo)
+% verifica se Ã© possÃ­vel colocar um disco numa cÃ©lula (situaÃ§Ã£o normal de jogo)
 canPlaceDisc(Board, X, Y):-
 	getSymbol(X, Y, Board, Destination),
 	isEmpty(Destination).
 
-% verifica se é possível colocar um disco numa célula (situação excepcional de jogo)
+% verifica se Ã© possÃ­vel colocar um disco numa cÃ©lula (situaÃ§Ã£o excepcional de jogo)
 canSpecialDisc(Board, X, Y):-
 	getSymbol(X, Y, Board, Symbol),
 	\+isTwopiece(Symbol),
 	isRing(Symbol, _).
 
-% coloca um disco numa determinada célula do tabuleiro
+% coloca um disco numa determinada cÃ©lula do tabuleiro
 placeDisc(X-Y, Color, Board, NewBoard):-
 	getSymbol(X, Y, Board, Destination),
 	createSinglePiece(disc, Color, Source),
@@ -62,7 +62,7 @@ placeDisc(X-Y, Color, Board, NewBoard):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se duas células se encontram ligadas por um disco da mesma cor
+% verifica se duas cÃ©lulas se encontram ligadas por um disco da mesma cor
 connectedDisc(StartX-StartY, EndX-EndY, Board):-
 	isNeighbour(StartX, StartY, EndX, EndY),
 	getSymbol(StartX, StartY, Board, Source),
@@ -70,7 +70,7 @@ connectedDisc(StartX-StartY, EndX-EndY, Board):-
 	isDisc(Source, Color),
 	isDisc(Destination, Color).
 
-% gera um caminho ligado por discos entre duas células do tabuleiro
+% gera um caminho ligado por discos entre duas cÃ©lulas do tabuleiro
 checkPathDisc(Start, End, Board, Color, Lista):-
 	checkPathDisc(Start, End, Board, Color, [Start], Lista).
 checkPathDisc(7-StartY, _End, _Board, black, Lista, Lista):-

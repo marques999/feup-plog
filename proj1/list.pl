@@ -17,7 +17,7 @@ generateList(Size, [0 | Result]):-
 %		MATRIX OPERATIONS		%
 %===============================%
 
-% altera o elemento presente na posição de coordenadas (X,Y) de uma matriz
+% altera o elemento presente na posiÃ§Ã£o de coordenadas (X,Y) de uma matriz
 setSymbol(1, Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
 	list_set(Y, NewElem, OldRow, NewRow).
 setSymbol(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
@@ -29,7 +29,7 @@ moveSymbol(FromX, FromY, ToX, ToY, Symbol, Board, NewBoard):-
 	setSymbol(ToX, ToY, Symbol, Board, TempBoard),
 	setSymbol(FromX, FromY, 0, TempBoard, NewBoard).
 
-% obtém o elemento presente na posição de coordenadas (X,Y) de uma matriz
+% obtÃ©m o elemento presente na posiÃ§Ã£o de coordenadas (X,Y) de uma matriz
 getSymbol(X, Y, List, Symbol):-
 	X > 0,
 	list_at(X, List, Row), !,
@@ -47,14 +47,14 @@ list_size([_|T], Size):-
 	list_size(T, TailSize),
 	Size is TailSize + 1.
 
-% altera o elemento existente na posição I de uma lista
+% altera o elemento existente na posiÃ§Ã£o I de uma lista
 list_set(1, Symbol, [_|L], [Symbol|L]).
 list_set(I, Symbol, [H|L], [H|Result]):-
 	I > 1,
 	I1 is I-1,
 	list_set(I1, Symbol, L, Result).
 
-% obtém o elemento existente na posição I de uma lista
+% obtÃ©m o elemento existente na posiÃ§Ã£o I de uma lista
 list_at(1, [H|_], H).
 list_at(X, [_|T], Symbol):-
 	X > 1,
