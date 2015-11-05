@@ -2,9 +2,9 @@
 %	   	  MENU CLASS		%
 %===========================%
 
-%		------- %
-% #includes		%
-%		------- %
+%			------- %
+% #includes			%
+%			------- %
 
 :- include('duplohex.pl').
 
@@ -12,9 +12,9 @@
 :- meta_predicate(startPvBGame(?, ?, 1)).
 :- meta_predicate(startBvBGame(?, ?, 1)).
 
-%		------- %
-% #predicados 	%
-%		------- %
+%			------- %
+% #predicados       %
+%			------- %
 
 printMainMenu:- nl,
 	write('+================================+'), nl,
@@ -44,17 +44,17 @@ printColorMenu:- nl,
 	write('Please choose an option:'), nl, !.
 
 printBotMenu:- nl,
-        write('+===============================+'), nl,
-        write('+  ..:: SELECT DIFFICULTY ::..  +'), nl,
-        write('+===============================+'), nl,
-        write('|                               |'), nl,
-        write('|   1. Random Bots              |'), nl,
-        write('|   2. Smart Bots               |'), nl,
-        write('|                               |'), nl,
-        write('|   3. <- Back                  |'), nl,
-        write('|                               |'), nl,
-        write('+===============================+'), nl, nl,
-        write('Please choose an option:'), nl, !.
+	write('+===============================+'), nl,
+	write('+  ..:: SELECT DIFFICULTY ::..  +'), nl,
+	write('+===============================+'), nl,
+	write('|                               |'), nl,
+	write('|   1. Random Bots              |'), nl,
+	write('|   2. Smart Bots               |'), nl,
+	write('|                               |'), nl,
+	write('|   3. <- Back                  |'), nl,
+	write('|                               |'), nl,
+	write('+===============================+'), nl, nl,
+	write('Please choose an option:'), nl, !.
 
 printBoardMenu:- nl,
 	write('+===============================+'), nl,
@@ -63,6 +63,7 @@ printBoardMenu:- nl,
 	write('|                               |'), nl,
 	write('|   1. 6 x 6                    |'), nl,
 	write('|   2. 7 x 7                    |'), nl,
+        write('|   3. Diagonal                 |'), nl,
 	write('|                               |'), nl,
 	write('|   3. <- Back                  |'), nl,
 	write('|                               |'), nl,
@@ -83,7 +84,11 @@ printGameMenu:- nl,
 	write('+===============================+'), nl, nl,
 	write('Please choose an option:'), nl, !.
 
-mainMenu:-
+duplohex:-
+	initializeRandomSeed, !,
+	mainMenu.
+
+mainMenu:- !,
 	printMainMenu,
 	getInt(Input),
 	mainMenuAction(Input).
@@ -93,22 +98,22 @@ mainMenuAction(2):- helpMenu, !, mainMenu.
 mainMenuAction(3):- aboutMenu, !, mainMenu.
 mainMenuAction(4).
 mainMenuAction(_):-
-	messageInvalidValue,
+	messageInvalidValue, !,
 	mainMenu.
 
-colorMenu:-
+colorMenu:- !,
 	printColorMenu,
 	getInt(Input),
 	colorMenuAction(Input).
 
 colorMenuAction(1):- gameMenu(blackPlayer), !, colorMenu.
 colorMenuAction(2):- gameMenu(whitePlayer), !, colorMenu.
-colorMenuAction(3).
+colorMenuAction(3):- !.
 colorMenuAction(_):-
-	messageInvalidValue,
+	messageInvalidValue, !,
 	colorMenu.
 
-gameMenu(Player):-
+gameMenu(Player):- !,
 	printGameMenu,
 	getInt(Input),
 	gameMenuAction(Input, Player).
@@ -116,27 +121,28 @@ gameMenu(Player):-
 gameMenuAction(1, Player):- startPvPGame(Player, emptyMatrix), !, mainMenu.
 gameMenuAction(2, Player):- boardMenu(Player, pvb), !, gameMenu(Player).
 gameMenuAction(3, Player):- boardMenu(Player, bvb), !, gameMenu(Player).
-gameMenuAction(4, _).
+gameMenuAction(4, _):- !.
 gameMenuAction(_, Player):-
-        messageInvalidValue,
+	messageInvalidValue, !,
 	gameMenu(Player).
 
-boardMenu(Player, Mode):-
-        printBoardMenu,
-        getInt(Input),
-        boardMenuAction(Input, Player, Mode).
+boardMenu(Player, Mode):- !,
+	printBoardMenu,
+	getInt(Input),
+	boardMenuAction(Input, Player, Mode).
 
 boardMenuAction(1, Player, Mode):- botMenu(Player, Mode, empty6x6Matrix), !, boardMenu(Player, Mode).
 boardMenuAction(2, Player, Mode):- botMenu(Player, Mode, emptyMatrix), !, boardMenu(Player, Mode).
-boardMenuAction(3, _, _).
+boardMenuAction(3, Player, Mode):- botMenu(Player, Mode, diagonalMatrix), !, boardMenu(Player, Mode).
+boardMenuAction(4, _, _).
 boardMenuAction(_, Player, Mode):-
-        messageInvalidValue,
-        boardMenu(Player, Mode).
+	messageInvalidValue, !,
+	boardMenu(Player, Mode).
 
-botMenu(Player, Mode, Size):-
-        printBotMenu,
-        getInt(Input),
-        botMenuAction(Input, Player, Mode, Size).
+botMenu(Player, Mode, Size):- !,
+	printBotMenu,
+	getInt(Input),
+	botMenuAction(Input, Player, Mode, Size).
 
 botMenuAction(1, Player, pvb, Size):- startPvBGame(Player, random, Size), !, mainMenu.
 botMenuAction(1, Player, bvb, Size):- startBvBGame(Player, random, Size), !, mainMenu.
@@ -144,23 +150,23 @@ botMenuAction(2, Player, pvb, Size):- startPvBGame(Player, smart, Size), !, main
 botMenuAction(2, Player, bvb, Size):- startBvBGame(Player, smart, Size), !, mainMenu.
 botMenuAction(3, _, _, _).
 botMenuAction(_, Player, Mode, Size):-
-        messageInvalidValue,
-        botMenu(Player, Mode, Size).
+	messageInvalidValue, !,
+	botMenu(Player, Mode, Size).
 
 startPvPGame(Player, Matrix):-
-        call(Matrix, Board),
-        initializePvP(Game, Board, Player), !,
-        startGame(Game, pvp).
+	call(Matrix, Board),
+	initializePvP(Game, Board, Player), !,
+	startGame(Game, pvp).
 
 startPvBGame(Player, BotMode, Matrix):-
-        call(Matrix, Board),
+	call(Matrix, Board),
 	initializePvB(Game, Board, Player, BotMode), !,
-        startGame(Game, pvb).
+	startGame(Game, pvb).
 
 startBvBGame(Player, BotMode, Matrix):-
-        call(Matrix, Board),
-        initializeBvB(Game, Board, Player, BotMode), !,
-        startGame(Game, bvb).
+	call(Matrix, Board),
+	initializeBvB(Game, Board, Player, BotMode), !,
+	startGame(Game, bvb).
 
 helpMenu:-
 	write('+=================================================================+'), nl,

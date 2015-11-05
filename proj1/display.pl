@@ -2,9 +2,9 @@
 %			DISPLAY CLASS			%
 %===================================%
 
-%		------- %
-% #factos 		%
-%		------- %
+%			------- %
+% #factos			%
+%			------- %
 
 firstLine(8, ' --- ').
 firstLine(9, ' --- ').
@@ -24,9 +24,9 @@ secondLine(9, '| B |').
 secondLine(10, '| W |').
 secondLine(_, '     ').
 
-%		------- %
-% #predicados 	%
-%		------- %
+%			------- %
+% #predicados       %
+%			------- %
 
 createSeparator(0, _).
 createSeparator(N, SS):-
@@ -134,9 +134,10 @@ printState(Game):-
 	printPlayerInfo(Player1),
 	printPlayerInfo(Player2),
 	write('+---------------------------------------+'), nl,
-	nl, printTurn(PlayerTurn), nl, !.
+	nl, printTurn(PlayerTurn), nl,
+	pressEnterToContinue, nl,!.
 
 printTurn(Player):-
 	write('> IT\'S '),
 	write(Player),
-	write('\'S TURN...'), nl, !.
+	write('\'S TURN!'), nl, !.

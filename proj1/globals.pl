@@ -1,17 +1,17 @@
 %===========================%
-%	  GLOBAL DEFINITIONS	%
+%		 	GLOBALS			%
 %===========================%
 
-%               ------- %
-% #includes             %
-%               ------- %
+%			------- %
+% #includes			%
+%			------- %
 
 :- use_module(library(random)).
 :- use_module(library(system)).
 
-%               ------- %
-% #predicados           %
-%               ------- %
+%			------- %
+% #predicados       %
+%			------- %
 
 messageInvalidValue:-
         nl, write('ERROR: you have entered an invalid value...'), nl,
@@ -44,7 +44,7 @@ messageNoDiscs:-
 
 messagePieceExists:-
         write('INVALID MOVE!'), nl,
-        write('Destination cell should not be already occupied by a piece'), nl,
+        write('Destination cell should not be already occupied by a piece when player is not stuck'), nl,
         pressEnterToContinue, nl, fail.
 
 messageRingExists:-
@@ -103,6 +103,12 @@ messagePlayerWins(Player):-
 	write(PlayerName),
 	write(' has won the match!'), nl,
 	pressEnterToContinue, nl.
+
+messagePlayerLost(Player):-
+        getPlayerName(Player, PlayerName),
+        write('GAME OVER!'),
+        write(PlayerName),
+        write(' has no pieces left and was defeated!'), nl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
