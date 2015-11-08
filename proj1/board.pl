@@ -259,12 +259,13 @@ hasMovesLeft(Board, ListColored, ListSingle):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% verifica se duas coordenadas são adjacentes em conetividade 4
 sameRow(From, To):-
 	To is From + 1.
 sameRow(From, To):-
 	To is From - 1.
 
-% verifica se duas células do tabuleiro são vizinhas (reigão de conexão 6)
+% verifica se duas células do tabuleiro são adjacentes em conetividade 6
 isNeighbour(FromX, FromY, ToX, ToY):-
 	ToX is FromX - 1,
 	ToX > 0, ToX < 8,
@@ -282,20 +283,21 @@ isNeighbour(FromX, FromY, ToX, FromY):-
 	sameRow(FromX, ToX),
 	ToX > 0, ToX < 8.
 
-% verifica se uma de duas células vizinhas do tabuleiro se encontra vazia
+% verifica se duas células do tabuleiro são vizinhas (versão com pares de coordenadas)
+isNeighbour(FromX-FromY, ToX-ToY):-
+	isNeighbour(FromX, FromY, ToX, ToY).
+
+% verifica se determinada célula To vizinha de From se encontravazia
 isEmptyNeighbour(Board, FromX-FromY, ToX-ToY):-
 	isNeighbour(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Symbol),
 	isEmpty(Symbol).
 
+% verifica se determinada célula To vizinha de From contém uma peça simples
 isSingleNeighbour(Board, FromX-FromY, ToX-ToY):-
 	isNeighbour(FromX, FromY, ToX, ToY),
 	getSymbol(ToX, ToY, Board, Symbol),
 	isSinglePiece(Symbol).
-
-% verifica se duas células do tabuleiro são vizinhas (versão com pares de coordenadas)
-isNeighbour(FromX-FromY, ToX-ToY):-
-	isNeighbour(FromX, FromY, ToX, ToY).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -349,6 +351,7 @@ checkPath(X-Y, Color, Board):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% obtém uma lista com as coordenadas das células que verificam determinado objetivo
 scanMatrix([], _X, _Y, _Predicate, []).
 scanMatrix([H|T], X, Y, Predicate, Lista):-
 	scanMatrixRow(H, X, Y, Predicate, Row),
@@ -356,25 +359,30 @@ scanMatrix([H|T], X, Y, Predicate, Lista):-
 	scanMatrix(T, X1, Y, Predicate, Resultado),
 	append(Row, Resultado, Lista).
 
+% percorre uma linha do tabuleiro
+% obtém uma lista com as células dessa linha que verificam determinado objetivo
 scanMatrixRow([], _X, _Y, _Predicate, []).
 scanMatrixRow([H|T], X, Y, Predicate, Lista):-
 	call(Predicate, H),
 	Y1 is Y + 1,
 	scanMatrixRow(T, X, Y1, Predicate, Resultado),
 	append([X-Y], Resultado, Lista).
-
 scanMatrixRow([_H|T], X, Y, Predicate, Lista):-
 	Y1 is Y + 1,
 	scanMatrixRow(T, X, Y1, Predicate, Lista).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% obtém uma lista com as coordenadas das peças pretas que se encontram na parede respetiva
 scanBlackWall(Board, List):-
 	list_at(1, Board, Row),
 	scanMatrixRow(Row, 1, 1, isBlackSymbol, List), !.
+
+% obtém uma lista com as coordenadas das peças brancas que se encontram na parede respetiva
 scanWhiteWall(Board, List):-
 	scanWhite(1, 1, Board, List), !.
 
+% percorre o tabuleiro na vertical, obtendo uma lista com as coordenadas das peças brancas
 scanWhite(8, _Y, _Board, []).
 scanWhite(X, Y, Board, Lista):-
 	getSymbol(X, Y, Board, Symbol),

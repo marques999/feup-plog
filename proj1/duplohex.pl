@@ -16,17 +16,6 @@
 % #factos                       %
 %                 ------------- %
 
-% matriz para teste de caminho (discos pretos)
-testMatrix([
-	[0, 1, 2, 1, 0, 0, 0],
-	[0, 1, 2, 8, 9, 0, 5],
-	[0, 1, 1, 4, 2, 5, 0],
-	[6, 4, 1, 1, 2, 0, 0],
-	[0, 2, 1, 1, 10, 0, 6],
-	[0, 1, 2, 10, 5, 0, 0],
-	[5, 1, 9, 1, 2, 5, 6]
-]).
-
 % matriz vazia 7 x 7
 emptyMatrix([
 	[0, 0, 0, 0, 0, 0, 0],
@@ -40,45 +29,24 @@ emptyMatrix([
 
 % matriz "vazia" 6x6 (peças distribuídas pelas paredes)
 empty6x6Matrix([
-	[1, 4, 4, 1, 4, 1, 1],
-	[2, 0, 0, 0, 0, 0, 2],
-	[8, 0, 0, 0, 0, 0, 8],
+	[1, 4, 1, 4, 1, 4, 1],
+	[8, 0, 0, 0, 0, 0, 2],
 	[2, 0, 0, 0, 0, 0, 8],
 	[8, 0, 0, 0, 0, 0, 2],
-	[2, 0, 0, 0, 0, 0, 2],
-	[8, 4, 1, 4, 1, 4, 8]
+	[2, 0, 0, 0, 0, 0, 8],
+	[8, 0, 0, 0, 0, 0, 2],
+	[2, 1, 4, 1, 4, 1, 8]
 ]).
 
 % matriz diagonal
 diagonalMatrix([
 	[1, 0, 0, 0, 0, 0, 2],
-	[0, 4, 0, 0, 0, 4, 0],
+	[0, 8, 0, 0, 0, 4, 0],
+	[0, 0, 1, 0, 2, 0, 0],
+	[0, 0, 0, 4, 0, 0, 0],
 	[0, 0, 2, 0, 1, 0, 0],
-	[0, 0, 0, 8, 0, 0, 0],
-	[0, 0, 2, 0, 2, 0, 0],
-	[0, 1, 0, 0, 0, 1, 0],
-	[4, 0, 0, 0, 0, 0, 4]
-]).
-
-% matriz para teste de caminho (anéis brancos)
-testPath([
-	[9, 6, 6, 0, 6, 0, 6],
-	[1, 2, 5, 9, 8, 10, 10],
-	[1, 6, 2, 9, 1, 10, 10],
-	[2, 1, 9, 1, 8, 8, 4],
-	[5, 6, 6, 9, 6, 8, 5],
-	[4, 4, 8, 6, 10, 5, 2],
-	[9, 8, 2, 9, 5, 9, 9]
-]).
-
-testStuck([
-	[9, 9, 9, 9, 9, 9, 9],
-	[10, 9, 10, 10, 10, 10, 10],
-	[10, 9, 10, 10, 4, 10, 10],
-	[10, 9, 10, 10, 10, 10, 10],
-	[10, 9, 2, 10, 10, 4, 10],
-	[2, 9, 10, 10, 10, 10, 10],
-	[10, 9, 10, 10, 10, 10, 2]
+	[0, 4, 0, 0, 0, 8, 0],
+	[8, 0, 0, 0, 0, 0, 4]
 ]).
 
 % modo de jogo Player vs Player (jogador humano vs jogador humano)
@@ -228,12 +196,12 @@ setCurrentPlayer(Board-Mode-BotMode-PlayerTurn-Player1-Player2, NewPlayer,
 
 % pede ao utilizador para introduzir uma célula de origem válida
 askSourceCell(X, Y):-
-	write('Please insert the source cell coordinates and press <ENTER>:'), nl,
+	nl, write('Please enter the source cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
 % pede ao utilizador para introduzir uma célula de destino válida
 askDestinationCell(X, Y):-
-	write('Please insert the destination cell coordinates and press <ENTER>:'), nl,
+	nl, write('Please enter the destination cell coordinates and press <ENTER>:'), nl,
 	getCoordinates(X, Y), validateCoordinates(X, Y), nl, !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -404,7 +372,9 @@ startGame(Game, bvb):-
 % verifica se ainda restam peças ao jogador atual
 playGame(Game, _Mode):-
 	getCurrentPlayer(Game, Player),
-	\+hasPieces(Player),
+	\+hasPieces(Player), !,
+	getGameBoard(Game, Board),
+	printBoard(Board),
 	messagePlayerLost(Player).
 
 % verifica se o jogador 1 venceu a partida atual

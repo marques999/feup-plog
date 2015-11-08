@@ -10,6 +10,7 @@ setSymbol(X, Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
 	X1 is X-1,
 	setSymbol(X1, Y, NewElem, Tail, NewTail).
 
+% substitui o elemento presente em (ToX, ToY), apagando o elemento em (FromX, FromY)
 moveSymbol(FromX, FromY, ToX, ToY, Symbol, Board, NewBoard):-
 	setSymbol(ToX, ToY, Symbol, Board, TempBoard),
 	setSymbol(FromX, FromY, 0, TempBoard, NewBoard).

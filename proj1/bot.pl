@@ -13,11 +13,13 @@ botMode(smart).
 % #predicados                   %
 %                 ------------- %
 
+% escolhe aleatoriamente um elemento de uma lista com várias coordenadas
 generatePosition(Lista, Tamanho, Position):-
 	TamanhoExtra is Tamanho + 1,
 	random(1, TamanhoExtra, Number),
 	list_at(Number, Lista, Position), !.
 
+% obtém as coordenadas de uma célula vazia vizinha da célula From
 generateEmptyNeighbour(Board, From, Position):-
 	scanEmptyNeighbours(From, Board, Tamanho, Lista),
 	Tamanho > 0,
@@ -25,88 +27,90 @@ generateEmptyNeighbour(Board, From, Position):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% realiza uma jogada inteligente do tipo "mover disco"
 botSmartMoveDisc(Board, Player, OwnPosition, EnemyPosition):-
-	write('trying SMART move disc...'), nl,
 	findOwnSingleDisc(Board, Player, OwnPosition),
 	scanSingleNeighbours(OwnPosition, Board, Tamanho, Lista),
 	Tamanho > 0,
 	calculateMoveDisc(Board, OwnPosition, Lista, 0, 0-0, EnemyPosition),
 	EnemyPosition \= 0-0.
 
+% em caso de insucesso, realiza uma jogada aleatória do tipo "mover disco"
 botSmartMoveDisc(Board, Player, OwnPosition, EnemyPosition):-
-	write('SMART move disc failed, trying RANDOM move disc...'), nl,
 	botRandomSource(Board, disc, Player, OwnPosition),
 	botRandomDestination(OwnPosition, EnemyPosition).
 
+% realiza uma jogada inteligente do tipo "mover anel"
 botSmartMoveRing(Board, Player, OwnPosition, EnemyPosition):-
-	write('trying SMART move ring...'), nl,
 	findOwnSingleRing(Board, Player, OwnPosition),
 	scanSingleNeighbours(OwnPosition, Board, Tamanho, Lista),
 	Tamanho > 0,
 	calculateMoveRing(Board, OwnPosition, Lista, 0, 0-0, EnemyPosition),
 	EnemyPosition \= 0-0.
 
+% em caso de insucesso, realiza uma jogada aleatória do tipo "mover anel"
 botSmartMoveRing(Board, Player, OwnPosition, EnemyPosition):-
-	write('SMART move ring failed, trying RANDOM move ring...'), nl,
 	botRandomSource(Board, ring, Player, OwnPosition),
 	botRandomDestination(OwnPosition, EnemyPosition).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+% pontua uma jogada do tipo "mover disco" para cada célula vizinha
 calculateMoveDisc(_Board, _From, [],  _Score, Position, Position):- !.
-calculateMoveDisc(Board, From, [To|T], Score, _Position, FinalPosition):-
+calculateMoveDisc(Board, From, [To|T], Score, _Position, TargetPosition):-
 	scoreMoveDisc(Board, From, To, NewScore),
 	NewScore > Score,
-	calculateMoveDisc(Board, From, T, NewScore, To, FinalPosition).
-calculateMoveDisc(Board, From, [_|T], Score, Position, FinalPosition):-
-	calculateMoveDisc(Board, From, T, Score, Position, FinalPosition).
+	calculateMoveDisc(Board, From, T, NewScore, To, TargetPosition).
+calculateMoveDisc(Board, From, [_|T], Score, Position, TargetPosition):-
+	calculateMoveDisc(Board, From, T, Score, Position, TargetPosition).
 
+% pontua uma jogada do tipo "mover anel" para cada célula vizinha
 calculateMoveRing(_Board, _From, [],  _Score, Position, Position):- !.
-calculateMoveRing(Board, From, [To|T], Score, _Position, FinalPosition):-
+calculateMoveRing(Board, From, [To|T], Score, _Position, TargetPosition):-
 	scoreMoveRing(Board, From, To, NewScore),
 	NewScore > Score,
-	calculateMoveRing(Board, From, T, NewScore, To, FinalPosition).
-calculateMoveRing(Board, From, [_|T], Score, Position, FinalPosition):-
-	calculateMoveRing(Board, From, T, Score, Position, FinalPosition).
+	calculateMoveRing(Board, From, T, NewScore, To, TargetPosition).
+calculateMoveRing(Board, From, [_|T], Score, Position, TargetPosition):-
+	calculateMoveRing(Board, From, T, Score, Position, TargetPosition).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% pontua a jogada com "2" se as peças adjacentes são diferentes
-scoreMoveDisc(Board, From, To, 1):-
+% pontua a jogada com "2" se as peças adjacentes são diferentes mas pertencem a jogadores diferentes
+scoreMoveDisc(Board, From, To, 2):-
 	getSymbol(From, Board, Source),
 	getSymbol(To, Board, Destination),
 	isDisc(Source, Color),
 	isRing(Destination, _),
 	\+isRing(Destination, Color).
 
-% pontua a jogada com "1" se as peças adjacentes pertencem ao mesmo jogador
-scoreMoveDisc(Board, From, To, 2):-
+% pontua a jogada com "1" se as peças adjacentes são diferentes mas pertencem ao mesmo jogador
+scoreMoveDisc(Board, From, To, 1):-
 	getSymbol(From, Board, Source),
 	getSymbol(To, Board, Destination),
 	isDisc(Source, Color),
 	isRing(Destination, Color).
 
-% pontua a jogada com "0" se a peça adjacente é um disco ou encontra-se vazia
+% pontua a jogada com "0" se a célula adjacente encontra-se vazia
 scoreMoveDisc(_Board, _From, _To, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% pontua a jogada com "2" se as peças adjacentes são diferentes
-scoreMoveRing(Board, From, To, 1):-
+% pontua a jogada com "2" se as peças adjacentes são diferentes mas pertencem a jogadores diferentes
+scoreMoveRing(Board, From, To, 2):-
 	getSymbol(From, Board, Source),
 	getSymbol(To, Board, Destination),
 	isRing(Source, Color),
 	isDisc(Destination, _),
 	\+isDisc(Destination, Color).
 
-% pontua a jogada com "1" se as peças adjacentes pertencem ao mesmo jogador
-scoreMoveRing(Board, From, To, 2):-
+% pontua a jogada com "1" se as peças adjacentes são diferentes mas pertencem ao mesmo jogador
+scoreMoveRing(Board, From, To, 1):-
 	getSymbol(From, Board, Source),
 	getSymbol(To, Board, Destination),
 	isRing(Source, Color),
 	isDisc(Destination, Color).
 
-% pontua a jogada com "0" se a peça adjacente é um anel ou encontra-se vazia
+% pontua a jogada com "0" se a célula adjacente encontra-se vazia
 scoreMoveRing(_Board, _From, _To, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,51 +175,54 @@ findOpponentRing(Board, Player, Position):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% obtém as coordenadas de uma célula vizinha da célula que contém um disco do jogador
+% obtém as coordenadas de uma célula adjacente à célula que contém um disco do jogador
 botAttackPlaceDisc(Board, Player, Position):-
 	findOwnDisc(Board, Player, OwnPosition), !,
 	generateEmptyNeighbour(Board, OwnPosition, Position).
 
-% obtém as coordenadas de uma célula vizinha da célula que contém um anel do jogador
+% obtém as coordenadas de uma célula adjacente à célula que contém um anel do jogador
 botAttackPlaceRing(Board, Player, Position):-
 	findOwnRing(Board, Player, OwnPosition), !,
 	generateEmptyNeighbour(Board, OwnPosition, Position).
 
-% obtém as coordenadas de uma célula vizinha da célula que contém um disco do adversário
+% obtém as coordenadas de uma célula adjacente à célula que contém um disco do adversário
 botDefendPlaceDisc(Board, Player, Position):-
 	findOpponentDisc(Board, Player, EnemyPosition), !,
 	generateEmptyNeighbour(Board, EnemyPosition, Position).
 
-% obtém as coordenadas de uma célula vizinha da célula que contém um anel do adversário
+% obtém as coordenadas de uma célula adjacente à célula que contém um anel do adversário
 botDefendPlaceRing(Board, Player, Position):-
 	findOpponentRing(Board, Player, EnemyPosition), !,
 	generateEmptyNeighbour(Board, EnemyPosition, Position).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% jogada ofensiva (colocar um disco na vizinhança
+% jogada ofensiva (colocar um anel na vizinhança de uma peça do próprio jogador)
 botSmartPlaceRing(Board, Player, Position):-
 	random(0, 11, Number),
 	Number > 5,
-	write('BOT trying to smart attack with rings...'), nl,
 	botAttackPlaceRing(Board, Player, Position).
+
+% jogada defensiva (colocar um anel na vizinhança de uma peça do adversário)
 botSmartPlaceRing(Board, Player, Position):-
-	write('BOT trying to smart block enemy ring...'), nl,
 	botDefendPlaceRing(Board, Player, Position).
+
+% jogada defensiva aleatória, caso as tentativas anteriores não tenham sucesso
 botSmartPlaceRing(Board, Player, Position):-
-	write('SMART place ring failed, BOT trying random place ring...'), nl,
 	botRandomPlace(Board, Player, Position, ring).
 
+% jogada ofensiva (colocar um disco na vizinhança de uma peça do próprio jogador)
 botSmartPlaceDisc(Board, Player, Position):-
 	random(0, 11, Number),
 	Number > 5,
-	write('BOT trying to smart attack with discs...'), nl,
 	botAttackPlaceDisc(Board, Player, Position).
+
+% jogada defensiva (colocar um disco na vizinhança de uma peça do adversário)
 botSmartPlaceDisc(Board, Player, Position):-
-	write('BOT trying to smart block enemy disc...'), nl,
 	botDefendPlaceDisc(Board, Player, Position).
+
+% jogada defensiva aleatória, caso as tentativas anteriores não tenham sucesso
 botSmartPlaceDisc(Board, Player, Position):-
-	write('SMART place disc failed, BOT trying random place disc...'), nl,
 	botRandomPlace(Board, Player, Position, disc).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -232,14 +239,14 @@ botInitialMove(Board, Player, NewBoard, NewPlayer):-
 	botRandomPlace(Board, Player, Position, ring),
 	botAction(3, Position, Board, Player, NewBoard, NewPlayer).
 
-% predicado gerador de movimento aleatório do computador
+% predicado gerador de movimentos aleatórios do computador
 botRandomMove(Board, Player, NewBoard, NewPlayer):-
 	random(1, 5, Number),
 	hasDiscs(Player),
 	hasRings(Player), !,
 	botRandomAction(Number, Board, Player, NewBoard, NewPlayer).
 
-% predicado gerador de movimento ganancioso do computador
+% predicado gerador de movimentos inteligentes do computador
 botSmartMove(Board, Player, NewBoard, NewPlayer):-
 	random(1, 5, Number),
 	hasDiscs(Player),
@@ -350,7 +357,7 @@ botSecondRandom(Piece, Board, Player, NewBoard, NewPlayer):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% acção do computador: realiza um segundo movimento ganancioso com um disco
+% acção do computador: realiza um segundo movimento inteligente com um disco
 botSecondSmart(disc, Board, Player, NewBoard, NewPlayer):-
 	random(1, 11, Action),
 	Action > 5,
@@ -360,7 +367,7 @@ botSecondSmart(disc, Board, Player, NewBoard, NewPlayer):-
 	botSmartMoveDisc(Board, Player, From, To),
 	botAction(2, From, To, Board, Player, NewBoard, NewPlayer).
 
-% acção do computador: realiza um segundo movimento ganancioso com um anel
+% acção do computador: realiza um segundo movimento inteligente com um anel
 botSecondSmart(ring, Board, Player, NewBoard, NewPlayer):-
 	random(1, 11, Action),
 	Action > 5,
@@ -445,14 +452,12 @@ botRandomPlace(Board, Player, Position, _Piece):-
 
 % caso contrário, procura anéis no tabuleiro onde colocar um disco
 botRandomPlace(Board, _Player, Position, disc):-
-	write('PLAYER IS STUCK'),
 	scanSingleRings(Board, Lista, Tamanho),
 	Tamanho > 0, !,
 	generatePosition(Lista, Tamanho, Position), !.
 
 % caso contrário, procura discos no tabuleiro onde colocar um anel
 botRandomPlace(Board, _Player, Position, ring):-
-	write('PLAYER IS STUCK'),
 	scanSingleDiscs(Board, Lista, Tamanho),
 	Tamanho > 0, !,
 	generatePosition(Lista, Tamanho, Position), !.

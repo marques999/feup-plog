@@ -14,77 +14,76 @@
 %                 ------------- %
 
 messageInvalidValue:-
-        nl, write('ERROR: you have entered an invalid value...'), nl,
-        pressEnterToContinue, !.
+	nl, write('ERROR: you have entered an invalid value...'), nl,
+	pressEnterToContinue, !.
 
 messageInvalidChoice:-
-        write('INVALID INPUT!'), nl,
-        write('Please enter a valid number'), nl,
-        pressEnterToContinue, nl.
+	write('INVALID INPUT!'), nl,
+	write('Please enter a valid number...'), nl, nl.
 
 messageSameCoordinates:-
-        write('INVALID INPUT!'), nl,
-        write('Source and destination cell coordinates must be different'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID INPUT!'), nl,
+	write('Source and destination cell coordinates must be different'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageInvalidCoordinates:-
-        write('INVALID INPUT!'), nl,
-        write('Cell coordinates must be an integer between 0 and 7'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID INPUT!'), nl,
+	write('Cell coordinates must be an integer between 1 and 7'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageNoRings:-
-        write('INVALID MOVE!'), nl,
-        write('Player has no rings left to be played'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Player has no rings left that can be played'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageNoDiscs:-
-        write('INVALID MOVE!'), nl,
-        write('Player has no discs left to be played'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Player has no discs left that can be played'), nl,
+	pressEnterToContinue, nl, fail.
 
 messagePieceExists:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell should not be already occupied by a piece when player is not stuck'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell should not be already occupied by a piece'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageRingExists:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell should not be already occupied by a ring'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell should not be already occupied by a ring'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageDiscExists:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell should not be already occupied by a disc'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell should not be already occupied by a disc'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageSourceTwopiece:-
-        write('INVALID MOVE!'), nl,
-        write('Source cell is full and can\'t be moved (already occupied by two pieces)'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Source cell is already occupied by two pieces and can\'t be moved'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageSourceNotDisc:-
-        write('INVALID MOVE!'), nl,
-        write('Source cell is not occupied by a disc'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Source cell is not occupied by a disc'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageSourceNotRing:-
-        write('INVALID MOVE!'), nl,
-        write('Source cell is not occupied by a ring'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Source cell is not occupied by a ring'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageDestinationNotDisc:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell is not occupied by a disc'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell is not occupied by a disc'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageDestinationNotRing:-
-        write('INVALID MOVE!'), nl,
-        write('Destination cell is not occupied by a ring'), nl,
-        pressEnterToContinue, nl, fail.
+	write('INVALID MOVE!'), nl,
+	write('Destination cell is not occupied by a ring'), nl,
+	pressEnterToContinue, nl, fail.
 
 messageDestinationTwopiece:-
 	write('INVALID MOVE!'), nl,
-	write('Destination cell is full and can\'t be moved (already occupied by two pieces)'), nl,
+	write('Destination cell is already occupied by two pieces and can\'t be moved'), nl,
 	pressEnterToContinue, nl, fail.
 
 messageNotNeighbours:-
@@ -94,21 +93,18 @@ messageNotNeighbours:-
 
 messageNotOwned:-
 	write('INVALID MOVE!'), nl,
-	write('A player can only move his/her own pieces'), nl,
+	write('A player can only move his/her own pieces!'), nl,
 	pressEnterToContinue, nl, fail.
 
 messagePlayerWins(Player):-
 	getPlayerName(Player, PlayerName),
-	write('CONGRATULATIONS!'), nl,
-	write(PlayerName),
-	write(' has won the match!'), nl,
+	format('CONGRATULATIONS!\n~w has won the match!\n', PlayerName),
 	pressEnterToContinue, nl.
 
 messagePlayerLost(Player):-
-        getPlayerName(Player, PlayerName),
-        write('GAME OVER!'),
-        write(PlayerName),
-        write(' has no pieces left and was defeated!'), nl.
+	getPlayerName(Player, PlayerName),
+	format('GAME OVER!\n~w has no pieces left and was defeated!\n', PlayerName),
+	pressEnterToContinue, nl.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -122,14 +118,11 @@ pressEnterToContinue:-
 	write('Press <Enter> to continue...'), nl,
 	get_code(_), !.
 
-getCode(Input):-
-	get_code(Input),
-	get_code(_).
-
 getInt(Input):-
-	getCode(TempInput),
+	get_code(TempInput),
+	get_code(_),
 	Input is TempInput - 48.
 
 getCoordinates(X, Y):-
 	getInt(X),
-        getInt(Y).
+	getInt(Y).
