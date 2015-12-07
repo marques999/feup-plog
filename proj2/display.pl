@@ -2,14 +2,12 @@
 %             DISPLAY CLASS             %
 %=======================================%
 
-:- use_module(library(clpfd)).
-:- use_module(library(random)).
 %                 ------------- %
 % #factos                       %
 %                 ------------- %
 
-firstLine(black, 'XXXX').
-firstLine(white, '    ').
+piece(1, 'XXXX').
+piece(0, '    ').
 
 %                 ------------- %
 % #predicados                   %
@@ -17,13 +15,18 @@ firstLine(white, '    ').
 
 testBoard([
 	[7, [3, 2],[3, 2], [3, 2], [3, 2], [3, 2], [3, 2]],
-	[[1, 3], white, black, black, white, white, white],
-	[[1, 3], white, black, black, white, white, white],
-	[[1, 3], white, black, black, white, white, white],
-	[[1, 3], white, black, black, white, white, white],
-	[[1, 3], white, black, black, white, white, white],
-	[[1, 3], white, black, black, white, white, white]
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
+	[[1, 3], 0, 1, 1, 0, 1, 1, 0]
 ]).
+
+lista_tamanho([Length|_], Length).
+lista_pretas([_|Black], Black).
+lista_brancas([White|_], White).
 
 % imprime no ecrã os delimitadores das células do tabuleiro
 createSeparator(0, _).
@@ -33,11 +36,12 @@ createSeparator(N, SS):-
 	createSeparator(N1, SS).
 
 % imprime no ecrã uma representação do tabuleiro de jogo
-printBoard(Board, Length):-
-	nl, printFirstRow(Length),
-	printRows(Board, Length), nl,
-	getNumberBlack(Board, Black),
-	printNumberBlack(Black), nl, !.
+printBoard([First|Matrix]):-
+	lista_tamanho(First, Length),
+	lista_pretas(First, Pieces),
+	printFirstRow(Length),
+	printRows(Matrix, Length), nl,
+	imprime_pretas(Pieces), nl, !.
 
 % imprime no ecrã os números das colunas do tabuleiro
 printColumnIdentifiers(Length):-
@@ -68,27 +72,12 @@ printFirstRow(Length):-
 
 % imprime no ecrã a última linha do tabuleiro
 printRow(Items, Length, Current):-
-	list_at(Current, Items, [White|Row]),
+	list_at(Current, Items, [Pieces|Row]),
 	write('    | '),
 	printLine(Row), nl,
 	write('    | '),
 	printLine(Row),
-	write('[ '),
-	printNumberPieces(White), 
-	write('] '), nl,
-	write('    | '),
-	printLine(Row), nl,
-	write('    +'),
-	createSeparator(Length, '------+'), nl, !.
-
-% imprime no ecrã uma linha do tabuleiro
-printRow(Items, Length, Current):-
-	list_at(Current, Items, [White|Row]),
-	write('    | '),
-	printLine(Row), nl,
-	write('    | '),
-	printLine(Row),
-	printNumberWhite(White), nl,
+	imprime_brancas(Pieces), nl,
 	write('    | '),
 	printLine(Row), nl,
 	write('    +'),
@@ -97,33 +86,34 @@ printRow(Items, Length, Current):-
 % imprime no ecrã a primeira e terceira secções de uma linha do tabuleiro
 printLine([]).
 printLine([H|T]):-
-	firstLine(H, Char),
+	piece(H, Char),
 	write(Char),
 	write(' | '),
 	printLine(T), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-printNumberAux([H|T]):-
+imprime_pecas_aux([H|T]):-
 	T \= [],
 	write(H), write(','),
-	printNumberAux(T).
-printNumberAux([H|_]):-
+	imprime_pecas_aux(T).
+imprime_pecas_aux([H|_]):-
 	write(H).
 
-printNumberPieces(Lista):-
+imprime_pecas(Lista):-
 	write('['),
-	printNumberAux(Lista), !,
+	imprime_pecas_aux(Lista), !,
 	write(']').
 
-printNumberBlack([H|T]):-
-	printNumberPieces(H), !,
+imprime_pretas([]).
+imprime_pretas([H|T]):-
+	imprime_pecas(H), !,
 	write('   '),
-	printNumberBlack(T).
+	imprime_pretas(T).
 
-printNumberWhite(White):-
+imprime_brancas(Lista):-
 	write(' '),
-	printNumberPieces(White), !.
+	imprime_pecas(Lista), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -131,16 +121,15 @@ printNumberWhite(White):-
 printTab:-
 	format('~*c', [4, 0' ]), !.
 
-generateNumbers(Length, Black, White):-
-	HalfLength is Length // 2,
-	NumberBlack in 0..Length,
-	NumberWhite in 0..Length,
-	NumberBlack #\= NumberWhite #/\ abs(NumberBlack - NumberWhite) #= 1
-	#\/ NumberBlack #= NumberWhite,
-	length(Black, NumberBlack),
-	length(White, NumberWhite),
-	domain(Black, 1, Length),
-	domain(White, 1, Length),
-	append(Black, White, All),
+generateNumbers(Length, 1, 0):-
+	Number1 in 0..Length,
+	Number0 in 0..Length,
+	Number1 #\= Number0 #/\ abs(Number1 - Number0) #= 1
+	#\/ Number1 #= Number0,
+	length(1, Number1),
+	length(0, Number0),
+	domain(1, 1, Length),
+	domain(0, 1, Length),
+	append(1, 0, All),
 	sum(All, #=, Length),
 	labeling([], All).
