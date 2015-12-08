@@ -29,9 +29,9 @@ matrix_transpose([_|Rs], Ms, [Ts|Tss]) :-
 
 % obtém o elemento presente na posição de coordenadas (X,Y) de uma matriz
 matrix_at(X, Y, List, Symbol):-
-	X > 0,
-	list_at(X, List, Row), !,
-	list_at(Y, Row, Symbol), !.
+	X #>= 0,
+	list_at(X, List, Row),
+	list_at(Y, Row, Symbol).
 
 matrix_size([[Size|_]|_], Size).
 
@@ -78,10 +78,17 @@ list_set(I, Symbol, [H|L], [H|Result]):-
 % obtém o elemento presente na posição I de uma lista
 list_at(0, [H|_], H).
 list_at(X, [_|T], Symbol):-
-	X > 0,
-	X1 is X - 1,
+	X #> 0,
+	X1 #= X - 1,
 	list_at(X1, T, Symbol).
 
 list_firsts_rests([], [], []).
 list_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
         list_firsts_rests(Rest, Fs, Oss).
+
+list_subtract([], _, []) :- !.
+list_subtract([A|C], B, D) :-
+        member(A, B), !,
+        list_subtract(C, B, D).
+list_subtract([A|B], C, [A|D]) :-
+        list_subtract(B, C, D).

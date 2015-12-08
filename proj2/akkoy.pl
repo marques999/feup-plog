@@ -63,3 +63,70 @@ sequencia([_|T], Contador, Peca, [Contador|Resultado]):-
 	sequencia(T, 0, Peca, Resultado).
 sequencia([_|T], Contador, Peca, Resultado):-
 	sequencia(T, Contador, Peca, Resultado).
+
+% verifica se duas células do tabuleiro são adjacentes em conetividade 4
+
+isNeighbour(FromX-FromY, ToX-ToY, Length):-
+	ToX #> 0, ToY #>0, ToX #=< Length, ToY #=< Length,
+	(ToX #\= FromX) #=> (ToY #= FromY #/\ abs(FromX - ToX) #= 1),
+	(ToY #\= FromY) #=> (ToX #= FromX #/\ abs(FromY - ToY) #= 1).
+
+isConnected(StartX-StartY, EndX-EndY, Length, Board):-
+	isNeighbour(StartX-StartY, EndX-EndY, Length),
+	matrix_at(StartX, StartY, Board, Source),
+	matrix_at(EndX, EndY, Board, Destination),
+	StartX-StartY #\= EndX-EndY,
+	Source #= 1,
+	Destination #= 1,
+	labeling([], [EndX, EndY, Source, Destination]).
+
+
+adjacentTester([X|_], B, B).
+
+adjacentTester([X,Y|T], [B|Bs], Bd):-
+	write('blablabla'),
+	(X #= 1 #/\ Y #= 0) #<=> B,
+	write('oakdosad'),
+	append([B], Bd, Br), write(Bd),
+	adjacentTester([Y|T], Br, Br).
+
+verifyBlock_aux(L, Lacunas):-
+	length(L, ComprimentoL),
+	ComprimentoB #= ComprimentoL - 1,
+	length(B, ComprimentoB),
+	write('comprimento de B: '), write(B),
+	adjacentTester(L, B, Bs),
+	length(B, SizeB),
+	Complement #= SizeB - Lacunas,
+	global_cardinality(Bs, [1-Lacunas]).
+
+verifyBlock([], []).
+
+checkConnected([_], [_], _, _).
+checkConnected([X1,X2|A], [Y1,Y2|B], Length, Board):-
+	isConnected(X1-Y1, X2-Y2, Length, Board),
+	checkConnected(A, B, Length, Board).
+
+newPath(StartX-StartY, Board, Resultado):-
+	length(ListaX, 4),
+	length(ListaY, 4),
+	domain(ListaX, 1, 7),
+	domain(ListaY, 1, 7),
+	element(1, ListaX, StartX),
+	element(1, ListaY, StartY),
+	checkConnected(ListaX, ListaY, 7, Board),
+	append(ListaX, ListaY, Resultado),
+	labeling([], Resultado).
+
+% encontra um caminho ligado por discos entre duas células do tabuleiro
+checkPath(Start, Board, Lista):-
+	matrix_at(0, 0, Board, Length),
+	checkPath(Start, Length, Board, [Start], Lista).
+
+checkPath(StartX-StartY, Length, _Board, Lista, Lista):-
+	StartX #>= Length #\/ StartY #>= Length, !.
+
+checkPath(Start, Length, Board, [Middle|Lista], ListaFim):-
+	isConnected(Start, Middle, Length, Board),
+	#\member(Middle, Lista),
+	checkPath(Middle, Length, Board, Lista, ListaFim).
