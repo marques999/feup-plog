@@ -78,7 +78,7 @@ list_set(I, Symbol, [H|L], [H|Result]):-
 % obtém o elemento presente na posição I de uma lista
 list_at(0, [H|_], H).
 list_at(X, [_|T], Symbol):-
-	X #> 0,
+	X #>= 0,
 	X1 #= X - 1,
 	list_at(X1, T, Symbol).
 
