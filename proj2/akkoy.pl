@@ -6,35 +6,30 @@
 % #includes                     %
 %                 ------------- %
 
-:- use_module(library(clpfd)).
-:- use_module(library(random)).
-
-:- include('display.pl').
 :- include('globals.pl').
+:- include('display.pl').
+:- include('generate.pl').
 :- include('list.pl').
+:- include('solver.pl').
 
 %                 ------------- %
 % #predicados                   %
 %                 ------------- %
 
-finishedGame([
-	[7, [3],[1,1],[],[1,1,1],[],[1,4],[1]],
-	[[1,3], 	0,0,0,1,1,1,0],
-	[[1,2,1],	0,1,1,0,0,1,0],
-	[[2,1,1],	1,0,1,0,0,1,0],
-	[[1,2],		1,0,0,1,1,1,0],
-	[[3,1],		1,0,1,0,0,0,1],
-	[[1,1,1],	0,1,1,0,1,1,0],
-	[[3,3],		0,0,0,1,0,0,0]
-	]).
-
 flattenedMatrix([0,0,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0,0]).
 
-quatro_sequencia([_,_,_], 0).
-quatro_sequencia([A,B,C,D|T], N):-
-	(A #=2 #/\ B #= 3 #/\ C #= 4 #/\ D #= 1) #<=> E,
-	quatro_sequencia([B,C,D|T], X),
-	N #= X + E.
+generateNumbers(Length, 1, 0):-
+	Number1 in 0..Length,
+	Number0 in 0..Length,
+	Number1 #\= Number0 #/\ abs(Number1 - Number0) #= 1
+	#\/ Number1 #= Number0,
+	length(1, Number1),
+	length(0, Number0),
+	domain(1, 1, Length),
+	domain(0, 1, Length),
+	append(1, 0, All),
+	sum(All, #=, Length),
+	labeling([], All).
 
 verifica_pretos(Matriz):-
 	matrix_transpose(Matriz, [_|NovaMatriz]),
@@ -44,13 +39,11 @@ verifica_brancos([_|NovaMatriz]):-
 	verifica_tudo(NovaMatriz, 0).
 
 verifica_tudo([], _).
-verifica_tudo([H|T], Cor):-
-	verifica_linha(H, Cor),
-	verifica_tudo(T, Cor).
+verifica_tudo([H|T], [Contagem|P], Cor):-
+	verifica_linha(H, Contagem, Cor),
+	verifica_tudo(T, P, Cor).
 
-verifica_linha([Contagem|_], _):-
-	length(Contagem, 0).
-verifica_linha([Contagem|Linha], Cor):-
+verifica_linha(Linha, Contagem, Cor):-
 	sequencia(Linha, 0, Cor, Resultado),
 	list_contains(Resultado, Contagem).
 
@@ -85,29 +78,6 @@ isConnected(StartX-StartY, EndX-EndY, Length, Board):-
 	Source #= 0,
 	Destination #= 0,
 	labeling([], [EndX, EndY, Source, Destination]).
-
-adjacentTester([_], B, B).
-adjacentTester([X,Y|T], [B|Bs], Bd):-
-	(X #= 1 #/\ Y #= 0) #<=> B,
-	append([B], Bd, Br),
-	adjacentTester([Y|T], Br, Br).
-
-verifyBlock_aux(L, Lacunas):-
-	length(L, ComprimentoL),
-	ComprimentoB #= ComprimentoL - 1,
-	length(B, ComprimentoB),
-	write('comprimento de B: '), write(B),
-	adjacentTester(L, B, Bs),
-	length(B, SizeB),
-	Complement #= SizeB - Lacunas,
-	global_cardinality(Bs, [1-Lacunas]).
-
-verifyBlock([], []).
-verifyBlock([H|T], [P|C]):-
-	length(P, Lacunas), nl, nl,
-	write(H),
-	verifyBlock_aux(H, Lacunas),
-	verifyBlock(T, C).
 
 checkConnected([_], [_], _, _).
 checkConnected([X1,X2|A], [Y1,Y2|B], Length, Board):-
@@ -172,7 +142,10 @@ checkPath(Start, Length, Board, [Middle|Lista], ListaFim):-
 checkPath(Start, End, Board, Length, Lista):-
 	checkPath(Start, End, Board, Length, [Start], Lista).
 
-
+exercicioTabuleiro4por4(RetBoard):-
+		Blacks=[[2],[1],[2],[3]],
+		Whites=[[1],[2],[1],[1]],
+		solution(Blacks,Whites,RetBoard).
 
 checkPath(Start, End, Board, Length, Lista, ListaFim):-
 	flattenConnectedAux(Start, Middle, Length, Board),

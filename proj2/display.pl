@@ -3,87 +3,80 @@
 %=======================================%
 
 %                 ------------- %
+% #includes                     %
+%                 ------------- %
+
+?- ensure_loaded('globals.pl').
+?- ensure_loaded('list.pl').
+
+%                 ------------- %
 % #factos                       %
 %                 ------------- %
 
 piece(1, 'XXXX').
 piece(0, '    ').
 
+finishedGame([
+	[0,0,0,1,1,1,0],
+	[0,1,1,0,0,1,0],
+	[1,0,1,0,0,1,0],
+	[1,0,0,1,1,1,0],
+	[1,0,1,0,0,0,1],
+	[0,1,1,0,1,1,0],
+	[0,0,0,1,0,0,0]
+]).
+
+finishedBlack([[3],[1,1],[0],[1,1,1],[0],[1,4],[1]]).
+finishedWhite([[1,3],[1,2,1],[2,1,1],[1,2],[3,1],[1,1,1],[3,3]]).
+
 %                 ------------- %
 % #predicados                   %
 %                 ------------- %
 
-testBoard([
-	[7, [3, 2],[3, 2], [3, 2], [3, 2], [3, 2], [3, 2]],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0],
-	[[1, 3], 0, 1, 1, 0, 1, 1, 0]
-]).
+printTest:-
+	finishedGame(Board),
+	finishedBlack(Black),
+	finishedWhite(White),
+	printBoard(Board, Black, White).
 
-lista_tamanho([Length|_], Length).
-lista_pretas([_|Black], Black).
-lista_brancas([White|_], White).
-
-% imprime no ecrã os delimitadores das células do tabuleiro
+% imprime no ecrÃ£ os delimitadores das cÃ©lulas do tabuleiro
 createSeparator(0, _).
 createSeparator(N, SS):-
 	write(SS),
 	N1 is N - 1,
-	createSeparator(N1, SS).
+	createSeparator(N1, SS), !.
 
-% imprime no ecrã uma representação do tabuleiro de jogo
-printBoard([First|Matrix]):-
-	lista_tamanho(First, Length),
-	lista_pretas(First, Pieces),
-	printFirstRow(Length),
-	printRows(Matrix, Length), nl,
-	imprime_pretas(Pieces), nl, !.
+% imprime no ecrÃ£ uma representaÃ§Ã£o do tabuleiro de jogo
+printBoard(Board, Black, White):-
+	length(Black, Length),
+	imprime_pretas(Black), nl,
+	write('    +'),
+	createSeparator(Length, '------+'), nl,
+	printRows(Board, White), nl, !.
 
-% imprime no ecrã os números das colunas do tabuleiro
-printColumnIdentifiers(Length):-
-	printColumnIdentifiers(Length, 0), !.
-printColumnIdentifiers(Length, Length).
-printColumnIdentifiers(Length, Current):-
-	Next is Current + 1,
-	write('  '),
-	write(Next),
-	write('   '),
-	printColumnIdentifiers(Length, Next), !.
+% imprime no ecrÃ£ as linhas do tabuleiro
+printRows(Board, White):-
+	length(White, Length),
+	printRows(Board, Length, White), !.
 
-% imprime no ecrã as linhas do tabuleiro
-printRows(Board, Length) :-
-	printRows(Board, Length, 1), !.
-printRows([], Length, Length).
-printRows([H|T], Length, Current):-
-	printRow(H, Length, Current),
-	Next is Current + 1,
+printRows([], _, []).
+printRows([H|T], Length, [White|Next]):-
+	printRow(H, Length, White),
 	printRows(T, Length, Next), !.
 
-% imprime no ecrã a primeira linha da representação do tabuleiro
-printFirstRow(Length):-
-	write('     '),
-	printColumnIdentifiers(Length), nl,
-	write('    +'),
-	createSeparator(Length, '-----+'), nl, !.
-
-% imprime no ecrã a última linha do tabuleiro
-printRow(Items, Length, Current):-
-	list_at(Current, Items, [Pieces|Row]),
+% imprime no ecrÃ£ a Ãºltima linha do tabuleiro
+printRow(Row, Length, White):-
 	write('    | '),
 	printLine(Row), nl,
 	write('    | '),
 	printLine(Row),
-	imprime_brancas(Pieces), nl,
+	imprime_brancas(White), nl,
 	write('    | '),
 	printLine(Row), nl,
 	write('    +'),
 	createSeparator(Length, '------+'), nl, !.
 
-% imprime no ecrã a primeira e terceira secções de uma linha do tabuleiro
+% imprime no ecrÃ£ a primeira e terceira secÃ§Ãµes de uma linha do tabuleiro
 printLine([]).
 printLine([H|T]):-
 	piece(H, Char),
@@ -93,43 +86,42 @@ printLine([H|T]):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-imprime_pecas_aux([H|T]):-
-	T \= [],
-	write(H), write(','),
-	imprime_pecas_aux(T).
-imprime_pecas_aux([H|_]):-
+imprime_brancas_aux([]).
+imprime_brancas_aux([H]):-
 	write(H).
-
-imprime_pecas(Lista):-
-	write('['),
-	imprime_pecas_aux(Lista), !,
-	write(']').
-
-imprime_pretas([]).
-imprime_pretas([H|T]):-
-	imprime_pecas(H), !,
-	write('   '),
-	imprime_pretas(T).
+imprime_brancas_aux([H|T]):-
+	write(H), write(','),
+	imprime_brancas_aux(T).
 
 imprime_brancas(Lista):-
-	write(' '),
-	imprime_pecas(Lista), !.
+	write(' ['),
+	imprime_brancas_aux(Lista), !,
+	write(']').
+
+imprime_pretas(Lista):-
+	largest_sublist(Lista, Tamanho),
+	imprime_pretas_aux(Lista, Tamanho), !.
+
+imprime_pretas_aux(_, 0).
+imprime_pretas_aux(ColHints, VSpacing):-
+	VSpacing > 0,
+	imprime_espaco(7),
+	imprime_vertical(ColHints, VSpacing), nl,
+	NewVSpacing is VSpacing - 1,
+	imprime_pretas_aux(ColHints, NewVSpacing), !.
+
+imprime_vertical([],_).
+imprime_vertical([H|T],VSpacing):-
+	length(H, Size),
+	(Size < VSpacing, imprime_espaco(1);
+	Position is Size - VSpacing,
+	nth0(Position, H, Value),
+	write(Value)),
+	imprime_espaco(6),
+	imprime_vertical(T, VSpacing), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% imprime no ecrã uma sequência de 4 * Y espaços
-printTab:-
-	format('~*c', [4, 0' ]), !.
-
-generateNumbers(Length, 1, 0):-
-	Number1 in 0..Length,
-	Number0 in 0..Length,
-	Number1 #\= Number0 #/\ abs(Number1 - Number0) #= 1
-	#\/ Number1 #= Number0,
-	length(1, Number1),
-	length(0, Number0),
-	domain(1, 1, Length),
-	domain(0, 1, Length),
-	append(1, 0, All),
-	sum(All, #=, Length),
-	labeling([], All).
+% imprime no ecrÃ£ uma sequÃªncia de 4 * Y espaÃ§os
+imprime_espaco(Length):-
+	format('~*c', [Length, 0' ]), !.

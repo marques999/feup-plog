@@ -20,20 +20,36 @@ matrix_set(X-Y, NewElem, [OldRow|Tail], [OldRow|NewTail]):-
 	matrix_set(X1, Y, NewElem, Tail, NewTail).
 
 % obtém a matriz transposta de uma matriz quadrada N x N
-matrix_transpose([F|Fs], Ts) :-
-matrix_transpose(F, [F|Fs], Ts).
+matrix_transpose([F|Fs], Ts):-
+	matrix_transpose(F, [F|Fs], Ts).
+
 matrix_transpose([], _, []).
 matrix_transpose([_|Rs], Ms, [Ts|Tss]) :-
-        list_firsts_rests(Ms, Ts, Ms1),
-        matrix_transpose(Rs, Ms1, Tss).
+	list_firsts_rests(Ms, Ts, Ms1),
+	matrix_transpose(Rs, Ms1, Tss).
 
 % obtém o elemento presente na posição de coordenadas (X,Y) de uma matriz
 matrix_at(X, Y, List, Symbol):-
-	X #>= 0,
+	X >= 0,
 	list_at(X, List, Row),
 	list_at(Y, Row, Symbol).
 
-matrix_size([[Size|_]|_], Size).
+matrix_flatten([],[]).
+matrix_flatten([[]|Gs],Fg):- !,
+	matrix_flatten(Gs,Fg).
+matrix_flatten([[G1|G1s]|Gs],[G1|Fg]):-
+	matrix_flatten([G1s|Gs],Fg).
+
+flatten([],[]).
+flatten([[]|Gs],Fg):-
+	flatten(Gs,Fg).
+flatten([[G1|G1s]|Gs],[G1|Fg]):-
+	flatten([G1s|Gs],Fg).
+
+flatten2([], []).
+flatten2([H|T], Res):-
+	flatten2(T, Res2),
+	append(H, Res2, Res).
 
 %=======================================%
 %            LIST OPERATIONS            %
@@ -78,17 +94,23 @@ list_set(I, Symbol, [H|L], [H|Result]):-
 % obtém o elemento presente na posição I de uma lista
 list_at(0, [H|_], H).
 list_at(X, [_|T], Symbol):-
-	X #>= 0,
-	X1 #= X - 1,
+	X > 0,
+	X1 is X - 1,
 	list_at(X1, T, Symbol).
 
 list_firsts_rests([], [], []).
 list_firsts_rests([[F|Os]|Rest], [F|Fs], [Os|Oss]) :-
-        list_firsts_rests(Rest, Fs, Oss).
+	list_firsts_rests(Rest, Fs, Oss).
 
-list_subtract([], _, []) :- !.
-list_subtract([A|C], B, D) :-
-        member(A, B), !,
-        list_subtract(C, B, D).
-list_subtract([A|B], C, [A|D]) :-
-        list_subtract(B, C, D).
+list_subtract([], _, []):- !.
+list_subtract([A|C], B, D):-
+	member(A, B), !,
+	list_subtract(C, B, D).
+list_subtract([A|B], C, [A|D]):-
+	list_subtract(B, C, D).
+
+largest_sublist([],0):- !.
+largest_sublist([H|T], Tamanho):-
+	largest_sublist(T, M1),
+	length(H, M2),
+	(M1 > M2, Tamanho is M1; Tamanho is M2), !.
