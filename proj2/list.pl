@@ -30,9 +30,8 @@ matrix_transpose([_|Rs], Ms, [Ts|Tss]) :-
 
 % obtém o elemento presente na posição de coordenadas (X,Y) de uma matriz
 matrix_at(X, Y, List, Symbol):-
-	X >= 0,
-	list_at(X, List, Row),
-	list_at(Y, Row, Symbol).
+	nth0(X, List, Row),
+	nth0(Y, Row, Symbol).
 
 matrix_flatten([],[]).
 matrix_flatten([[]|Gs],Fg):- !,

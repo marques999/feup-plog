@@ -174,3 +174,50 @@ scanList([H|T], Position, Predicate, [Position|Lista]):-
 scanList([_H|T], Position, Predicate, Lista):-
 	Next #= Position + 1,
 	scanList(T, Next, Predicate, Lista).
+
+csgo_xites(List, X, Y, Color, Res):-
+	length(List, Factor),	
+	csgo_xitesAux(List, Factor, X, Y, Color, [], _, Res), !.
+	
+csgo_xitesAux(List, Factor, X, Y, Color, PrevExpl, NewExpl, Res):-
+	matrix_at(X, Y, List, Color),
+	Cords is X + Y * Factor,
+
+	\+member(Cords, PrevExpl),
+	append(PrevExpl, [Cords], CurrExpl),
+				
+	X1 is X + 1,
+	X2 is X - 1,
+	Y1 is Y + 1,
+	Y2 is Y - 1,
+		
+	csgo_xitesAux(List, Factor, X1, Y, Color, CurrExpl, NewExpl1, Res1),	
+	addLists(CurrExpl, NewExpl1, CurrExpl2),	
+	csgo_xitesAux(List, Factor, X2, Y, Color, CurrExpl2, NewExpl2, Res2),
+	addLists(CurrExpl2, NewExpl2, CurrExpl3),
+	csgo_xitesAux(List, Factor, X, Y1, Color, CurrExpl3, NewExpl3, Res3),
+	addLists(CurrExpl3, NewExpl3, CurrExpl4),
+	csgo_xitesAux(List, Factor, X, Y2, Color, CurrExpl4, NewExpl4, Res4),
+	addLists(CurrExpl4, NewExpl4, NewExpl),		
+	Res is Res1 + Res2 + Res3 + Res4 + 1.
+
+csgo_xitesAux(List, Factor, X, Y, Color, _, NewExpl, 0):-
+	matrix_at(X, Y, List, _),	
+	Cords is X + Y * Factor,
+	append([], [Cords], NewExpl).
+	
+csgo_xitesAux(_, _, _, _, _, _,[], 0).
+
+%---------------------------------------------
+addLists(List, [], List).
+
+addLists(List, [H|T], Res):-	
+	addLists(List, T, Res1),
+	addIfNotIn(H, Res1, Res).
+
+addIfNotIn(Coord, List, Res):-	
+	\+member(Coord, List),
+	append(List, [Coord], Res).
+	
+addIfNotIn(Coord, List, List):-
+	member(Coord, List).
