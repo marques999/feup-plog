@@ -52,12 +52,7 @@ printBoard(Board, Black, White):-
 	imprime_pretas(Black), nl,
 	write('    +'),
 	createSeparator(Length, '------+'), nl,
-	printRows(Board, White), nl, !.
-
-% imprime no ecrã as linhas do tabuleiro
-printRows(Board, White):-
-	length(White, Length),
-	printRows(Board, Length, White), !.
+	printRows(Board, Length, White), nl, !.
 
 printRows([], _, []).
 printRows([H|T], Length, [White|Next]):-

@@ -1,40 +1,28 @@
 %=======================================%
-%           MATRIX GENERATION           %
+%            BOARD GENERATION           %
 %=======================================%
-
-%                 ------------- %
-% #includes                     %
-%                 ------------- %
-
-?- ensure_loaded('globals.pl').
 
 %                 ------------- %
 % #predicados                   %
 %                 ------------- %
 
-generate_hanjie(Width,Height,ColHints,RowHints):-
-	make_atom_grid(PuzzleGrid,Width,Height),
+generateHints(Width,Height,ColHints,RowHints):-
+	generateMatrix(PuzzleGrid,Width,Height),
 	generate_rows_hints(PuzzleGrid,RH),
 	transpose(PuzzleGrid,Cols),
 	generate_rows_hints(Cols,CH),
 	strip_zeros(RH,RowHints),
 	strip_zeros(CH,ColHints).
 
-generate_hanjie_full(Width,Height,ColHints,RowHints):-
-	make_atom_grid_full(PuzzleGrid,Width,Height),
+generateHintsEmpty(Width,Height,ColHints,RowHints):-
+	generateEmptyMatrix(PuzzleGrid,Width,Height),
 	generate_rows_hints(PuzzleGrid,RH),
 	transpose(PuzzleGrid,Cols),
 	generate_rows_hints(Cols,CH),
 	strip_zeros(RH,RowHints),
 	strip_zeros(CH,ColHints).
 
-generate_hanjie_empty(Width,Height,ColHints,RowHints):-
-	make_atom_grid_empty(PuzzleGrid,Width,Height),
-	generate_rows_hints(PuzzleGrid,RH),
-	transpose(PuzzleGrid,Cols),
-	generate_rows_hints(Cols,CH),
-	strip_zeros(RH,RowHints),
-	strip_zeros(CH,ColHints).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 strip_zeros([],[]).
 strip_zeros([Row|Rest],[Result|Rs]):-
@@ -64,42 +52,31 @@ generate_hints_for_row([1|Rest],[Head|RHs]):-
 	generate_hints_for_row(Rest,[NextHead|RHs]),
 	Head is NextHead+1.
 
-make_atom_grid_empty([], _, 0).
-make_atom_grid_empty([H|T], Width, Height):-
-	Height > 0,
-	make_atom_row_empty(H, Width),
-	RemainingHeight is Height - 1,
-	make_atom_grid_empty(T, Width, RemainingHeight), !.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-make_atom_row_empty([], 0).
-make_atom_row_empty([0|T],Width):-
+generateEmptyMatrix([], _, 0).
+generateEmptyMatrix([H|T], Width, Height):-
+	Height > 0,
+	generateEmptyRow(H, Width),
+	RemainingHeight is Height - 1,
+	generateEmptyMatrix(T, Width, RemainingHeight), !.
+
+generateEmptyRow([], 0).
+generateEmptyRow([0|T],Width):-
 	Width > 0,
 	RemainingWidth is Width - 1,
-	make_atom_row_empty(T, RemainingWidth), !.
+	generateEmptyRow(T, RemainingWidth), !.
 
-make_atom_grid_full([], _, 0).
-make_atom_grid_full([H|T], Width, Height):-
+generateMatrix([], _, 0).
+generateMatrix([H|T], Width, Height):-
 	Height > 0,
-	make_atom_row_full(H, Width),
+	generateRow(H, Width),
 	RemainingHeight is Height - 1,
-	make_atom_grid_full(T, Width, RemainingHeight), !.
+	generateMatrix(T, Width, RemainingHeight), !.
 
-make_atom_row_full([], 0).
-make_atom_row_full([1|T], Width):-
-	Width > 0,
-	RemainingWidth is Width - 1,
-	make_atom_row_full(T, RemainingWidth), !.
-
-make_atom_grid([], _, 0).
-make_atom_grid([H|T], Width, Height):-
-	Height > 0,
-	make_atom_row(H, Width),
-	RemainingHeight is Height - 1,
-	make_atom_grid(T, Width, RemainingHeight), !.
-
-make_atom_row([], 0).
-make_atom_row([H|T], Width):-
+generateRow([], 0).
+generateRow([H|T], Width):-
 	Width > 0,
 	random(0, 2, H),
 	RemainingWidth is Width - 1,
-	make_atom_row(T, RemainingWidth), !.
+	generateRow(T, RemainingWidth), !.

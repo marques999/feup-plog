@@ -6,30 +6,121 @@
 % #includes                     %
 %                 ------------- %
 
-:- include('globals.pl').
-:- include('display.pl').
-:- include('generate.pl').
-:- include('list.pl').
-:- include('solver.pl').
+:- ensure_loaded('globals.pl').
+:- ensure_loaded('display.pl').
+:- ensure_loaded('generate.pl').
+:- ensure_loaded('list.pl').
+:- ensure_loaded('solver.pl').
+
+%                 ------------- %
+% #factos	                    %
+%                 ------------- %
+
+flattenedMatrix([0,0,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0,0]).
 
 %                 ------------- %
 % #predicados                   %
 %                 ------------- %
 
-flattenedMatrix([0,0,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0,0]).
+akkoy:-
+	initializeRandomSeed, !,
+	mainMenu.
 
-generateNumbers(Length, 1, 0):-
-	Number1 in 0..Length,
-	Number0 in 0..Length,
-	Number1 #\= Number0 #/\ abs(Number1 - Number0) #= 1
-	#\/ Number1 #= Number0,
-	length(1, Number1),
-	length(0, Number0),
-	domain(1, 1, Length),
-	domain(0, 1, Length),
-	append(1, 0, All),
-	sum(All, #=, Length),
-	labeling([], All).
+mainMenu:- nl,
+	write('+================================+'), nl,
+	write('+        ..:: AKKOY ::..         +'), nl,
+	write('+================================+'), nl,
+	write('|                                |'), nl,
+	write('|   1. Solve Random              |'), nl,
+	write('|   2. Solve 3x3                 |'), nl,
+	write('|   3. Solve 4x4                 |'), nl,
+	write('|   4. Solve 5x5                 |'), nl,
+	write('|                                |'), nl,
+	write('|   5. About                     |'), nl,
+	write('|                                |'), nl,
+	write('|   6. <- Exit                   |'), nl,
+	write('|                                |'), nl,
+	write('+================================+'), nl, nl,
+	write('Please choose an option:'), nl,
+	getInt(Input),
+	mainMenuAction(Input), !.
+
+mainMenuAction(1):- solveRnd, !, mainMenu.
+mainMenuAction(2):- solve3x3, !, mainMenu.
+mainMenuAction(3):- solve4x4, !, mainMenu.
+mainMenuAction(4):- solve5x5, !, mainMenu.
+mainMenuAction(5):- aboutMenu, !, mainMenu.
+mainMenuAction(6).
+mainMenuAction(_):-
+	messageInvalidValue, !,
+	mainMenu.
+
+aboutMenu:- nl,
+	write('+===============================+'), nl,
+	write('+        ..:: ABOUT ::..        +'), nl,
+	write('+===============================+'), nl,
+	write('|                               |'), nl,
+	write('|   FEUP / MIEIC                |'), nl,
+	write('|   Ano Letivo 2015-2016        |'), nl,
+	write('|                               |'), nl,
+	write('|   Authors:                    |'), nl,
+	write('|                               |'), nl,
+	write('|    > Carlos Samouco           |'), nl,
+	write('|      up201305187@fe.up.pt     |'), nl,
+	write('|                               |'), nl,
+	write('|    > Diogo Marques            |'), nl,
+	write('|      up201305642@fe.up.pt     |'), nl,
+	write('|                               |'), nl,
+	write('+===============================+'), nl,
+	nl, pressEnterToContinue, !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+solveRnd:-
+	askRandom(X, Y),
+	generateHints(Y, X, Blacks, Whites),
+	runSolver(Blacks, Whites), !.
+
+solve3x3:-
+	Blacks = [[1,1],[1],[1]],
+	Whites = [[1],[1],[1]],
+	runSolver(Blacks, Whites), !.
+
+solve4x4:-
+	Blacks = [[2],[1],[2],[3]],
+	Whites = [[1],[2],[1],[1]],
+	runSolver(Blacks, Whites), !.
+
+solve5x5:-
+	Blacks = [[1,2],[1,1],[1,1],[1,1],[2,1]],
+	Whites = [[5],[1],[3],[3],[1]],
+	runSolver(Blacks, Whites), !.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+runSolver(Blacks, Whites):-
+	length(Blacks, BlackLength),
+	length(Whites, WhiteLength),
+	generateEmptyMatrix(Board,BlackLength,WhiteLength),
+	printBoard(Board,Blacks,Whites),
+	pressEnterToContinue,
+	solution(Blacks,Whites,RetBoard),
+	printBoard(RetBoard,Blacks,Whites),
+	pressEnterToContinue.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+askRandom(X, Y):-
+	nl, write('Please enter the problem size (N x N) and then press <ENTER>: '), nl,
+	getCoordinates(X, Y), nl,
+	X > 2, Y > 2, X =< 100, Y =< 100, !.
+
+askRandom(_, _):-
+	write('INVALID INPUT!'), nl,
+	write('You have entered an invalid problem size, must be an integer between 3 and 100!'), nl,
+	pressEnterToContinue, nl, fail.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 verifica_pretos(Matriz):-
 	matrix_transpose(Matriz, [_|NovaMatriz]),
@@ -47,6 +138,8 @@ verifica_linha(Linha, Contagem, Cor):-
 	sequencia(Linha, 0, Cor, Resultado),
 	list_contains(Resultado, Contagem).
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 sequencia([], _, _, []).
 sequencia([], Contador, _, [Contador]).
 sequencia([H|T], Contador, Peca, Resultado):-
@@ -58,6 +151,8 @@ sequencia([_|T], Contador, Peca, [Contador|Resultado]):-
 	sequencia(T, 0, Peca, Resultado).
 sequencia([_|T], Contador, Peca, Resultado):-
 	sequencia(T, Contador, Peca, Resultado).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % verifica se duas células do tabuleiro são adjacentes em conetividade 4
 
@@ -90,12 +185,6 @@ flattenConnected([H|T], Board):-
 	Count #> 0,
 	flattenConnected([T], Board).
 
-%flattenCheck([], _From, _White, _Length).
-%flattenCheck([H|T], From, White, Length):-
-%	member(H, White),
-%	is_neighbour(From, H, Length),
-%	flattenCheck(T, From, White, Length).
-
 flattenConnectedAux(From, To, Length, List):-
 	Start #= From + 1,
 	End #= From + Length,
@@ -123,30 +212,6 @@ newPath(Start, Board, Resultado):-
 	%append(ResultadoX, ResultadoY, Resultado),
 	labeling([], Resultado).
 
-% encontra um caminho ligado por discos entre duas células do tabuleiro
-checkPath(Start, Board, Lista):-
-	checkPath(Start, Length, Board, [Start], Lista).
-
-checkPath(Start, End, Length, _Board, Lista, Lista):-
-	StartX #>= Length #\/ StartY #>= Length.
-
-checkPath(Start, Length, Board, [Middle|Lista], ListaFim):-
-	#\flattenConnectedAux(Start, Middle, Length, Board).
-
-checkPath(Start, Length, Board, [Middle|Lista], ListaFim):-
-	flattenConnectedAux(Start, Middle, Length, Board),
-	#\member(Middle, Lista),
-	checkPath(Middle, Length, Board, Lista, ListaFim).
-
-
-checkPath(Start, End, Board, Length, Lista):-
-	checkPath(Start, End, Board, Length, [Start], Lista).
-
-exercicioTabuleiro4por4(RetBoard):-
-		Blacks=[[2],[1],[2],[3]],
-		Whites=[[1],[2],[1],[1]],
-		solution(Blacks,Whites,RetBoard).
-
 checkPath(Start, End, Board, Length, Lista, ListaFim):-
 	flattenConnectedAux(Start, Middle, Length, Board),
 	#\member(Middle, Lista),
@@ -155,25 +220,7 @@ checkPath(Start, End, Board, Length, Lista, ListaFim):-
 
 checkPath(Start, End, _Board, Length, Lista, Lista).
 
-isBlack(Symbol):- Symbol #= 1.
-isWhite(Symbol):- Symbol #= 0.
-
-% percorre uma linha do tabuleiro
-% obtém uma lista com as células dessa linha que verificam determinado objetivo
-
-scanBlack(List, Result):-
-	scanList(List, 0, isBlack, Result).
-scanWhite(List, Result):-
-	scanList(List, 0, isWhite, Result).
-
-scanList([], _Position, _Predicate, []).
-scanList([H|T], Position, Predicate, [Position|Lista]):-
-	call(Predicate, H),
-	Next #=  Position + 1,
-	scanList(T, Next, Predicate, Lista).
-scanList([_H|T], Position, Predicate, Lista):-
-	Next #= Position + 1,
-	scanList(T, Next, Predicate, Lista).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 csgo_xites(List, X, Y, Color, Res):-
 	length(List, Factor),	
@@ -208,7 +255,8 @@ csgo_xitesAux(List, Factor, X, Y, Color, _, NewExpl, 0):-
 	
 csgo_xitesAux(_, _, _, _, _, _,[], 0).
 
-%---------------------------------------------
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 addLists(List, [], List).
 
 addLists(List, [H|T], Res):-	
