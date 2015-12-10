@@ -33,12 +33,6 @@ finishedWhite([[1,3],[1,2,1],[2,1,1],[1,2],[3,1],[1,1,1],[3,3]]).
 % #predicados                   %
 %                 ------------- %
 
-printTest:-
-	finishedGame(Board),
-	finishedBlack(Black),
-	finishedWhite(White),
-	printBoard(Board, Black, White).
-
 % imprime no ecrã os delimitadores das células do tabuleiro
 createSeparator(0, _).
 createSeparator(N, SS):-

@@ -6,10 +6,8 @@
 % #includes                     %
 %                 ------------- %
 
-:- ensure_loaded('globals.pl').
 :- ensure_loaded('display.pl').
 :- ensure_loaded('generate.pl').
-:- ensure_loaded('list.pl').
 :- ensure_loaded('solver.pl').
 
 %                 ------------- %
