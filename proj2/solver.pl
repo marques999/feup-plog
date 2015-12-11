@@ -9,6 +9,8 @@
 ?- ensure_loaded('globals.pl').
 ?- ensure_loaded('list.pl').
 
+:- dynamic global/1.
+
 %                 ------------- %
 % #predicados                   %
 %                 ------------- %
@@ -60,6 +62,22 @@ adjacentTester([X,Y|T] , [B|Bs], Color1, Color2):-
 	(X #= Color1 #/\ Y #= Color2) #<=> B,
 	adjacentTester([Y|T],Bs,Color1,Color2).
 
+cohesionTester([_],[]).
+cohesionTester([X,Y|T], [B|Bs]):-
+	(X #= 1 #/\ Y #= 1) #<=> B,
+	adjacentTester([Y|T],Bs,1,0).
+
+verifyCohese_aux(H):-
+	cohesionTester(H,B),
+	createMatrix(B,D).
+
+verifyCohese([],[]).
+verifyCohese([H|T],[P|C]):-
+	verifyCohese_aux(H),
+	verifyCohese(T,C).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 verifyBlock_aux(L,Lacunas, Color1, Color2):-
 	Lacunas > 0,
 	adjacentTester(L,B,Color1,Color2),
@@ -84,34 +102,54 @@ verifyBlockWhite([H|T], [P|C]):-
 	verifyBlock_aux(H,NumeroDeLacunas,0,1),
 	verifyBlockWhite(T,C).
 
-cohesionTester([_],[]).
-cohesionTester([X,Y|T], [B|Bs]):-
-	(X #= 1 #/\ Y #= 1) #<=> B,
-	adjacentTester([Y|T],Bs,1,0).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-verifyCohese_aux(H):-
-	cohesionTester(H,B),
-	createMatrix(B,D).
-
-verifyCohese([],[]).
-verifyCohese([H|T],[P|C]):-
-	verifyCohese_aux(H),
-	verifyCohese(T,C).
+verifyFirst(Board):-
+	scanWhite(Board, [FirstX-FirstY|Whites]),
+	csgo_xites(Board, FirstX, FirstY, 0, Tamanho, Result),
+	list_subtract(Whites, Result, NewResult),
+	verifyAreas(Board, NewResult, Tamanho).
 
 verifyAreas(_, [],  _).
 verifyAreas(Board, Whites, Count):-
 	list_at(0, Whites, PositionX-PositionY),
-	csgo_xites(Board, PositionX, PositionY, 0, Result),
-	length(Result, Count),
+	csgo_xites(Board, PositionX, PositionY, 0, Count, Result),
+	write(PositionX),write('-'),write(PositionY),write(':'),
+	write(Count), nl,
 	list_subtract(Whites, Result, NewResult),
 	verifyAreas(Board, NewResult, Count).
 
-verifyFirst(Board, NewResult):-
-	scanWhite(Board, [FirstX-FirstY|Whites]),
-	csgo_xites(Board, FirstX, FirstY, 0, Result),
-	length(Result, Tamanho),
-	list_subtract(Whites, Result, NewResult).
-	verifyAreas(Board, NewResult, Tamanho).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+csgo_xites(List, X, Y, Color, Count, PrevExpl):-	
+	assert(global([])),
+	csgo_xitesAux(List, X, Y, Color, Count),
+	global(PrevExpl),
+	retract(global(PrevExpl)), !.
+	
+csgo_xitesAux(List, X, Y, Color, Res):-	
+	matrix_at(X, Y, List, Color2),
+	Color2 #= Color,
+	global(PrevExpl),				
+	\+member(X-Y, PrevExpl),	
+	append(PrevExpl, [X-Y], CurrExpl),
+	retract(global(PrevExpl)),
+	assert(global(CurrExpl)),
+				
+	X1 #= X + 1,
+	X2 #= X - 1,
+	Y1 #= Y + 1,
+	Y2 #= Y - 1,
+		
+	csgo_xitesAux(List, X1, Y, Color, Res1),		
+	csgo_xitesAux(List, X2, Y, Color, Res2),
+	csgo_xitesAux(List, X, Y1, Color, Res3),	
+	csgo_xitesAux(List, X, Y2, Color, Res4),	
+	Res #= Res1 + Res2 + Res3 + Res4 + 1.
+
+csgo_xitesAux(_, _, _, _, _, 0).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 checkHints([],_).
 checkHints([H|Hs],MaxSum):-
@@ -267,7 +305,7 @@ solution(Blacks,Whites,Options):-
 	%restrict_rowsWhite(FlippedBoard, Whites),
 
 	%4th restriction - os quadrados brancos devem formar regiões com área igual
-	%verifyAreas(RetBoard),
+	verifyFirst(RetBoard),
 
 	% calcula tempo decorrido até inicialização das restrições do problema
 	statistics(walltime, [W1|_]),
