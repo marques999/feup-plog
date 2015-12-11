@@ -15,50 +15,45 @@
 
 verifyHead([], [], _).
 verifyHead([H|T], [P|C], Tamanho):-
-		verifyHead_aux(H, P, Tamanho),
-		verifyHead(T, C, Tamanho).
+	verifyHead_aux(H, P, Tamanho),
+	verifyHead(T, C, Tamanho).
 
 %(1)lista de C1,C2,C3...
 %(2)lista de comando (numero de pecas pretas)
 %(3)largura do tabuleiro
 
 verifyHead_aux(L,T,ComprimentoLista):-
-		sum(T,#=,NumeroDePecas),
-		OutrasPecas #= ComprimentoLista - NumeroDePecas,
-		global_cardinality(L,[0-OutrasPecas, 1-NumeroDePecas]).
+	sum(T,#=,NumeroDePecas),
+	OutrasPecas #= ComprimentoLista - NumeroDePecas,
+	global_cardinality(L,[0-OutrasPecas, 1-NumeroDePecas]).
 
 verifyHeadWhite([],[],_).
 verifyHeadWhite([H|T],[P|C],ComprimentoLista):-
-		verifyHead_auxWhite(H,P,ComprimentoLista),
-		verifyHeadWhite(T,C,ComprimentoLista).
+	verifyHead_auxWhite(H,P,ComprimentoLista),
+	verifyHeadWhite(T,C,ComprimentoLista).
 
 %(1)lista de C1,C2,C3...
 %(2)lista de comando (numero de pecas brancas)
 %(3)largura do tabuleiro
 
 verifyHead_auxWhite(L,T,ComprimentoLista):-
-		sum(T,#=,NumeroDePecas),
-		OutrasPecas #= ComprimentoLista - NumeroDePecas,
-		global_cardinality(L,[1-OutrasPecas,0-NumeroDePecas]).
+	sum(T,#=,NumeroDePecas),
+	OutrasPecas #= ComprimentoLista - NumeroDePecas,
+	global_cardinality(L,[1-OutrasPecas,0-NumeroDePecas]).
 
 applyDomain([]).
 applyDomain([H|T]):-
-		domain(H,0,1),
-		applyDomain(T).
-
-applyLabeling([]).
-applyLabeling([H|T]):-
-		labeling([],H),
-		applyLabeling(T).
+	domain(H,0,1),
+	applyDomain(T).
 
 verifyColumnSizes([],_).
 verifyColumnSizes([H|T],Size):-
-		sum(H,#=,Val),
-		length(H,Val2),
-		Val4 is Val2 - 1,
-		Val3 is Val + Val4,
-		Size #>= Val3,
-		verifyColumnSizes(T,Size).
+	sum(H,#=,Val),
+	length(H,Val2),
+	Val4 is Val2 - 1,
+	Val3 is Val + Val4,
+	Size #>= Val3,
+	verifyColumnSizes(T,Size).
 
 adjacentTester([_],[], Color1, Color2).
 adjacentTester([X,Y|T] , [B|Bs], Color1, Color2):-
@@ -103,28 +98,32 @@ verifyCohese([H|T],[P|C]):-
 	verifyCohese_aux(H),
 	verifyCohese(T,C).
 
-%verifyAreas_aux([],ListaRet).
-%verifyAreas_aux([H|T],ListaRet):-
-		%append([H],ListaRet,ListaRet2),
-		%verifyAreas_aux(T,ListaRet2).
+verifyAreas(_, [],  _).
+verifyAreas(Board, Whites, Count):-
+	list_at(0, Whites, PositionX-PositionY),
+	csgo_xites(Board, PositionX, PositionY, 0, Result),
+	length(Result, Count),
+	list_subtract(Whites, Result, NewResult),
+	verifyAreas(Board, NewResult, Count).
 
-%verifyAreas([], []).
-%verifyAreas(Flatten, [Result|Old]):-
-		%scanList(Flatten, Whites),
-		%verifyAreas_aux(Whites, Result),
-		%verifyAreas(T, Old).
+verifyFirst(Board, NewResult):-
+	scanWhite(Board, [FirstX-FirstY|Whites]),
+	csgo_xites(Board, FirstX, FirstY, 0, Result),
+	length(Result, Tamanho),
+	list_subtract(Whites, Result, NewResult).
+	verifyAreas(Board, NewResult, Tamanho).
 
 checkHints([],_).
 checkHints([H|Hs],MaxSum):-
-		(var(H),domain([H],0,MaxSum);
-		integer(H)),
-		checkHints(Hs,MaxSum).
+	(var(H),domain([H],0,MaxSum);
+	integer(H)),
+	checkHints(Hs,MaxSum).
 
 checkHintsWhite([],_).
 checkHintsWhite([H|Hs],MaxSum):-
-		(var(H),domain([H],0,MaxSum);
-		integer(H)),
-		checkHintsWhite(Hs,MaxSum).
+	(var(H),domain([H],0,MaxSum);
+	integer(H)),
+	checkHintsWhite(Hs,MaxSum).
 
 create_transitions([], [], FinalState, FinalState,_).
 create_transitions([Hint|Hs], Transitions, CurState, FinalState,FirstSquare) :-
@@ -158,43 +157,43 @@ create_transitionsWhite([Hint|Hs], Transitions, CurState, FinalState,FirstSquare
 
 restrict_rows([],[]).
 restrict_rows([R|Rs],[H|Hs]):-
-		length(R,MaxSum),
-		(
-		var(H),
-		HintLength is floor((MaxSum+1)/2),
-		length(H,HintLength),
-		checkHints(H,MaxSum)
-		;
-		nonvar(H),
-		checkHints(H,MaxSum)
-		),
-		RowSum #=< MaxSum,
-		sum(H,#=,RowSum),
-		sum(R,#=,RowSum),
-		create_transitions(H, Arcs, start, FinalState,1),
-		append(R, [0], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
-		automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,0,start) | Arcs]),
-		restrict_rows(Rs,Hs).
+	length(R,MaxSum),
+	(
+	var(H),
+	HintLength is floor((MaxSum+1)/2),
+	length(H,HintLength),
+	checkHints(H,MaxSum)
+	;
+	nonvar(H),
+	checkHints(H,MaxSum)
+	),
+	RowSum #=< MaxSum,
+	sum(H,#=,RowSum),
+	sum(R,#=,RowSum),
+	create_transitions(H, Arcs, start, FinalState,1),
+	append(R, [0], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
+	automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,0,start) | Arcs]),
+	restrict_rows(Rs,Hs).
 
 restrict_rowsWhite([],[]).
 restrict_rowsWhite([R|Rs],[H|Hs]):-
-		length(R,MaxSum),
-		(
-		var(H),
-		HintLength is floor((MaxSum+1)/2),
-		length(H,HintLength),
-		checkHintsWhite(H,MaxSum)
-		;
-		nonvar(H),
-		checkHintsWhite(H,MaxSum)
-		),
-		RowSum #=< MaxSum,
-		sum(H,#=,RowSum),
-		sum(R,#=,RowSum),
-		create_transitionsWhite(H, Arcs, start, FinalState,0),
-		append(R, [1], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
-		automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,1,start) | Arcs]),
-		restrict_rowsWhite(Rs,Hs).
+	length(R,MaxSum),
+	(
+	var(H),
+	HintLength is floor((MaxSum+1)/2),
+	length(H,HintLength),
+	checkHintsWhite(H,MaxSum)
+	;
+	nonvar(H),
+	checkHintsWhite(H,MaxSum)
+	),
+	RowSum #=< MaxSum,
+	sum(H,#=,RowSum),
+	sum(R,#=,RowSum),
+	create_transitionsWhite(H, Arcs, start, FinalState,0),
+	append(R, [1], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
+	automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,1,start) | Arcs]),
+	restrict_rowsWhite(Rs,Hs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -202,29 +201,36 @@ isBlack(Symbol):- Symbol #= 1.
 isWhite(Symbol):- Symbol #= 0.
 
 scanBlack(List, Result):-
-	scanList(List, 0, isBlack, Result).
+	scanMatrix(List, 0, 0, isBlack, Result).
 scanWhite(List, Result):-
-	scanList(List, 0, isWhite, Result).
+	scanMatrix(List, 0, 0, isWhite, Result).
+
+scanMatrix([],_,_,_,[]).
+scanMatrix([H|T], X, Y, Predicate, Lista):-
+	scanRow(H, X, Y, Predicate, Row),
+	X1 is X + 1,
+	scanMatrix(T, X1, Y, Predicate, Resultado),
+	append(Row, Resultado, Lista).
 
 % percorre uma linha do tabuleiro
 % obtém uma lista com as células dessa linha que verificam determinado objetivo
-scanList([], _Position, _Predicate, []).
-scanList([H|T], Position, Predicate, [Position|Lista]):-
-		call(Predicate,H),
-		Next #= Position + 1,
-		scanList(T, Next, Predicate, Lista).
-scanList([_H|T],Position, Predicate, Lista):-
-		Next #= Position + 1,
-		scanList(T, Next, Predicate, Lista).
+scanRow([],_,_,_,[]).
+scanRow([H|T], X, Y, Predicate, [X-Y|Lista]):-
+	call(Predicate, H),
+	Y1 #= Y + 1,
+	scanRow(T, X, Y1, Predicate, Lista).
+scanRow([_|T], X, Y, Predicate, Lista):-
+	Y1 #= Y + 1,
+	scanRow(T, X, Y1, Predicate, Lista).
 
 trans([[H|T] |Tail], [[H|NT] |NTail]) :-
-		firstCol(Tail, NT, Rest),
-		trans(Rest, NRest),
-		firstCol(NTail, T, NRest).
+	firstCol(Tail, NT, Rest),
+	trans(Rest, NRest),
+	firstCol(NTail, T, NRest).
 trans([], []).
 
 firstCol([[H|T] |Tail], [H|Col], [T|Rows]) :-
-		firstCol(Tail, Col, Rows).
+	firstCol(Tail, Col, Rows).
 firstCol([], [], []).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -286,4 +292,4 @@ solution(Blacks,Whites,Options):-
 	format('Labeling took a total of ~3d sec.~n~n', [LabelingWall]),
 	
 	printBoard(RetBoard,Blacks,Whites),
-	fd_statistics, !.
+	fd_statistics.

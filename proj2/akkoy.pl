@@ -44,11 +44,11 @@ mainMenu:- nl,
 	getInt(Input),
 	mainMenuAction(Input), !.
 
-mainMenuAction(1):- solveRnd, !, mainMenu.
-mainMenuAction(2):- solve3x3, !, mainMenu.
-mainMenuAction(3):- solve4x4, !, mainMenu.
-mainMenuAction(4):- solve5x5, !, mainMenu.
-mainMenuAction(5):- solve6x6, !, mainMenu.
+mainMenuAction(1):- solveRnd.
+mainMenuAction(2):- solve3x3.
+mainMenuAction(3):- solve4x4.
+mainMenuAction(4):- solve5x5.
+mainMenuAction(5):- solve6x6.
 mainMenuAction(6):- aboutMenu, !, mainMenu.
 mainMenuAction(7).
 mainMenuAction(_):- !, mainMenu.
@@ -75,7 +75,7 @@ aboutMenu:- nl,
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 solveRnd:-
-	askRandom(X, Y),
+	askRandom(X, Y), !,
 	generateHints(Y, X, Blacks, Whites),
 	runSolver(Blacks, Whites), !.
 
@@ -107,15 +107,45 @@ runSolver(Blacks, Whites):-
 	generateEmptyMatrix(Board,BlackLength,WhiteLength),
 	printBoard(Board,Blacks,Whites),
 	pressEnterToContinue,
-	solution(Blacks,Whites,[ffc]),
+	selectLabeling(Options),
+	solution(Blacks,Whites,Options),
 	pressEnterToContinue.
+
+runSolver(_,_):-
+	write('\nERROR: could not find any suitable solution for the given problem!'), nl,
+	pressEnterToContinue, nl, fail.
+
+selectLabeling(Options):-
+	write('\n> SELECT LABELING OPTIONS:\n'),
+	write('\t1. Leftmost / Step\n'),
+	write('\t2. Leftmost / Bisect\n'),
+	write('\t3. Leftmost / Median\n'),
+	write('\t4. First Fail / Step\n'),
+	write('\t5. First Fail / Bisect\n'),
+	write('\t6. First Fail / Median\n'),
+	write('\t7. FFC / Step\n'),
+	write('\t8. FFC / Bisect\n'),
+	write('\t9. FFC / Median\n'),
+	getInt(Choice),
+	selectLabeling(Choice, Options).
+
+selectLabeling(1, [leftmost,step]).
+selectLabeling(2, [leftmost,bisect]).
+selectLabeling(3, [leftmost,median]).
+selectLabeling(4, [first_fail,step]).
+selectLabeling(5, [first_fail,bisect]).
+selectLabeling(6, [first_fail,median]).
+selectLabeling(7, [ffc,step]).
+selectLabeling(8, [ffc,bisect]).
+selectLabeling(9, [ffc,median]).
+selectLabeling(_, [ffc,bisect]).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askRandom(X, Y):-
-	nl, write('Please enter the problem size (N x N) and then press <ENTER>: '), nl,
+	nl, write('Please enter the problem size (N x N) and then press <ENTER>:\n'),
 	getCoordinates(X, Y), nl,
-	X > 2, Y > 2, X =< 100, Y =< 100, !.
+	X > 2, Y > 2, !.
 
 askRandom(_, _):-
 	write('INVALID INPUT!'), nl,

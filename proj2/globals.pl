@@ -32,4 +32,4 @@ getInt(Input):-
 
 getCoordinates(X, Y):-
 	getInt(X),
-	getInt(Y).
+	getInt(Y), !.
