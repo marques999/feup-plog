@@ -33,10 +33,11 @@ mainMenu:- nl,
 	write('|   2. Solve 3x3                 |'), nl,
 	write('|   3. Solve 4x4                 |'), nl,
 	write('|   4. Solve 5x5                 |'), nl,
+	write('|   5. Solve 6x6                 |'), nl,
 	write('|                                |'), nl,
-	write('|   5. About                     |'), nl,
+	write('|   6. About                     |'), nl,
 	write('|                                |'), nl,
-	write('|   6. <- Exit                   |'), nl,
+	write('|   7. <- Exit                   |'), nl,
 	write('|                                |'), nl,
 	write('+================================+'), nl, nl,
 	write('Please choose an option:'), nl,
@@ -47,8 +48,9 @@ mainMenuAction(1):- solveRnd, !, mainMenu.
 mainMenuAction(2):- solve3x3, !, mainMenu.
 mainMenuAction(3):- solve4x4, !, mainMenu.
 mainMenuAction(4):- solve5x5, !, mainMenu.
-mainMenuAction(5):- aboutMenu, !, mainMenu.
-mainMenuAction(6).
+mainMenuAction(5):- solve6x6, !, mainMenu.
+mainMenuAction(6):- aboutMenu, !, mainMenu.
+mainMenuAction(7).
 mainMenuAction(_):-
 	messageInvalidValue, !,
 	mainMenu.
@@ -92,6 +94,11 @@ solve4x4:-
 solve5x5:-
 	Blacks = [[1,2],[1,1],[1,1],[1,1],[2,1]],
 	Whites = [[5],[1],[3],[3],[1]],
+	runSolver(Blacks, Whites), !.
+
+solve6x6:-
+	Blacks = [[3,1],[2],[4],[1,1,1],[1],[3]],
+	Whites = [[1],[1,1],[2],[1],[3],[2]],
 	runSolver(Blacks, Whites), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

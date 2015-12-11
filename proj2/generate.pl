@@ -6,21 +6,21 @@
 % #predicados                   %
 %                 ------------- %
 
-generateHints(Width,Height,ColHints,RowHints):-
-	generateMatrix(PuzzleGrid,Width,Height),
-	generate_rows_hints(PuzzleGrid,RH),
-	transpose(PuzzleGrid,Cols),
-	generate_rows_hints(Cols,CH),
-	strip_zeros(RH,RowHints),
-	strip_zeros(CH,ColHints).
+generateHints(Width, Height, Black, White):-
+	generateMatrix(Board, Width, Height),
+	generate_rows_hints(Board, RH),
+	transpose(Board, Columns),
+	generate_rows_hints(Columns, CH),
+	strip_zeros(RH, White),
+	strip_zeros(CH, Black).
 
-generateHintsEmpty(Width,Height,ColHints,RowHints):-
-	generateEmptyMatrix(PuzzleGrid,Width,Height),
-	generate_rows_hints(PuzzleGrid,RH),
-	transpose(PuzzleGrid,Cols),
-	generate_rows_hints(Cols,CH),
-	strip_zeros(RH,RowHints),
-	strip_zeros(CH,ColHints).
+generateHintsEmpty(Width, Height, Black, White):-
+	generateEmptyMatrix(Board, Width, Height),
+	generate_rows_hints(Board, RH),
+	transpose(Board, Columns),
+	generate_rows_hints(Columns, CH),
+	strip_zeros(RH, White),
+	strip_zeros(CH, Black).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
