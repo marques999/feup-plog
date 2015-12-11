@@ -147,7 +147,7 @@ csgo_xitesAux(List, X, Y, Color, Res):-
 	csgo_xitesAux(List, X, Y2, Color, Res4),	
 	Res #= Res1 + Res2 + Res3 + Res4 + 1.
 
-csgo_xitesAux(_, _, _, _, _, 0).
+csgo_xitesAux(_, _, _, _, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
