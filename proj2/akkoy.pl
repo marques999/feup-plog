@@ -51,9 +51,7 @@ mainMenuAction(4):- solve5x5, !, mainMenu.
 mainMenuAction(5):- solve6x6, !, mainMenu.
 mainMenuAction(6):- aboutMenu, !, mainMenu.
 mainMenuAction(7).
-mainMenuAction(_):-
-	messageInvalidValue, !,
-	mainMenu.
+mainMenuAction(_):- !, mainMenu.
 
 aboutMenu:- nl,
 	write('+===============================+'), nl,
@@ -109,8 +107,7 @@ runSolver(Blacks, Whites):-
 	generateEmptyMatrix(Board,BlackLength,WhiteLength),
 	printBoard(Board,Blacks,Whites),
 	pressEnterToContinue,
-	solution(Blacks,Whites,RetBoard),
-	printBoard(RetBoard,Blacks,Whites),
+	solution(Blacks,Whites,[ffc]),
 	pressEnterToContinue.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -217,8 +217,6 @@ scanList([_H|T],Position, Predicate, Lista):-
 		Next #= Position + 1,
 		scanList(T, Next, Predicate, Lista).
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 trans([[H|T] |Tail], [[H|NT] |NTail]) :-
 		firstCol(Tail, NT, Rest),
 		trans(Rest, NRest),
@@ -229,14 +227,22 @@ firstCol([[H|T] |Tail], [H|Col], [T|Rows]) :-
 		firstCol(Tail, Col, Rows).
 firstCol([], [], []).
 
-solution(Blacks,Whites,RetBoard):-
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-		length(Blacks,BlacksLength),
-		length(Whites,WhitesLength),
+solution(Blacks,Whites,Options):-
 
-		make_grid(RetBoard,BlacksLength,WhitesLength),
-		flatten(RetBoard, ResultingBoard),
-		domain(ResultingBoard, 0, 1),
+	length(Blacks,BlacksLength),
+	length(Whites,WhitesLength),
+
+	make_grid(RetBoard,BlacksLength,WhitesLength),
+	flatten(RetBoard, ResultingBoard),
+	domain(ResultingBoard, 0, 1),
+
+	write('\nDumping previous statistics...\n'),
+
+	fd_statistics,
+	statistics(walltime, [W0|_]),
+	statistics(runtime, [T0|_]),
 
 	%1st restriction - the row has the correct number of squares(black or white)
 	verifyColumnSizes(Blacks, BlacksLength),
@@ -251,78 +257,33 @@ solution(Blacks,Whites,RetBoard):-
 	verifyHead(FlippedBoard,Blacks,BlacksLength),
 	verifyHeadWhite(RetBoard,Whites,WhitesLength),
 
-		restrict_rows(FlippedBoard,Blacks),
-		%restrict_rowsWhite(FlippedBoard,Whites),
+	restrict_rows(FlippedBoard, Blacks),
+	%restrict_rowsWhite(FlippedBoard, Whites),
 
 	%4th restriction - os quadrados brancos devem formar regiões com área igual
 	%verifyAreas(RetBoard),
 
-		labeling([],ResultingBoard).
+	% calcula tempo decorrido até inicialização das restrições do problema
+	statistics(walltime, [W1|_]),
+	statistics(runtime, [T1|_]),
 
-solution_stats(Blacks,Whites,RetBoard):-
+	% executa predicado de pesquisa com as definições default
+	labeling(Options,ResultingBoard),
 
-		length(Blacks,BlacksLength),
-		length(Whites,WhitesLength),
+	% calcula tempo decorrido até finalização do predicado de labeling
+	statistics(walltime, [W2|_]),
+	statistics(runtime, [T2|_]),
 
-		make_grid(RetBoard,BlacksLength,WhitesLength),
-		flatten(RetBoard, Vars),
-		domain(Vars, 0, 1),
+	% calcula intervalos de tempo entre as várias queries
+	ConstraintTime is T1 - T0,
+	ConstraintWall is W1 - W0,
+	LabelingTime is T2 - T1,
+	LabelingWall is W2 - W1,
 
-		print('dumping previous fd stats:'),nl,
-
-		fd_statistics,
-		statistics(walltime,[W0|_]),
-		statistics(runtime,[T0|_]),
-
-		% 1st restriction - the row has the correct number of squares(black or white)
-		verifyColumnSizes(Blacks, BlacksLength),
-		verifyColumnSizes(Whites, WhitesLength),
-
-		% 2nd restriction - the squares are in a block
-		verifyBlock(RetBoard, Whites),
-		transpose(RetBoard, FlippedBoard),
-		verifyBlock(FlippedBoard, Blacks),
-
-		%3rd restriction - the rows have the correct number of squares
-		verifyHeadWhite(RetBoard, Whites,WhitesLength),
-		verifyHead(FlippedBoard, Blacks,BlacksLength),
-
-		%4th restriction - the white squares form areas all of exact size
-		%verifyAreas(RetBoard),
-
-		statistics(walltime,[W1|_]),
-		statistics(runtime,[T1|_]),
-
-		labeling([],Vars).
-
-		statistics(walltime,[W2|_]),
-		statistics(runtime,[T2|_]),
-
-		T is T1-T0,
-		W is W1-W0,
-		Tl is T2-T1,
-		Wl is W2-W1,
-
-		nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,nl,
-		format('creating constraints took CPU ~3d sec.~n', [T]),
-		format('creating constraints took a total of ~3d sec.~n', [W]),
-		format('labeling took CPU ~3d sec.~n', [Tl]),
-		format('labeling took a total of ~3d sec.~n', [Wl]),
-		nl,
-		fd_statistics.
-
-flood_fill(StartX-StartY, Board, Length, 0):-
-		StartX #< 0 #\/ StartY #< 0 #\/ StartY #>= Length #\/ StartY #>= Length.
-
-flood_fill(StartX-StartY, Board, Length, Count):-
-		Xp1 #= StartX + 1,
-		Ym1 #= StartY - 1,
-		Yp1 #= StartY + 1,
-		matrix_at(StartX, StartY, Board, Symbol),
-		Symbol #= 0 #<=> B,
-		flood_fill(StartX-Ym1, Symbol, Board, Length, Count1),
-		flood_fill(Xp1-StartY, Symbol, Board, Length, Count2),
-		flood_fill(StartX-Yp1, Symbol,Board, Length, Count3),
-		Count #= Count1 + Count2 + Count3 + B.
-
-flood_fill(StartX-StartY, Board, Length, 0).
+	format('~nInitializing constraints took CPU ~3d sec.~n', [ConstraintTime]),
+	format('Initializing constraints took a total of ~3d sec.~n', [ConstraintWall]),
+	format('Labeling took CPU ~3d sec.~n', [LabelingTime]),
+	format('Labeling took a total of ~3d sec.~n~n', [LabelingWall]),
+	
+	printBoard(RetBoard,Blacks,Whites),
+	fd_statistics, !.
