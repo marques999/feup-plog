@@ -204,8 +204,8 @@ restrict_rows([R|Rs],[H|Hs]):-
 	RowSum #=< MaxSum,
 	sum(H, #=, RowSum),
 	count(1, R, #>=, RowSum),
-	OtherSum #= MaxSum - RowSum,
-	count(0, R, #=, OtherSum),
+	%OtherSum #= MaxSum - RowSum,
+	%count(0, R, #=, OtherSum),
 	create_transitions(H, Arcs, start, FinalState,1),
 	append(R, [0], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
 	automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,0,start) | Arcs]),
@@ -218,8 +218,8 @@ restrict_rowsWhite([R|Rs],[H|Hs]):-
 	RowSum #=< MaxSum,
 	sum(H, #=,RowSum),
 	count(0, R, #>=, RowSum),
-	OtherSum #= MaxSum - RowSum,
-	count(1, R, #=, OtherSum),
+	%OtherSum #= MaxSum - RowSum,
+	%count(1, R, #=, OtherSum),
 	write(RowSum),nl,
 	%create_transitionsWhite(H, Arcs, start, FinalState,0),
 	%append(R, [1], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)

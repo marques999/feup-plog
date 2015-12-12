@@ -3,6 +3,12 @@
 %=======================================%
 
 %                 ------------- %
+% #includes                     %
+%                 ------------- %
+
+?- ensure_loaded('globals.pl').
+
+%                 ------------- %
 % #predicados                   %
 %                 ------------- %
 
@@ -11,8 +17,17 @@ generateHints(Width, Height, Black, White):-
 	generate_rows_hints(Board, RH),
 	transpose(Board, Columns),
 	generate_rows_hints(Columns, CH),
+	flatten(CH, CHF),
+	flatten(RH, RHF),
+	sum_list(CHF, NumberBlack),
+	sum_list(RHF, NumberWhite),
+	Total is Width * Height,
+	Total >= NumberBlack + NumberWhite, !,
 	strip_zeros(RH, White),
 	strip_zeros(CH, Black).
+
+generateHints(Width, Height, Black, White):-
+	generateHints(Width, Height, Black, White).
 
 generateHintsEmpty(Width, Height, Black, White):-
 	generateEmptyMatrix(Board, Width, Height),
@@ -25,11 +40,17 @@ generateHintsEmpty(Width, Height, Black, White):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 strip_zeros([],[]).
-strip_zeros([Row|Rest],[Result|Rs]):-
+strip_zeros([Row|A],[Result|B]):-
 	delete(Row,0,Temp),
-	(Temp = [],
-	Result = [0] ; Result=Temp), !,
-	strip_zeros(Rest,Rs).
+	(Temp = [],	Result = [0] ; Result=Temp), !,
+	strip_zeros(A, B).
+
+sum_list(Xs, Sum) :-
+	sum_list(Xs, 0, Sum).
+sum_list([], Sum, Sum).
+sum_list([X|Xs], Sum0, Sum) :-
+	Sum1 is Sum0 + X,
+	sum_list(Xs, Sum1, Sum).
 
 make_rows([],_).
 make_rows([G|Gs], Width):-
@@ -42,15 +63,15 @@ make_grid(Board, Width, Height):-
 
 generate_rows_hints([],[]).
 generate_rows_hints([Row|Rest],[RH|RHs]):-
-	generate_hints_for_row(Row,RH),
+	generate_hints_row(Row,RH),
 	generate_rows_hints(Rest,RHs).
 
-generate_hints_for_row([],[0]).
-generate_hints_for_row([0|Rest],[0|RHs]):-
-	generate_hints_for_row(Rest,RHs).
-generate_hints_for_row([1|Rest],[Head|RHs]):-
-	generate_hints_for_row(Rest,[NextHead|RHs]),
-	Head is NextHead+1.
+generate_hints_row([],[0]).
+generate_hints_row([0|Rest],[0|RHs]):-
+	generate_hints_row(Rest,RHs).
+generate_hints_row([1|Rest],[Head|RHs]):-
+	generate_hints_row(Rest,[NextHead|RHs]),
+	Head is NextHead + 1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
