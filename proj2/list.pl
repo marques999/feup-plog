@@ -2,15 +2,6 @@
 %           MATRIX OPERATIONS           %
 %=======================================%
 
-% gera uma matriz quadrada de comprimento definido
-matrix_generate(Length, Initial, [FirstRow|List]):-
-	list_generate(Length, Initial, Row),
-	list_generate(Length, [[]|Row], List), !,
-	first_row(Length, FirstRow).
-
-first_row(Length, [Length|List]):-
-	once(list_generate(Length, [], List)).
-
 % altera o elemento presente na posição de coordenadas (X,Y) de uma matriz
 matrix_set(1-Y, NewElem, [OldRow|Tail], [NewRow|Tail]):-
 	list_set(Y, NewElem, OldRow, NewRow).
@@ -72,16 +63,11 @@ list_contains(Lista1, Lista2):-
 	length(Lista1, T),
 	length(Lista2, T),
 	list_contains_aux(Lista1, Lista2).
+
 list_contains_aux(_, []).
 list_contains_aux(Lista, [H|T]):-
 	member(H, Lista),
 	list_contains_aux(Lista, T).
-
-% determina o comprimento de uma lista
-list_size([], 0).
-list_size([_|T], Size):-
-	list_size(T, TailSize),
-	Size is TailSize + 1.
 
 % altera o elemento presente na posição I de uma lista
 list_set(0, Symbol, [_|L], [Symbol|L]).

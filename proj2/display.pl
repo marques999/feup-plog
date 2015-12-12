@@ -42,9 +42,9 @@ createSeparator(N, SS):-
 
 % imprime no ecrã uma representação do tabuleiro de jogo
 printBoard(Board, Black, White):-
+	imprime_pretas(Black),
+	write('\n    +'),
 	length(Black, Length),
-	imprime_pretas(Black), nl,
-	write('    +'),
 	createSeparator(Length, '------+'), nl,
 	printRows(Board, Length, White), nl, !.
 
@@ -56,13 +56,13 @@ printRows([H|T], Length, [White|Next]):-
 % imprime no ecrã a última linha do tabuleiro
 printRow(Row, Length, White):-
 	write('    | '),
-	printLine(Row), nl,
-	write('    | '),
 	printLine(Row),
-	imprime_brancas(White), nl,
-	write('    | '),
-	printLine(Row), nl,
-	write('    +'),
+	write('\n    | '),
+	printLine(Row),
+	imprime_brancas(White),
+	write('\n    | '),
+	printLine(Row),
+	write('\n    +'),
 	createSeparator(Length, '------+'), nl, !.
 
 % imprime no ecrã a primeira e terceira secções de uma linha do tabuleiro

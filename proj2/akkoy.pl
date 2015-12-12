@@ -143,13 +143,14 @@ selectLabeling(_, [ffc,bisect]).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 askRandom(X, Y):-
-	nl, write('Please enter the problem size (N x N) and then press <ENTER>:\n'),
-	getCoordinates(X, Y), nl,
-	X > 2, Y > 2, !.
+	write('\nPlease enter the number of rows and then press <ENTER>:\n'),
+	getLine(X), X > 2, X < 100,
+	write('\nPlease enter the number of columns and then press <ENTER>:\n'),
+	getLine(Y), Y > 2, Y < 100.
 
 askRandom(_, _):-
-	write('INVALID INPUT!'), nl,
-	write('You have entered an invalid problem size, must be an integer between 3 and 100!'), nl,
+	write('\nINVALID INPUT!\n'),
+	write('Problem size must be an integer between 3 and 100.\n'),
 	pressEnterToContinue, nl, fail.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

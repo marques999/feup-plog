@@ -25,11 +25,20 @@ pressEnterToContinue:-
 	write('Press <Enter> to continue...'), nl,
 	get_code(_), !.
 
+evaluateInteger([], ValueFim, ValueFinal, _):-
+	ValueFinal is ValueFim // 10.
+
+evaluateInteger([H|T], InitValue, ReturnValue, NumberLength):-
+	NumberLength2 is NumberLength * 10,
+	Ret1 is InitValue + (H - 48) * (10 * NumberLength),
+	evaluateInteger(T,Ret1,ReturnValue,NumberLength2).
+
 getInt(Input):-
 	get_code(TempInput),
 	get_code(_),
 	Input is TempInput - 48.
 
-getCoordinates(X, Y):-
-	getInt(X),
-	getInt(Y), !.
+getLine(Ret):-
+	read_line(B),
+	reverse(B, ReverseInput),
+	evaluateInteger(ReverseInput, 0, Ret, 1).
