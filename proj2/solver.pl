@@ -96,44 +96,35 @@ verify_area(Flatten, Length, Whites, Count):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 flood_fill(List, Length, Position, Color, Count, PrevExpl):-
-	assert(global([])),
-	flood_fillAux(List, Length, Position, Color, Count),
-	global(PrevExpl),
-	retract(global(PrevExpl)).
-
+        assert(global([])),
+        flood_fillAux(List, Length, Position, Color, Count),
+        global(PrevExpl),
+        retract(global(PrevExpl)).
+ 
 flood_fillAux(List, Length, Position, Color, Res):-
-	
-	Position #> 0,
-	X #= Position // Length,
-	Y #= (Position - 1) mod Length,
-	X #>= 0,
-	Y #>= 0,
-
-	write(X),
-	write('-'),
-	write(Y),
-	write(':'),
-	write(Position),
-	nl,
-	
-	element(Position, List, Color),
-	global(PrevExpl),
-	\+member(Position, PrevExpl),
-	append(PrevExpl, [Position], CurrExpl),
-	retract(global(PrevExpl)),
-	assert(global(CurrExpl)),
-
-	Position1 #= (X + 1) * Length + Y,
-	Position2 #= (X - 1) * Length + Y,
-	Position3 #= X * Length + (Y + 1),
-	Position4 #= X * Length + (Y - 1),
-
-	flood_fillAux(List, Length, Position1, Color, Res1),
-	flood_fillAux(List, Length, Position2, Color, Res2),
-	flood_fillAux(List, Length, Position3, Color, Res3),
-	flood_fillAux(List, Length, Position4, Color, Res4),
-	Res #= Res1 + Res2 + Res3 + Res4 + 1.
-
+       
+        Position #> 0,
+        length(List, L),
+        Position #< L + 1,
+       
+        element(Position, List, Color),
+        global(PrevExpl),
+        \+member(Position, PrevExpl),
+        append(PrevExpl, [Position], CurrExpl),
+        retract(global(PrevExpl)),
+        assert(global(CurrExpl)),
+ 
+        Position1 #= Position + 1,
+        Position2 #= Position - 1,
+        Position3 #= Position + Length,
+        Position4 #= Position - Length,
+ 
+        flood_fillAux(List, Length, Position1, Color, Res1),
+        flood_fillAux(List, Length, Position2, Color, Res2),
+        flood_fillAux(List, Length, Position3, Color, Res3),
+        flood_fillAux(List, Length, Position4, Color, Res4),
+        Res #= Res1 + Res2 + Res3 + Res4 + 1.
+ 
 flood_fillAux(_, _, _, _, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

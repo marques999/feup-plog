@@ -75,7 +75,7 @@ solveFullRnd:-
 
 solveRnd:-
 	askRandom(X, Y), !,
-	generateHints(Y, X, Blacks, Whites),
+	gen(Y, X, Blacks, Whites),
 	runSolver(Blacks, Whites), !.
 
 solve3x3:-
@@ -150,9 +150,9 @@ selectLabeling(Options):-
 selectLabeling(1, [leftmost,step]).
 selectLabeling(2, [leftmost,bisect]).
 selectLabeling(3, [leftmost,median]).
-selectLabeling(4, [first_fail,step]).
-selectLabeling(5, [first_fail,bisect]).
-selectLabeling(6, [first_fail,median]).
+selectLabeling(4, [ff,step]).
+selectLabeling(5, [ff,bisect]).
+selectLabeling(6, [ff,median]).
 selectLabeling(7, [ffc,step]).
 selectLabeling(8, [ffc,bisect]).
 selectLabeling(9, [ffc,median]).
@@ -186,22 +186,67 @@ rowFullHints([H|T], Color, [ResultRow|Result]):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-generateHints(Width, Height, Black, White):-
-	generateMatrix(Board, Width, Height),
-	generate_rows_hints(Board, RH),
-	transpose(Board, Columns),
-	generate_rows_hints(Columns, CH),
-	flatten(CH, CHF),
-	flatten(RH, RHF),
-	sum_list(CHF, NumberBlack),
-	sum_list(RHF, NumberWhite),
-	Total is Width * Height,
-	Total >= NumberBlack + NumberWhite, !,
-	strip_zeros(RH, White),
-	strip_zeros(CH, Black).
+gen(Width, Height, Black2, White2):-
+	generateFullHints(Width, Height, Black, White),
+	!,
+	genHints(Width, Height, Black, White, Black2, White2),
+	!.
+	
+genHints(Width, Height, Black, White, Black2, White2):-	
+	W #= Width//3,
+	W #> 1,
+	H #= Height//3,	
+	H #> 1,		
+	random(1, W, N1),
+	eraseRandom(N1, Black, Black2),	
+	random(1, H, N2),	
+	eraseRandom(N2, White, White2).
+	
+genHints(Width, Height, Black, White, Black2, White2):-	
+	W #= Width//3,
+	W #=< 1,	
+	H #= Height//3,	
+	H #> 1,	
+	eraseRandom(W, Black, Black2),		
+	random(1, H, N2),	
+	eraseRandom(N2, White, White2).
+	
+genHints(Width, Height, Black, White, Black2, White2):-	
+	W #= Width//3,
+	W #=< 1,	
+	H #= Height//3,	
+	H #=< 1,
+	eraseRandom(W, Black, Black2),				
+	eraseRandom(H, White, White2).
+	
 
-generateHints(Width, Height, Black, White):-
-	generateHints(Width, Height, Black, White).
+eraseRandom(0, R, R).
+eraseRandom(N, List, Res):-
+	length(List, Upper),
+	random(1, Upper, A),
+	delRandom(A, List, 1, Res2),
+	N1 #= N - 1,
+	eraseRandom(N1, Res2, Res).
+	
+
+delRandom(X,[T|H], X, [R|H]):- 
+	length(T, Upper),
+	Upper #> 1,
+	random(1, Upper, B),
+	nth1(B, T, _, R),
+	!.  	
+	
+delRandom(X,[T|H], X, [R|H]):- 
+	length(T, Upper),
+	Upper #= 1,	
+	nth1(Upper, T, _, R),
+	!.  
+	
+delRandom(X,[T|H], X, [T|H]):-!.  		
+	
+delRandom(X,[Y|Tail], Aux, [Y|Tail1]):-
+	Aux1 #= Aux + 1,
+	delRandom(X, Tail, Aux1, Tail1).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -227,18 +272,6 @@ make_rows([G|Gs], Width):-
 make_grid(Board, Width, Height):-
 	length(Board, Height),
 	make_rows(Board, Width), !.
-
-generate_rows_hints([],[]).
-generate_rows_hints([Row|Rest],[RH|RHs]):-
-	generate_hints_row(Row,RH),
-	generate_rows_hints(Rest,RHs).
-
-generate_hints_row([],[0]).
-generate_hints_row([0|Rest],[0|RHs]):-
-	generate_hints_row(Rest,RHs).
-generate_hints_row([1|Rest],[Head|RHs]):-
-	generate_hints_row(Rest,[NextHead|RHs]),
-	Head is NextHead + 1.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
