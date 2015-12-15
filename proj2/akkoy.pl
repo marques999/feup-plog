@@ -1,20 +1,9 @@
-%=======================================%
-%               AKKOY CLASS             %
-%=======================================%
-
 %                 ------------- %
 % #includes                     %
 %                 ------------- %
 
 :- ensure_loaded('display.pl').
-:- ensure_loaded('generate.pl').
 :- ensure_loaded('solver.pl').
-
-%                 ------------- %
-% #factos	                    %
-%                 ------------- %
-
-flattenedMatrix([0,0,0,1,1,1,0,0,1,1,0,0,1,0,1,0,1,0,0,1,0,1,0,0,1,1,1,0,1,0,1,0,0,0,1,0,1,1,0,1,1,0,0,0,0,1,0,0,0]).
 
 %                 ------------- %
 % #predicados                   %
@@ -29,28 +18,33 @@ mainMenu:- nl,
 	write('+        ..:: AKKOY ::..         +'), nl,
 	write('+================================+'), nl,
 	write('|                                |'), nl,
-	write('|   1. Solve Random              |'), nl,
-	write('|   2. Solve 3x3                 |'), nl,
-	write('|   3. Solve 4x4                 |'), nl,
-	write('|   4. Solve 5x5                 |'), nl,
-	write('|   5. Solve 6x6                 |'), nl,
+	write('|   1. Solve Random (full hints) |'), nl,
+	write('|   2. Solve Random (some hints) |'), nl,
 	write('|                                |'), nl,
-	write('|   6. About                     |'), nl,
+	write('|   3. Solve 3x3                 |'), nl,
+	write('|   4. Solve 4x4                 |'), nl,
+	write('|   5. Solve 5x5                 |'), nl,
+	write('|   6. Solve 6x6                 |'), nl,
+	write('|   7. Solve 7x7                 |'), nl,
 	write('|                                |'), nl,
-	write('|   7. <- Exit                   |'), nl,
+	write('|   8. About                     |'), nl,
+	write('|                                |'), nl,
+	write('|   9. <- Exit                   |'), nl,
 	write('|                                |'), nl,
 	write('+================================+'), nl, nl,
 	write('Please choose an option:'), nl,
 	getInt(Input),
 	mainMenuAction(Input), !.
 
-mainMenuAction(1):- solveRnd.
-mainMenuAction(2):- solve3x3.
-mainMenuAction(3):- solve4x4.
-mainMenuAction(4):- solve5x5.
-mainMenuAction(5):- solve6x6.
-mainMenuAction(6):- aboutMenu, !, mainMenu.
-mainMenuAction(7).
+mainMenuAction(1):- solveFullRnd.
+mainMenuAction(2):- solveRnd.
+mainMenuAction(3):- solve3x3.
+mainMenuAction(4):- solve4x4.
+mainMenuAction(5):- solve5x5.
+mainMenuAction(6):- solve6x6.
+mainMenuAction(7):- solve7x7.
+mainMenuAction(8):- aboutMenu, !, mainMenu.
+mainMenuAction(9).
 mainMenuAction(_):- !, mainMenu.
 
 aboutMenu:- nl,
@@ -74,6 +68,11 @@ aboutMenu:- nl,
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+solveFullRnd:-
+	askRandom(X, Y),
+	generateFullHints(Y, X, Blacks, Whites), !,
+	runFastSolver(Blacks, Whites), !.
+
 solveRnd:-
 	askRandom(X, Y), !,
 	generateHints(Y, X, Blacks, Whites),
@@ -95,23 +94,42 @@ solve5x5:-
 	runSolver(Blacks, Whites), !.
 
 solve6x6:-
-Blacks = [[3],[1,1],[2,2],[1,1,1],[1,1,1],[4,1],[1]],
-Whites = [ [3,1], [1,2,1], [1,2,1], [2,1], [1,3], [1,1,1] ,[3,3]],
-	runSolver(Blacks, Whites), !.
+	Blacks = [[3,1],[2],[4],[1,1,1],[1],[3]],
+	Whites = [[1],[1,1],[2],[1],[3],[2]],
+	runFastSolver(Blacks, Whites), !.
+
+solve7x7:-
+	Blacks = [[3],[1,1],[2,2],[1,1,1],[1,1,1],[4,1],[1]],
+	Whites = [[3,1],[1,2,1],[1,2,1],[2,1],[1,3],[1,1,1],[3,3]],
+	runFastSolver(Blacks, Whites), !.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 runSolver(Blacks, Whites):-
 	length(Blacks, BlackLength),
 	length(Whites, WhiteLength),
-	generateEmptyMatrix(Board,BlackLength,WhiteLength),
-	printBoard(Board,Blacks,Whites),
+	generateEmptyMatrix(Board, BlackLength, WhiteLength),
+	printBoard(Board, Blacks, Whites),
 	pressEnterToContinue,
 	selectLabeling(Options),
-	solution(Blacks,Whites,Options),
+	solution(Blacks, Whites, Options), !,
 	pressEnterToContinue.
 
 runSolver(_,_):-
+	write('\nERROR: could not find any suitable solution for the given problem!'), nl,
+	pressEnterToContinue, nl, fail.
+
+runFastSolver(Blacks, Whites):-
+	length(Blacks, BlackLength),
+	length(Whites, WhiteLength),
+	generateEmptyMatrix(Board, BlackLength, WhiteLength),
+	printBoard(Board, Blacks, Whites),
+	pressEnterToContinue,
+	selectLabeling(Options),
+	fast_solution(Blacks, Whites, Options), !,
+	pressEnterToContinue.
+
+runFastSolver(_,_):-
 	write('\nERROR: could not find any suitable solution for the given problem!'), nl,
 	pressEnterToContinue, nl, fail.
 
@@ -155,25 +173,39 @@ askRandom(_, _):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-verifica_pretos(Matriz):-
-	matrix_transpose(Matriz, [_|NovaMatriz]),
-	verifica_tudo(NovaMatriz, 1).
+generateFullHints(Width, Height, Black, White):-
+	generateMatrix(Board, Width, Height),
+	transpose(Board, Columns),
+	rowFullHints(Board, 0, White),
+	rowFullHints(Columns, 1, Black).
 
-verifica_brancos([_|NovaMatriz]):-
-	verifica_tudo(NovaMatriz, 0).
-
-verifica_tudo([], _).
-verifica_tudo([H|T], [Contagem|P], Cor):-
-	verifica_linha(H, Contagem, Cor),
-	verifica_tudo(T, P, Cor).
-
-verifica_linha(Linha, Contagem, Cor):-
-	sequencia(Linha, 0, Cor, Resultado),
-	list_contains(Resultado, Contagem).
+rowFullHints([], _, []).
+rowFullHints([H|T], Color, [ResultRow|Result]):-
+	sequencia(H, 0, Color, ResultRow),
+	rowFullHints(T, Color, Result).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-sequencia([], _, _, []).
+generateHints(Width, Height, Black, White):-
+	generateMatrix(Board, Width, Height),
+	generate_rows_hints(Board, RH),
+	transpose(Board, Columns),
+	generate_rows_hints(Columns, CH),
+	flatten(CH, CHF),
+	flatten(RH, RHF),
+	sum_list(CHF, NumberBlack),
+	sum_list(RHF, NumberWhite),
+	Total is Width * Height,
+	Total >= NumberBlack + NumberWhite, !,
+	strip_zeros(RH, White),
+	strip_zeros(CH, Black).
+
+generateHints(Width, Height, Black, White):-
+	generateHints(Width, Height, Black, White).
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+sequencia([], 0, _, []).
 sequencia([], Contador, _, [Contador]).
 sequencia([H|T], Contador, Peca, Resultado):-
 	H #= Peca,
@@ -187,68 +219,52 @@ sequencia([_|T], Contador, Peca, Resultado):-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-% verifica se duas células do tabuleiro são adjacentes em conetividade 4
+make_rows([],_).
+make_rows([G|Gs], Width):-
+	length(G, Width),
+	make_rows(Gs, Width), !.
 
-isNeighbour(FromX-FromY, ToX-ToY, Length):-
-	ToX #> 0, ToY #>0, ToX #=< Length, ToY #=< Length,
-	(ToY #= FromY #/\ abs(FromX - ToX) #= 1) #\/ (ToX #= FromX #/\ abs(FromY - ToY) #= 1).
+make_grid(Board, Width, Height):-
+	length(Board, Height),
+	make_rows(Board, Width), !.
 
-is_neighbour(From, To, Length):-
-	FromX #= From // Length, FromY #= From mod Length,
-	ToX #= To // Length, ToY #= To mod Length,
-	(ToY #= FromY #/\ abs(FromX - ToX) #= 1) #\/ (ToX #= FromX #/\ abs(FromY - ToY) #= 1).
+generate_rows_hints([],[]).
+generate_rows_hints([Row|Rest],[RH|RHs]):-
+	generate_hints_row(Row,RH),
+	generate_rows_hints(Rest,RHs).
 
-isConnected(StartX-StartY, EndX-EndY, Length, Board):-
-	isNeighbour(StartX-StartY, EndX-EndY, Length),
-	matrix_at(StartX, StartY, Board, Source),
-	matrix_at(EndX, EndY, Board, Destination),
-	StartX-StartY #\= EndX-EndY,
-	Source #= 0,
-	Destination #= 0,
-	labeling([], [EndX, EndY, Source, Destination]).
+generate_hints_row([],[0]).
+generate_hints_row([0|Rest],[0|RHs]):-
+	generate_hints_row(Rest,RHs).
+generate_hints_row([1|Rest],[Head|RHs]):-
+	generate_hints_row(Rest,[NextHead|RHs]),
+	Head is NextHead + 1.
 
-checkConnected([_], [_], _, _).
-checkConnected([X1,X2|A], [Y1,Y2|B], Length, Board):-
-	isConnected(X1-Y1, X2-Y2, Length, Board),
-	checkConnected(A, B, Length, Board).
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-flattenConnected([], _).
-flattenConnected([H|T], Board):-
-	count_equals(T, H, Board, Count),
-	Count #> 0,
-	flattenConnected([T], Board).
+generateEmptyMatrix([], _, 0).
+generateEmptyMatrix([H|T], Width, Height):-
+	Height > 0,
+	generateEmptyRow(H, Width),
+	RemainingHeight is Height - 1,
+	generateEmptyMatrix(T, Width, RemainingHeight), !.
 
-flattenConnectedAux(From, To, Length, List):-
-	Start #= From + 1,
-	End #= From + Length,
-	To in Start..End,
-	is_neighbour(From, To, Length),
-	element(_, List, From),
-	element(_, List, To),
-	labeling([], [To]).
+generateEmptyRow([], 0).
+generateEmptyRow([0|T],Width):-
+	Width > 0,
+	RemainingWidth is Width - 1,
+	generateEmptyRow(T, RemainingWidth), !.
 
-count_equals([_], _, _, 0).
-count_equals([H|T], From, Board, Count):-
-	flattenConnectedAux(From, H, Board) #<=> B,
-	count_equals(T, From, Board, Next),
-	Count #= Next + B.
+generateMatrix([], _, 0).
+generateMatrix([H|T], Width, Height):-
+	Height > 0,
+	generateRow(H, Width),
+	RemainingHeight is Height - 1,
+	generateMatrix(T, Width, RemainingHeight), !.
 
-newPath(Start, Board, Resultado):-
-	%length(ResultadoX, 4),
-	length(Resultado, 4),
-	%domain(ResultadoX, 1, 7),
-	domain(Resultado, 0, 49),
-	%element(1, ResultadoX, StartX),
-	element(1, Resultado, Start),
-	all_distinct(Resultado),
-	flattenConnected(Resultado, Board),
-	%append(ResultadoX, ResultadoY, Resultado),
-	labeling([], Resultado).
-
-checkPath(Start, End, Board, Length, Lista, ListaFim):-
-	flattenConnectedAux(Start, Middle, Length, Board),
-	#\member(Middle, Lista),
-	append(Lista, [Middle], Lista2),
-	checkPath(Middle, End, Board, Length, Lista2, ListaFim).
-
-checkPath(Start, End, _Board, Length, Lista, Lista).
+generateRow([], 0).
+generateRow([H|T], Width):-
+	Width > 0,
+	random(0, 2, H),
+	RemainingWidth is Width - 1,
+	generateRow(T, RemainingWidth), !.

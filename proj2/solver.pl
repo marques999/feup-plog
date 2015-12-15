@@ -1,14 +1,8 @@
-%=======================================%
-%              SOLVER CLASS             %
-%=======================================%
-
 %                 ------------- %
 % #includes                     %
 %                 ------------- %
 
 ?- ensure_loaded('globals.pl').
-?- ensure_loaded('list.pl').
-
 :- dynamic global/1.
 
 %                 ------------- %
@@ -47,120 +41,141 @@ verifyColumnSizes([],_).
 verifyColumnSizes([H|T],Size):-
 	sum(H,#=,Val),
 	length(H,Val2),
-	Val4 is Val2 - 1,
-	Val3 is Val + Val4,
+	Val4 #= Val2 - 1,
+	Val3 #= Val + Val4,
 	Size #>= Val3,
 	verifyColumnSizes(T,Size).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-adjacentTester([_],[], Color1, Color2).
+adjacentTester([_], [], _, _).
 adjacentTester([X,Y|T] , [B|Bs], Color1, Color2):-
 	(X #= Color1 #/\ Y #= Color2) #<=> B,
-	adjacentTester([Y|T],Bs,Color1,Color2).
-
-cohesionTester([_],[]).
-cohesionTester([X,Y|T], [B|Bs]):-
-	(X #= 1 #/\ Y #= 1) #<=> B,
-	adjacentTester([Y|T],Bs,1,0).
-
-verifyCohese_aux(H):-
-	cohesionTester(H,B),
-	createMatrix(B,D).
-
-verifyCohese([],[]).
-verifyCohese([H|T],[P|C]):-
-	verifyCohese_aux(H),
-	verifyCohese(T,C).
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	adjacentTester([Y|T], Bs, Color1, Color2).
 
 verifyBlock_aux(L,Lacunas, Color1, Color2):-
 	Lacunas > 0,
 	adjacentTester(L,B,Color1,Color2),
 	count(Lacunas,B,#=,1).
-verifyBlock_aux(L,_,_,_).
+verifyBlock_aux(_,_,_,_).
 
 %	[H|T]		matriz do tabuleiro transposta
 %	[P|C]		sequência de quadrados pretos na coluna atual
 verifyBlock([],[]).
 verifyBlock([H|T], [P|C]):-
-	length(P,ComprimentoDaLista),
+	length(P, ComprimentoDaLista),
 	NumeroDeLacunas #= ComprimentoDaLista - 1,
-	verifyBlock_aux(H,NumeroDeLacunas,1,0),
+	verifyBlock_aux(H, NumeroDeLacunas, 1, 0),
 	verifyBlock(T,C).
 
 %	[H|T]		matriz do tabuleiro
 %	[P|C]		sequência de quadrados brancos na linha atual
 verifyBlockWhite([],[]).
 verifyBlockWhite([H|T], [P|C]):-
-	length(P,ComprimentoDaLista),
+	length(P, ComprimentoDaLista),
 	NumeroDeLacunas #= ComprimentoDaLista - 1,
-	verifyBlock_aux(H,NumeroDeLacunas,0,1),
-	verifyBlockWhite(T,C).
+	verifyBlock_aux(H,NumeroDeLacunas, 0, 1),
+	verifyBlockWhite(T, C).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-verifyFirst(Board):-
-	scanWhite(Board, [FirstX-FirstY|Whites]),
-	csgo_xites(Board, FirstX, FirstY, 0, Tamanho, Result),
+verify_areas(Board, Length):-
+	flatten(Board, Flatten),
+	scan_white(Flatten, 0, Length, [Position|Whites]),
+	flood_fill(Flatten, Length, Position, 0, Tamanho, Result),
 	list_subtract(Whites, Result, NewResult),
-	verifyAreas(Board, NewResult, Tamanho).
+	verify_area(Flatten, Length, NewResult, Tamanho).
 
-verifyAreas(_, [],  _).
-verifyAreas(Board, Whites, Count):-
+verify_area(_, _, [],  _).
+verify_area(Flatten, Length, Whites, Count):-
 	list_at(0, Whites, PositionX-PositionY),
-	csgo_xites(Board, PositionX, PositionY, 0, Count2, Result),
-	Count2 #= Count,
-	write(PositionX),write('-'),write(PositionY),write(':'),
-	write(Count), nl,
+	flood_fill(Flatten, Length, PositionX, PositionY, 0, Count, Result),
 	list_subtract(Whites, Result, NewResult),
-	verifyAreas(Board, NewResult, Count).
+	verify_area(Flatten, Length, NewResult, Count).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-csgo_xites(List, X, Y, Color, Count, PrevExpl):-	
+flood_fill(List, Length, Position, Color, Count, PrevExpl):-
 	assert(global([])),
-	csgo_xitesAux(List, X, Y, Color, Count),
+	flood_fillAux(List, Length, Position, Color, Count),
 	global(PrevExpl),
-	retract(global(PrevExpl)), !.
+	retract(global(PrevExpl)).
+
+flood_fillAux(List, Length, Position, Color, Res):-
 	
-csgo_xitesAux(List, X, Y, Color, Res):-	
-	matrix_at(X, Y, List, Color2),
-	Color2 #= Color,
-	global(PrevExpl),				
-	\+member(X-Y, PrevExpl),	
-	append(PrevExpl, [X-Y], CurrExpl),
+	Position #> 0,
+	X #= Position // Length,
+	Y #= (Position - 1) mod Length,
+	X #>= 0,
+	Y #>= 0,
+
+	write(X),
+	write('-'),
+	write(Y),
+	write(':'),
+	write(Position),
+	nl,
+	
+	element(Position, List, Color),
+	global(PrevExpl),
+	\+member(Position, PrevExpl),
+	append(PrevExpl, [Position], CurrExpl),
 	retract(global(PrevExpl)),
 	assert(global(CurrExpl)),
-				
-	X1 #= X + 1,
-	X2 #= X - 1,
-	Y1 #= Y + 1,
-	Y2 #= Y - 1,
-		
-	csgo_xitesAux(List, X1, Y, Color, Res1),		
-	csgo_xitesAux(List, X2, Y, Color, Res2),
-	csgo_xitesAux(List, X, Y1, Color, Res3),	
-	csgo_xitesAux(List, X, Y2, Color, Res4),	
+
+	Position1 #= (X + 1) * Length + Y,
+	Position2 #= (X - 1) * Length + Y,
+	Position3 #= X * Length + (Y + 1),
+	Position4 #= X * Length + (Y - 1),
+
+	flood_fillAux(List, Length, Position1, Color, Res1),
+	flood_fillAux(List, Length, Position2, Color, Res2),
+	flood_fillAux(List, Length, Position3, Color, Res3),
+	flood_fillAux(List, Length, Position4, Color, Res4),
 	Res #= Res1 + Res2 + Res3 + Res4 + 1.
 
-csgo_xitesAux(_, _, _, _, 0).
+flood_fillAux(_, _, _, _, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-checkHints([],_).
-checkHints([H|Hs],MaxSum):-
-	(var(H),domain([H],0,MaxSum);
-	integer(H)),
-	checkHints(Hs,MaxSum).
+global_testEqual2([], _, []).
+global_testEqual2([H1|T1], Color, [H2|T2]):-
+	count2(H1, Color, R1),
+	listsAreEqual2(H2, R1),
+	global_testEqual2(T1, Color, T2).
+		
+count2(List, Color, Res):-
+	countAux2(List, Color, 0, Res).
 
-checkHintsWhite([],_).
-checkHintsWhite([H|Hs],MaxSum):-
-	(var(H),domain([H],0,MaxSum);
-	integer(H)),
-	checkHintsWhite(Hs,MaxSum).
+countAux2([], _, Aux, List):-
+	addToListExceptZero2(Aux, [], List).
+		
+countAux2([H|T], Color, Aux, List):-
+	H #= Color,		
+	Aux1 #= Aux + 1,			
+	countAux2(T, Color, Aux1, List).
+	
+countAux2([H|T], Color, Aux, List):-
+	H #\= Color,	
+	countAux2(T, Color, 0, List2),	
+	addToListExceptZero2(Aux,List2,List).
+	
+addToListExceptZero2(Elem, List, Res):-
+	Elem #\= 0,
+	append([Elem],List,Res).
 
+addToListExceptZero2(0, List, List).
+
+listsAreEqual2([],_).
+listsAreEqual2([H|T],List2):- 
+	member(H, List2),
+	del2(H,List2,L2Res),	
+	listsAreEqual2(T,L2Res).
+	
+del2(X,[X|Tail],Tail).    
+del2(X,[Y|Tail],[Y|Tail1]):-
+	del2(X,Tail,Tail1).
+       
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 create_transitions([], [], FinalState, FinalState,_).
@@ -171,8 +186,8 @@ create_transitions([Hint|Hs], Transitions, CurState, FinalState,FirstSquare) :-
 			Transitions = [arc(CurState,0,CurState), arc(CurState,0,NextState) | Ts],
 			create_transitions(Hs, Ts, NextState, FinalState,1);
 		FirstSquare =:= 1,
-		Transitions = [arc(CurState,0,CurState)],
-		create_transitions(Hs, Ts, CurState, FinalState,1)
+			Transitions = [arc(CurState,0,CurState)],
+			create_transitions(Hs, Ts, CurState, FinalState,1)
 	);
 	Hint #> 0,
 	Transitions = [arc(CurState,1,NextState) | Ts],
@@ -181,12 +196,12 @@ create_transitions([Hint|Hs], Transitions, CurState, FinalState,FirstSquare) :-
 
 create_transitionsWhite([], [], FinalState, FinalState,_).
 create_transitionsWhite([Hint|Hs], Transitions, CurState, FinalState,FirstSquare) :-
-	(Hint #= 1, %finished current 'gray' blocks segment
+	(Hint #= 0, %finished current 'gray' blocks segment
 	(
-		FirstSquare =:=0,
+		FirstSquare =:= 1,
 			Transitions = [arc(CurState,1,CurState), arc(CurState,1,NextState) | Ts],
 			create_transitionsWhite(Hs, Ts, NextState, FinalState,0);
-		FirstSquare =:=1,
+		FirstSquare =:= 0,
 			Transitions = [arc(CurState,1,CurState)],
 			create_transitionsWhite(Hs, Ts, CurState, FinalState,0)
 	);
@@ -200,63 +215,59 @@ create_transitionsWhite([Hint|Hs], Transitions, CurState, FinalState,FirstSquare
 restrict_rows([],[]).
 restrict_rows(_, [0]).
 restrict_rows([R|Rs],[H|Hs]):-
-	length(R,MaxSum),
+	length(R, MaxSum),
 	RowSum #=< MaxSum,
 	sum(H, #=, RowSum),
 	count(1, R, #>=, RowSum),
-	%OtherSum #= MaxSum - RowSum,
-	%count(0, R, #=, OtherSum),
 	create_transitions(H, Arcs, start, FinalState,1),
-	append(R, [0], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
+	append(R, [0], RowWithExtraZero),
 	automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,0,start) | Arcs]),
-	restrict_rows(Rs,Hs).
+	restrict_rows(Rs, Hs).
+
+fast_restrict_rows([],[]).
+fast_restrict_rows([R|Rs],[H|Hs]):-
+	length(R, MaxSum),
+	RowSum #=< MaxSum,
+	sum(H, #=, RowSum),
+	count(1, R, #>=, RowSum),
+	fast_restrict_rows(Rs, Hs).
 
 restrict_rowsWhite([],[]).
 restrict_rowsWhite(_, [0]).
 restrict_rowsWhite([R|Rs],[H|Hs]):-
-	length(R,MaxSum),
+	length(R, MaxSum),
 	RowSum #=< MaxSum,
 	sum(H, #=,RowSum),
 	count(0, R, #>=, RowSum),
-	%OtherSum #= MaxSum - RowSum,
-	%count(1, R, #=, OtherSum),
-	write(RowSum),nl,
-	%create_transitionsWhite(H, Arcs, start, FinalState,0),
-	%append(R, [1], RowWithExtraZero), %a zero is added to simplify the automaton (every gray block must be followed by at least one blank square, even the last one)
-	%automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,1,start) | Arcs]),
-	restrict_rowsWhite(Rs,Hs).
+	create_transitionsWhite(H, Arcs, start, FinalState,0),
+	append(R, [1], RowWithExtraZero),
+	automaton(RowWithExtraZero, [source(start), sink(FinalState)], [arc(start,1,start) | Arcs]),
+	restrict_rowsWhite(Rs, Hs).
+
+fast_restrict_rowsWhite([],[]).
+fast_restrict_rowsWhite([R|Rs],[H|Hs]):-
+	length(R, MaxSum),
+	RowSum #=< MaxSum,
+	sum(H, #=,RowSum),
+	count(0, R, #>=, RowSum),
+	fast_restrict_rowsWhite(Rs, Hs).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-isBlack(Symbol):- Symbol #= 1.
-isWhite(Symbol):- Symbol #= 0.
-
-scanBlack(List, Result):-
-	scanMatrix(List, 0, 0, isBlack, Result).
-scanWhite(List, Result):-
-	scanMatrix(List, 0, 0, isWhite, Result).
-
-scanMatrix([],_,_,_,[]).
-scanMatrix([H|T], X, Y, Predicate, Lista):-
-	scanRow(H, X, Y, Predicate, Row),
-	X1 is X + 1,
-	scanMatrix(T, X1, Y, Predicate, Resultado),
-	append(Row, Resultado, Lista).
 
 % percorre uma linha do tabuleiro
 % obtém uma lista com as células dessa linha que verificam determinado objetivo
-scanRow([],_,_,_,[]).
-scanRow([H|T], X, Y, Predicate, [X-Y|Lista]):-
-	call(Predicate, H),
-	Y1 #= Y + 1,
-	scanRow(T, X, Y1, Predicate, Lista).
-scanRow([_|T], X, Y, Predicate, Lista):-
-	Y1 #= Y + 1,
-	scanRow(T, X, Y1, Predicate, Lista).
+scan_white([],_,_,[]).
+scan_white([H|T], Position, Length, [Position|Lista]):-
+	H #= 0,
+	Next #= Position + 1,
+	scan_white(T, Next, Length, Lista).
+scan_white([_|T], Position, Length, Lista):-
+	Next #= Position + 1,
+	scan_white(T, Next, Length, Lista).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-solution(Blacks,Whites,Options):-
+fast_solution(Blacks,Whites,Options):-
 
 	length(Blacks,BlacksLength),
 	length(Whites,WhitesLength),
@@ -271,34 +282,26 @@ solution(Blacks,Whites,Options):-
 	statistics(walltime, [W0|_]),
 	statistics(runtime, [T0|_]),
 
-	%1st restriction - the row has the correct number of squares(black or white)
-	verifyColumnSizes(Blacks, BlacksLength),
-	verifyColumnSizes(Whites, WhitesLength),
-
 	% 2nd restriction - as células da mesma cor devem estar em bloco
 	transpose(RetBoard, FlippedBoard),
-	verifyBlockWhite(RetBoard, Whites),
-	verifyBlock(FlippedBoard, Blacks),
-	
+	%verifyBlockWhite(RetBoard, Whites),
+	%verifyBlock(FlippedBoard, Blacks),
 
 	% 3rd restriction - cada linha deve ter um determinado número de blocos das duas cores
 	%verifyHead(FlippedBoard,Blacks,BlacksLength),
-	restrict_rowsWhite(RetBoard, Whites),
-	restrict_rows(FlippedBoard, Blacks),
 
+	restrict_rows(FlippedBoard, Blacks),
+	restrict_rowsWhite(RetBoard, Whites),
 	%verifyHeadWhite(RetBoard,Whites,WhitesLength),
 
-	
-	%r
-
 	%4th restriction - os quadrados brancos devem formar regiões com área igual
-	%verifyFirst(RetBoard),
+	%verify_areas(RetBoard, BlacksLength),
 
 	% calcula tempo decorrido até inicialização das restrições do problema
 	statistics(walltime, [W1|_]),
 	statistics(runtime, [T1|_]),
 
-	% executa predicado de pesquisa com as definições default
+	% executa predicado de pesquisa com as opções passadas como argumento
 	labeling(Options,ResultingBoard),
 
 	% calcula tempo decorrido até finalização do predicado de labeling
@@ -315,6 +318,56 @@ solution(Blacks,Whites,Options):-
 	format('Initializing constraints took a total of ~3d sec.~n', [ConstraintWall]),
 	format('Labeling took CPU ~3d sec.~n', [LabelingTime]),
 	format('Labeling took a total of ~3d sec.~n~n', [LabelingWall]),
-	
+
 	printBoard(RetBoard,Blacks,Whites),
+	fd_statistics.
+
+solution(Blacks, Whites, Options):-
+
+	length(Blacks, BlacksLength),
+	length(Whites, WhitesLength),
+
+	make_grid(RetBoard, BlacksLength, WhitesLength),
+	flatten(RetBoard, ResultingBoard),
+	transpose(RetBoard, FlippedBoard),
+	domain(ResultingBoard, 0, 1),
+
+	write('\nDumping previous statistics...\n'),
+
+	fd_statistics,
+	statistics(walltime, [W0|_]),
+	statistics(runtime, [T0|_]),
+
+	%1st restriction - the row has the correct number of squares(black or white)
+	verifyColumnSizes(Blacks, BlacksLength),
+	verifyColumnSizes(Whites, WhitesLength),
+
+	fast_restrict_rows(FlippedBoard, Blacks),
+	fast_restrict_rowsWhite(RetBoard, Whites),
+	global_testEqual2(FlippedBoard, 1, Blacks),
+	global_testEqual2(RetBoard, 0, Whites),
+
+	% calcula tempo decorrido até inicialização das restrições do problema
+	statistics(walltime, [W1|_]),
+	statistics(runtime, [T1|_]),
+
+	% executa predicado de pesquisa com as opções passadas como argumento
+	labeling(Options,ResultingBoard),
+
+	% calcula tempo decorrido até finalização do predicado de labeling
+	statistics(walltime, [W2|_]),
+	statistics(runtime, [T2|_]),
+
+	% calcula intervalos de tempo entre as várias queries
+	ConstraintTime is T1 - T0,
+	ConstraintWall is W1 - W0,
+	LabelingTime is T2 - T1,
+	LabelingWall is W2 - W1,
+
+	format('~nInitializing constraints took CPU ~3d sec.~n', [ConstraintTime]),
+	format('Initializing constraints took a total of ~3d sec.~n', [ConstraintWall]),
+	format('Labeling took CPU ~3d sec.~n', [LabelingTime]),
+	format('Labeling took a total of ~3d sec.~n~n', [LabelingWall]),
+
+	printBoard(RetBoard, Blacks, Whites),
 	fd_statistics.
