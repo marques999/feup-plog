@@ -191,34 +191,33 @@ gen(Width, Height, Black2, White2):-
 	!,
 	genHints(Width, Height, Black, White, Black2, White2),
 	!.
-	
-genHints(Width, Height, Black, White, Black2, White2):-	
+
+genHints(Width, Height, Black, White, Black2, White2):-
 	W #= Width//3,
 	W #> 1,
-	H #= Height//3,	
-	H #> 1,		
+	H #= Height//3,
+	H #> 1,
 	random(1, W, N1),
-	eraseRandom(N1, Black, Black2),	
-	random(1, H, N2),	
+	eraseRandom(N1, Black, Black2),
+	random(1, H, N2),
 	eraseRandom(N2, White, White2).
-	
-genHints(Width, Height, Black, White, Black2, White2):-	
+
+genHints(Width, Height, Black, White, Black2, White2):-
 	W #= Width//3,
-	W #=< 1,	
-	H #= Height//3,	
-	H #> 1,	
-	eraseRandom(W, Black, Black2),		
-	random(1, H, N2),	
+	W #=< 1,
+	H #= Height//3,
+	H #> 1,
+	eraseRandom(W, Black, Black2),
+	random(1, H, N2),
 	eraseRandom(N2, White, White2).
-	
-genHints(Width, Height, Black, White, Black2, White2):-	
+
+genHints(Width, Height, Black, White, Black2, White2):-
 	W #= Width//3,
-	W #=< 1,	
-	H #= Height//3,	
+	W #=< 1,
+	H #= Height//3,
 	H #=< 1,
-	eraseRandom(W, Black, Black2),				
+	eraseRandom(W, Black, Black2),
 	eraseRandom(H, White, White2).
-	
 
 eraseRandom(0, R, R).
 eraseRandom(N, List, Res):-
@@ -227,23 +226,22 @@ eraseRandom(N, List, Res):-
 	delRandom(A, List, 1, Res2),
 	N1 #= N - 1,
 	eraseRandom(N1, Res2, Res).
-	
 
-delRandom(X,[T|H], X, [R|H]):- 
+delRandom(X,[T|H], X, [R|H]):-
 	length(T, Upper),
 	Upper #> 1,
 	random(1, Upper, B),
 	nth1(B, T, _, R),
-	!.  	
-	
-delRandom(X,[T|H], X, [R|H]):- 
+	!.
+
+delRandom(X,[T|H], X, [R|H]):-
 	length(T, Upper),
-	Upper #= 1,	
+	Upper #= 1,
 	nth1(Upper, T, _, R),
-	!.  
-	
-delRandom(X,[T|H], X, [T|H]):-!.  		
-	
+	!.
+
+delRandom(X,[T|H], X, [T|H]):-!.
+
 delRandom(X,[Y|Tail], Aux, [Y|Tail1]):-
 	Aux1 #= Aux + 1,
 	delRandom(X, Tail, Aux1, Tail1).

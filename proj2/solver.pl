@@ -96,35 +96,35 @@ verify_area(Flatten, Length, Whites, Count):-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 flood_fill(List, Length, Position, Color, Count, PrevExpl):-
-        assert(global([])),
-        flood_fillAux(List, Length, Position, Color, Count),
-        global(PrevExpl),
-        retract(global(PrevExpl)).
- 
+		assert(global([])),
+		flood_fillAux(List, Length, Position, Color, Count),
+		global(PrevExpl),
+		retract(global(PrevExpl)).
+
 flood_fillAux(List, Length, Position, Color, Res):-
-       
-        Position #> 0,
-        length(List, L),
-        Position #< L + 1,
-       
-        element(Position, List, Color),
-        global(PrevExpl),
-        \+member(Position, PrevExpl),
-        append(PrevExpl, [Position], CurrExpl),
-        retract(global(PrevExpl)),
-        assert(global(CurrExpl)),
- 
-        Position1 #= Position + 1,
-        Position2 #= Position - 1,
-        Position3 #= Position + Length,
-        Position4 #= Position - Length,
- 
-        flood_fillAux(List, Length, Position1, Color, Res1),
-        flood_fillAux(List, Length, Position2, Color, Res2),
-        flood_fillAux(List, Length, Position3, Color, Res3),
-        flood_fillAux(List, Length, Position4, Color, Res4),
-        Res #= Res1 + Res2 + Res3 + Res4 + 1.
- 
+
+		Position #> 0,
+		length(List, L),
+		Position #< L + 1,
+
+		element(Position, List, Color),
+		global(PrevExpl),
+		\+member(Position, PrevExpl),
+		append(PrevExpl, [Position], CurrExpl),
+		retract(global(PrevExpl)),
+		assert(global(CurrExpl)),
+
+		Position1 #= Position + 1,
+		Position2 #= Position - 1,
+		Position3 #= Position + Length,
+		Position4 #= Position - Length,
+
+		flood_fillAux(List, Length, Position1, Color, Res1),
+		flood_fillAux(List, Length, Position2, Color, Res2),
+		flood_fillAux(List, Length, Position3, Color, Res3),
+		flood_fillAux(List, Length, Position4, Color, Res4),
+		Res #= Res1 + Res2 + Res3 + Res4 + 1.
+
 flood_fillAux(_, _, _, _, 0).
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -134,23 +134,23 @@ global_testEqual2([H1|T1], Color, [H2|T2]):-
 	count2(H1, Color, R1),
 	listsAreEqual2(H2, R1),
 	global_testEqual2(T1, Color, T2).
-		
+
 count2(List, Color, Res):-
 	countAux2(List, Color, 0, Res).
 
 countAux2([], _, Aux, List):-
 	addToListExceptZero2(Aux, [], List).
-		
+
 countAux2([H|T], Color, Aux, List):-
-	H #= Color,		
-	Aux1 #= Aux + 1,			
+	H #= Color,
+	Aux1 #= Aux + 1,
 	countAux2(T, Color, Aux1, List).
-	
+
 countAux2([H|T], Color, Aux, List):-
-	H #\= Color,	
-	countAux2(T, Color, 0, List2),	
+	H #\= Color,
+	countAux2(T, Color, 0, List2),
 	addToListExceptZero2(Aux,List2,List).
-	
+
 addToListExceptZero2(Elem, List, Res):-
 	Elem #\= 0,
 	append([Elem],List,Res).
@@ -158,15 +158,15 @@ addToListExceptZero2(Elem, List, Res):-
 addToListExceptZero2(0, List, List).
 
 listsAreEqual2([],_).
-listsAreEqual2([H|T],List2):- 
+listsAreEqual2([H|T],List2):-
 	member(H, List2),
-	del2(H,List2,L2Res),	
+	del2(H,List2,L2Res),
 	listsAreEqual2(T,L2Res).
-	
-del2(X,[X|Tail],Tail).    
+
+del2(X,[X|Tail],Tail).
 del2(X,[Y|Tail],[Y|Tail1]):-
 	del2(X,Tail,Tail1).
-       
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 create_transitions([], [], FinalState, FinalState,_).
